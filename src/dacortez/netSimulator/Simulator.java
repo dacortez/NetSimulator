@@ -1,10 +1,10 @@
 package dacortez.netSimulator;
 
-import java.io.File;
+import dacortez.netSimulator.parser.Parser;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2012.10.21
  */
 public class Simulator {
 
@@ -13,17 +13,7 @@ public class Simulator {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada>");
 			return;
 		}
-		File input = new File(args[0]);
-		if (!input.exists()) {
-			System.out.println("Arquivo de entrada não encontrado.");
-			return;
-		}
-		parseInputFile(input);
-	}
-
-	private static void parseInputFile(File input) {
-		Parser parser = new Parser(input);
+		Parser parser = new Parser(args[0]);
 		parser.parse();
-		//Simulator sim = new Simulator();	
 	}
 }

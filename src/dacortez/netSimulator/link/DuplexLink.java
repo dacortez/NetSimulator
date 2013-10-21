@@ -30,4 +30,9 @@ public class DuplexLink {
 		this.capacity = capacity;
 		this.delay = delay;
 	}
+	
+	@Override
+	public String toString() {
+		return "(" + delay + "Mbps, " + capacity + "ms)";
+	}
 }

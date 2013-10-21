@@ -1,4 +1,7 @@
-package dacortez.netSimulator;
+package dacortez.netSimulator.application;
+
+import dacortez.netSimulator.Interface;
+import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -41,18 +44,24 @@ public class Host {
 	public void setDnsServerIp(Ip dnsServerIp) {
 		this.dnsServerIp = dnsServerIp;
 	}
-		
+	
 	public Host() {
 	}
-
+		
 	public Host(String name) {
 		this.name = name;
+		iface = new Interface();
 	}
 	
-	protected void attach(Host host) {
+	public void attach(Host host) {
 		name = host.getName();
 		iface = host.getInterface();
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

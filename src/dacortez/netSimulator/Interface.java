@@ -2,6 +2,10 @@ package dacortez.netSimulator;
 
 import dacortez.netSimulator.link.DuplexLink;
 
+/**
+ * @author dacortez (dacortez79@gmail.com)
+ * @version 2012.10.20
+ */
 public class Interface {
 	// Endereço IP da interface.
 	protected Ip ip;
@@ -22,5 +26,10 @@ public class Interface {
 
 	public void setLink(DuplexLink link) {
 		this.link = link;
+	}
+	
+	@Override
+	public String toString() {
+		return ip.toString();
 	}
 }

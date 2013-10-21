@@ -10,8 +10,8 @@ import java.util.List;
 public class Router {
 	// Nome do roteador.
 	private String name;
-	// Número de interfaces do roteadror.
-	private int numberOfInterfaces; 
+	// Número total de interfaces do roteadror.
+	private int totalInterfaces; 
 	// Lista de interfaces do roteador.
 	private List<RouterInterface> interfaces;
 	// Tempo em para processar um pacote em us.
@@ -21,8 +21,8 @@ public class Router {
 		return name;
 	}
 
-	public int getNumberOfInterfaces() {
-		return numberOfInterfaces;
+	public int getTotalInterfaces() {
+		return totalInterfaces;
 	}
 
 	public List<RouterInterface> getInterfaces() {
@@ -37,9 +37,22 @@ public class Router {
 		this.processingTime = processingTime;
 	}
 	
-	public Router(String name, int numberOfInterfaces) {
+	public Router(String name, int totalInterfaces) {
 		this.name = name;
-		this.numberOfInterfaces = numberOfInterfaces;
-		interfaces = new ArrayList<RouterInterface>(numberOfInterfaces);
+		this.totalInterfaces = totalInterfaces;
+		interfaces = new ArrayList<RouterInterface>(totalInterfaces);
+		for (int port = 0; port < totalInterfaces; port++) {
+			RouterInterface iface = new RouterInterface(port);
+			interfaces.add(port, iface);
+		}
+	}
+	
+	public RouterInterface getInterface(int port) {
+		return interfaces.get(port);
+	}
+	
+	@Override
+	public String toString() {
+		return name + " (" + totalInterfaces + ")";
 	}
 }

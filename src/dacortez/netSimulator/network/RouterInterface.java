@@ -8,7 +8,7 @@ import dacortez.netSimulator.Interface;
  */
 public class RouterInterface extends Interface {
 	// O número da porta da inteface do roteador.
-	private int port;
+	private Integer port;
 	// Tamanho da fila em quantidade de pacotes.
 	private int queueSize;
 	
@@ -24,8 +24,13 @@ public class RouterInterface extends Interface {
 		this.queueSize = queueSize;
 	}
 		
-	public RouterInterface(int port) {
+	public RouterInterface(Integer port) {
 		super();
 		this.port = port;
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + ip.toString() + ":" + port.toString() + ", " + queueSize + ")"; 
 	}
 }

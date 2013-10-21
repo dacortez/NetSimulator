@@ -1,6 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.Host;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -17,5 +16,10 @@ public class DnsServer extends Host {
 	public DnsServer(String serverName) {
 		super();
 		this.serverName = serverName;
+	}
+	
+	@Override
+	public String toString() {
+		return serverName;
 	}
 }

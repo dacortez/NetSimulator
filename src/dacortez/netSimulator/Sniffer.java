@@ -44,4 +44,9 @@ public class Sniffer {
 	public Sniffer(String name) {
 		this.name = name;
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

@@ -33,4 +33,9 @@ public class Ip {
 			}
 		bytes[k++] = Integer.parseInt(address.substring(j));
 	}
+	
+	@Override
+	public String toString() {
+		return address;
+	}
 }

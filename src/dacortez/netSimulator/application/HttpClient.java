@@ -1,6 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.Host;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -17,5 +16,10 @@ public class HttpClient extends Host {
 	public HttpClient(String clientName) {
 		super();
 		this.clientName = clientName;
+	}
+	
+	@Override
+	public String toString() {
+		return clientName;
 	}
 }

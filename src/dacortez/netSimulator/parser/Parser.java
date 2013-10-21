@@ -2,7 +2,6 @@ package dacortez.netSimulator.parser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +17,7 @@ import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
 import dacortez.netSimulator.link.DuplexLink;
 import dacortez.netSimulator.network.Router;
+import dacortez.netSimulator.network.RouterInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -89,15 +89,17 @@ public class Parser {
 	
 	public boolean parse() {
 		clearCollections();
+		String line = null;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line;
 			while ((line = reader.readLine()) != null)
 				parseLine(line);
 			reader.close();
 			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("Ocorreu um erro na tradução do arquivo de entrada: " + e.getMessage());
+			System.out.println("O problema ocorreu na linha: " + line);
+			System.out.println("Não será possível realizar a simulação.");
 			return false;
 		}
 	}
@@ -193,7 +195,7 @@ public class Parser {
 		String name = match.group(1);
 		Host host = new Host(name);
 		hosts.put(name, host);
-		System.out.println("[Criado host " + host + "]");
+		System.out.println("[Criado host: " + name + "]");
 	}
 	
 	private void setRouter(Matcher match) {
@@ -201,14 +203,15 @@ public class Parser {
 		Integer totalInterfaces = Integer.parseInt(match.group(2)); 
 		Router router = new Router(name, totalInterfaces);
 		routers.put(name, router);
-		System.out.println("[Criado router " + router + "]");
+		System.out.println("[Criado roteador: " + name + "]");
 	}
 	
 	private void setDuplexLink(Matcher match) {
 		Double capacity = Double.parseDouble(match.group(5));
 		Double delay = Double.parseDouble(match.group(6));
 		DuplexLink link = new DuplexLink(capacity, delay);
-		System.out.println("[Criado duplex-link " + link + "]");
+		links.add(link);
+		System.out.println("[Criado duplex-link: " + link + "]");
 		setInterfaceLink(match.group(1), match.group(2), link);
 		setInterfaceLink(match.group(3), match.group(4), link);
 	}
@@ -218,12 +221,12 @@ public class Parser {
 			Router router = routers.get(name);
 			Integer port = Integer.parseInt(portString);
 			router.getInterface(port).setLink(link);
-			System.out.println("[Associa link " + link + " à porta " + port + " do router " + router + "]");
+			System.out.println("[Associado link " + link + " à porta " + port + " do roteador " + name + "]");
 		}
 		else {
 			Host host = hosts.get(name);
 			host.getInterface().setLink(link);
-			System.out.println("[Associa link " + link + " ao host " + host + "]");
+			System.out.println("[Associado link " + link + " ao host " + name + "]");
 		}
 	}
 	
@@ -236,7 +239,7 @@ public class Parser {
 		host.getInterface().setIp(ip);
 		host.setStandardRouterIp(standardRouterIp);
 		host.setDnsServerIp(dnsServerIp);
-		System.out.println("[IPs do host " + host + ": " + ip + " " + standardRouterIp + " " + dnsServerIp + "]");
+		System.out.println("[Configurado IPs do host " + name + ": " + ip + ", " + standardRouterIp + ", " + dnsServerIp + "]");
 	}
 	
 	private void setRouterIps(Matcher match) {
@@ -247,7 +250,7 @@ public class Parser {
 			Integer port = Integer.parseInt(portIp[i]);
 			Ip ip = new Ip(portIp[i + 1]);
 			router.getInterface(port).setIp(ip); 
-			System.out.println("[IP da porta " + port + " do router " + router + " configurado: " + ip + "]");
+			System.out.println("[Configurado IP da porta " + port + " do roteador " + name + ": " + ip + "]");
 		}
 	}
 	
@@ -257,12 +260,12 @@ public class Parser {
 		String[] queues = match.group(3).split("\\s+");
 		Router router = routers.get(name);
 		router.setProcessingTime(processingTime);
-		System.out.println("[Tempo de processamento do router " + router + " configurado: " + router.getProcessingTime() + "]");
+		System.out.println("[Configurado tempo de processamento do roteador " + name + ": " + processingTime + "us]");
 		for (int i = 0; i < queues.length; i += 2) {
 			Integer port = Integer.parseInt(queues[i]);
 			Integer queueSize = Integer.parseInt(queues[i + 1]);
 			router.getInterface(port).setQueueSize(queueSize); 
-			System.out.println("[Interface do router " + router + " configurada: " + router.getInterface(port) + "]");
+			System.out.println("[Configurado tamanha da fila da porta " + port + " do roteador " + name + ": " + queueSize + "]");
 		}
 	}
 	
@@ -270,21 +273,21 @@ public class Parser {
 		String name = match.group(1);
 		HttpClient client = new HttpClient(name);
 		httpClients.put(name, client);
-		System.out.println("[Criado HTTP client " + client + "]");
+		System.out.println("[Criado cliente HTTP: " + name + "]");
 	}
 	
 	private void setHttpServer(Matcher match) {
 		String name = match.group(1);
 		HttpServer server = new HttpServer(name);
 		httpServers.put(name, server);
-		System.out.println("[Criado HTTP server " + server + "]");
+		System.out.println("[Criado servidor HTTP: " + name + "]");
 	}
 
 	private void setDnsServer(Matcher match) {
 		String name = match.group(1);
 		DnsServer server = new DnsServer(name);
 		dnsServers.put(name, server);
-		System.out.println("[Criado DNS server " + server + "]");
+		System.out.println("[Criado servidor DNS: " + name + "]");
 	}
 	
 	private void attachAgent(Matcher match) {
@@ -293,15 +296,15 @@ public class Parser {
 		Host host = hosts.get(hostName);
 		if (httpClients.get(agentName) != null) {
 			httpClients.get(agentName).attach(host);
-			System.out.println("[HTTP client " + agentName + " vinculado ao host " + hostName + "]");
+			System.out.println("[Cliente HTTP " + agentName + " vinculado ao host " + hostName + "]");
 		}
 		else if (httpServers.get(agentName) != null) {
 			httpServers.get(agentName).attach(host);
-			System.out.println("[HTTP server " + agentName + " vinculado ao host " + hostName + "]");
+			System.out.println("[Servidor HTTP " + agentName + " vinculado ao host " + hostName + "]");
 		}
 		else if (dnsServers.get(agentName) != null) {
 			dnsServers.get(agentName).attach(host);
-			System.out.println("[DNS server " + agentName + " vinculado ao host " + hostName + "]");
+			System.out.println("[Servidor DNS " + agentName + " vinculado ao host " + hostName + "]");
 		}
 	}
 	
@@ -309,7 +312,7 @@ public class Parser {
 		String name = match.group(1);
 		Sniffer sniffer = new Sniffer(name);
 		sniffers.put(name, sniffer);
-		System.out.println("[Criado sniffer " + sniffer + "]");
+		System.out.println("[Criado sniffer: " + name + "]");
 	}
 	
 	private void attachSniffer(Matcher match) {
@@ -319,10 +322,20 @@ public class Parser {
 		Interface point2 = getInterface(match.group(4), match.group(5));
 		Sniffer sniffer = sniffers.get(name);
 		sniffer.setPoint1(point1);
-		sniffer.setPoint1(point2);
+		sniffer.setPoint2(point2);
 		sniffer.setFile(file);
-		System.out.println("[Sniffer " + name + " configurado entre " + point1 + " e " + point2 + "]");
-		System.out.println("[Saída do sniffer " + name + ": " + file + "]");
+		String p1 = getIpAndPort(point1);
+		String p2 = getIpAndPort(point2);
+		System.out.println("[Sniffer " + name + " configurado entre " + p1 + " e " + p2 + "]");
+		System.out.println("[Configurado arquivo de saída do sniffer " + name + ": " + file + "]");
+	}
+	
+	private String getIpAndPort(Interface iface) {
+		if (iface instanceof RouterInterface) {
+			RouterInterface ri = (RouterInterface) iface;
+			return ri.getIp() + ":" + ri.getPort();
+		}
+		return iface.getIp().toString();
 	}
 	
 	private Interface getInterface(String name, String portString) {
@@ -339,6 +352,49 @@ public class Parser {
 		Double time = Double.parseDouble(match.group(1));
 		String action = match.group(2);
 		Event event = new Event(time, action);
+		events.add(event);
 		System.out.println("[Adicionado evento: " + event + "]");
+	}
+	
+	public void printHosts() {
+		System.out.println("------------ Lista de Hosts ------------");
+		for (Host host: hosts.values())
+			System.out.println(host);
+	}
+	
+	public void printDnsServers() {
+		System.out.println("------------ Lista de Servidores DNS ------------");
+		for (DnsServer dnsServer: dnsServers.values())
+			System.out.println(dnsServer);
+	}
+	
+	public void printHttpServers() {
+		System.out.println("------------ Lista de Servidores HTTP ------------");
+		for (HttpServer httpServer: httpServers.values())
+			System.out.println(httpServer);
+	}
+	
+	public void printHttpClients() {
+		System.out.println("------------ Lista de Clientes HTTP ------------");
+		for (HttpClient httpClient: httpClients.values())
+			System.out.println(httpClient);
+	}
+	
+	public void printRouters() {
+		System.out.println("------------ Lista de Roteadores ------------");
+		for (Router router: routers.values())
+			System.out.println(router);
+	}
+	
+	public void printLinks() {
+		System.out.println("----------- Lista de Duplex-Links ------------");
+		for (DuplexLink link: links)
+			System.out.println(link);
+	}
+	
+	public void printEvents() {
+		System.out.println("------------ Lista de Eventos ------------");
+		for (Event event: events)
+			System.out.println(event);
 	}
 }

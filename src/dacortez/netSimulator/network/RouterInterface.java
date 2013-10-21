@@ -12,7 +12,7 @@ public class RouterInterface extends Interface {
 	// Tamanho da fila em quantidade de pacotes.
 	private int queueSize;
 	
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 	
@@ -31,6 +31,6 @@ public class RouterInterface extends Interface {
 	
 	@Override
 	public String toString() {
-		return "(" + ip.toString() + ":" + port.toString() + ", " + queueSize + ")"; 
+		return "(" + ip + ":" + port + ", " + queueSize + ") => " + link; 
 	}
 }

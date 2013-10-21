@@ -62,6 +62,6 @@ public class Host {
 	
 	@Override
 	public String toString() {
-		return name;
+		return name + ": (" + iface + ", " + standardRouterIp + ", " + dnsServerIp + ")";
 	}
 }

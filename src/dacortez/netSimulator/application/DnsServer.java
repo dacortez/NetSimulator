@@ -20,6 +20,6 @@ public class DnsServer extends Host {
 	
 	@Override
 	public String toString() {
-		return serverName;
+		return serverName + " <- " + super.toString();
 	}
 }

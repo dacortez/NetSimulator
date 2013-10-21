@@ -5,9 +5,9 @@ package dacortez.netSimulator;
  * @version 2012.10.21
  */
 public class Event {
-	// Instante real a ser disparado evento. 
+	// Instante real quando será disparado o evento. 
 	private double time;
-	// Ação a ser disparada pelo evento.
+	// Descrição da ação a ser disparada pelo evento.
 	private String action;
 	
 	public double getTime() {

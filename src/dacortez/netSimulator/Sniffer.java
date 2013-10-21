@@ -9,7 +9,7 @@ public class Sniffer {
 	private String name;
 	// Nome do arquivo de saída.
 	private String file;
-	// Pontos entre os quais o sniffer fará o monitoramento da rede.
+	// Interfaces entre os quais o sniffer fará o monitoramento da rede.
 	private Interface point1; 
 	private Interface point2;
 
@@ -47,6 +47,6 @@ public class Sniffer {
 	
 	@Override
 	public String toString() {
-		return name;
+		return name + ": [" + point1 + ", " + point2 + "] >> '" + file + "'";
 	}
 }

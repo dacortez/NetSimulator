@@ -30,6 +30,6 @@ public class Interface {
 	
 	@Override
 	public String toString() {
-		return ip.toString();
+		return ip + " => " + link;
 	}
 }

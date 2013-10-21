@@ -20,6 +20,6 @@ public class HttpClient extends Host {
 	
 	@Override
 	public String toString() {
-		return clientName;
+		return clientName + " <- " + super.toString();
 	}
 }

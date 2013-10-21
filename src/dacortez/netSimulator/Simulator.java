@@ -14,6 +14,14 @@ public class Simulator {
 			return;
 		}
 		Parser parser = new Parser(args[0]);
-		parser.parse();
+		if (parser.parse()) {
+			parser.printLinks();
+			parser.printHosts();
+			parser.printDnsServers();
+			parser.printHttpServers();
+			parser.printHttpClients();
+			parser.printRouters();
+			parser.printEvents();
+		}
 	}
 }

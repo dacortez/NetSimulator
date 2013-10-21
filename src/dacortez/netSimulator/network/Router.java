@@ -53,6 +53,10 @@ public class Router {
 	
 	@Override
 	public String toString() {
-		return name + " (" + totalInterfaces + ")";
+		StringBuilder sb = new StringBuilder();
+		sb.append(name).append(": ").append(processingTime).append("us; ");
+		for (RouterInterface ri: interfaces)
+			sb.append(ri).append(", ");
+		return sb.toString().substring(0, sb.length() - 2);
 	}
 }

@@ -1,7 +1,10 @@
 package dacortez.netSimulator.network;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -16,6 +19,10 @@ public class Router {
 	private List<RouterInterface> interfaces;
 	// Tempo em para processar um pacote em us.
 	private double processingTime; 
+	// Rotas que apontam para uma porta.
+	private HashMap<Ip, Integer> portForIp;
+	// Rotas que apontam para outro roteador.
+	private HashMap<Ip, Ip> ipForIp;
 	
 	public String getName() {
 		return name;
@@ -45,18 +52,45 @@ public class Router {
 			RouterInterface iface = new RouterInterface(port);
 			interfaces.add(port, iface);
 		}
+		portForIp = new HashMap<Ip, Integer>();
+		ipForIp = new HashMap<Ip, Ip>();
 	}
 	
 	public RouterInterface getInterface(int port) {
 		return interfaces.get(port);
 	}
 	
+	public void addRoute(Ip from, Integer to) {
+		portForIp.put(from, to);
+	}
+	
+	public void addRoute(Ip from, Ip to) {
+		ipForIp.put(from, to);
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(name).append(": ").append(processingTime).append("us; ");
+		sb.append(name).append(": ").append(processingTime).append("us\n");
+		appendInterfaces(sb);
+		appendRoutes(sb);
+		return sb.toString();
+	}
+
+	private void appendInterfaces(StringBuilder sb) {
+		sb.append("+ Interfaces: ");
 		for (RouterInterface ri: interfaces)
 			sb.append(ri).append(", ");
-		return sb.toString().substring(0, sb.length() - 2);
+		sb.deleteCharAt(sb.length() - 2);
+		sb.append('\n');
+	}
+	
+	private void appendRoutes(StringBuilder sb) {
+		sb.append("+ Rotas: ");
+		for (Ip from: portForIp.keySet())
+			sb.append(from).append(" > ").append(portForIp.get(from)).append(", ");
+		for (Ip from: ipForIp.keySet())
+			sb.append(from).append(" > ").append(ipForIp.get(from)).append(", ");
+		sb.deleteCharAt(sb.length() - 2);
 	}
 }

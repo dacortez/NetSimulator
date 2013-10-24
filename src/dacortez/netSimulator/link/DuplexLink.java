@@ -33,6 +33,6 @@ public class DuplexLink {
 	
 	@Override
 	public String toString() {
-		return "(" + delay + "Mbps, " + capacity + "ms)";
+		return "[" + delay + "Mbps, " + capacity + "ms]";
 	}
 }

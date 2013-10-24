@@ -22,6 +22,10 @@ public class Regex {
 	// $simulator $r0 0 10.0.0.2 1 10.1.1.2 2 192.168.3.3
 	public static final Pattern ROUTER_IPS = Pattern.compile("\\$simulator\\s+\\$(\\w+)\\s+((?:\\d+\\s+\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\s*)+)");
 	
+	// $simulator $r0 route 10.0.0.0 0 10.1.1.0 1 192.168.3.0 2 192.168.2.0 192.168.3.4 192.168.1.0 192.168.3.4
+	// public static final Pattern ROUTER_ROUTE = Pattern.compile("\\$simulator\\s+\\$(\\w+)\\s+route\\s+([\\d. ]+)");
+	public static final Pattern ROUTER_ROUTE = Pattern.compile("\\$simulator\\s+\\$(\\w+)\\s+route\\s+((?:\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\s+(?:\\d+|(?:\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}))(?:\\s+|$))+)");
+	
 	// $simulator $r0 performance 100us 0 1000 1 1000 2 1000
 	public static final Pattern ROUTER_PERFORMANCE = Pattern.compile("\\$simulator\\s+\\$(\\w+)\\s+performance\\s+([\\d.]+)us\\s+((?:\\d+\\s*)+)");
 

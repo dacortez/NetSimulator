@@ -146,6 +146,11 @@ public class Parser {
 			setRouterIps(match);			
 			return;
 		}
+		match = Regex.ROUTER_ROUTE.matcher(line);
+		if (match.find()) {
+			setRouterRoute(match);			
+			return;
+		}
 		match = Regex.ROUTER_PERFORMANCE.matcher(line);
 		if (match.find()) {
 			setRouterPerformance(match);			
@@ -251,6 +256,25 @@ public class Parser {
 			Ip ip = new Ip(portIp[i + 1]);
 			router.getInterface(port).setIp(ip); 
 			System.out.println("[Configurado IP da porta " + port + " do roteador " + name + ": " + ip + "]");
+		}
+	}
+	
+	private void setRouterRoute(Matcher match) {
+		String name = match.group(1);
+		String route[] = match.group(2).split("\\s+");
+		Router router = routers.get(name);
+		for (int i = 0; i < route.length; i += 2) {
+			Ip from = new Ip(route[i]);
+			if (route[i + 1].contains(".")) {
+				Ip to = new Ip(route[i + 1]);
+				router.addRoute(from, to);
+				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + to + "]");
+			}
+			else {
+				Integer to = Integer.parseInt(route[i + 1]);
+				router.addRoute(from, to);
+				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + to + "]");
+			}
 		}
 	}
 	

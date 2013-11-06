@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import dacortez.netSimulator.Event;
+import dacortez.netSimulator.SimEvent;
 import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Sniffer;
@@ -41,7 +41,7 @@ public class Parser {
 	// HashMap de sniffers instanciados durante o parseamento.
 	private HashMap<String, Sniffer> sniffers;
 	// Lista dos eventos a serem processados pelo simulador.
-	private List<Event> events;
+	private List<SimEvent> simEvents;
 
 	public String getFile() {
 		return file;
@@ -71,8 +71,8 @@ public class Parser {
 		return sniffers;
 	}
 	
-	public List<Event> getEvents() {
-		return events;
+	public List<SimEvent> getSimEvents() {
+		return simEvents;
 	}
 	
 	public Parser(String file) {
@@ -84,7 +84,7 @@ public class Parser {
 		routers = new HashMap<String, Router>();
 		links = new ArrayList<DuplexLink>();
 		sniffers = new HashMap<String, Sniffer>();
-		events = new ArrayList<Event>();
+		simEvents = new ArrayList<SimEvent>();
 	}
 	
 	public boolean parse() {
@@ -112,16 +112,11 @@ public class Parser {
 		routers.clear();
 		links.clear();
 		sniffers.clear();
-		events.clear();
+		simEvents.clear();
 	}
 	
 	private void parseLine(String line) {
-		Matcher match = Regex.COMMENT.matcher(line);
-		if (match.find()) {
-			comment(match);
-			return;
-		}
-		match = Regex.SET_HOST.matcher(line);
+		Matcher match = Regex.SET_HOST.matcher(line);
 		if (match.find()) {
 			setHost(match);
 			return;
@@ -193,9 +188,6 @@ public class Parser {
 		}
 	}
 	
-	private void comment(Matcher match) {
-	}
-
 	private void setHost(Matcher match) {
 		String name = match.group(1);
 		Host host = new Host(name);
@@ -375,9 +367,9 @@ public class Parser {
 	private void simEvent(Matcher match) {
 		Double time = Double.parseDouble(match.group(1));
 		String action = match.group(2);
-		Event event = new Event(time, action);
-		events.add(event);
-		System.out.println("[Adicionado evento: " + event + "]");
+		SimEvent simEvent = new SimEvent(time, action);
+		simEvents.add(simEvent);
+		System.out.println("[Adicionado evento: " + simEvent + "]");
 	}
 	
 	public void printHosts() {
@@ -416,9 +408,9 @@ public class Parser {
 			System.out.println(link);
 	}
 	
-	public void printEvents() {
+	public void printSimEvents() {
 		System.out.println("------------ Lista de Eventos ------------");
-		for (Event event: events)
-			System.out.println(event);
+		for (SimEvent simEvent: simEvents)
+			System.out.println(simEvent);
 	}
 }

@@ -21,7 +21,7 @@ public class Simulator {
 			parser.printHttpServers();
 			parser.printHttpClients();
 			parser.printRouters();
-			parser.printEvents();
+			parser.printSimEvents();
 		}
 	}
 }

@@ -30,6 +30,11 @@ public class RouterInterface extends Interface {
 	}
 	
 	@Override
+	public void linkEventHandler(Interface sender, Datagram data) {
+		super.linkEventHandler(sender, data);
+	}
+	
+	@Override
 	public String toString() {
 		return "(" + ip + ":" + port + ", " + queueSize + ") => " + link; 
 	}

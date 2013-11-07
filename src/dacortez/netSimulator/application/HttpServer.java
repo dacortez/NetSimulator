@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.Interface;
+import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.transport.TcpProvider;
 
 
@@ -20,7 +22,17 @@ public class HttpServer extends Host {
 	public HttpServer(String serverName) {
 		super();
 		this.serverName = serverName;
-		tcpProvider = new TcpProvider();
+	}
+	
+	@Override
+	public void attach(Host host) {
+		super.attach(host);
+		tcpProvider = new TcpProvider(iface);
+	}
+	
+	@Override
+	public void networkEventHandler(Interface sender, Datagram data) {
+		// TODO	
 	}
 	
 	@Override

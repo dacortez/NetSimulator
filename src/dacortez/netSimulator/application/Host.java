@@ -65,7 +65,7 @@ public class Host implements NetworkEvent {
 	
 	@Override
 	public void networkEventHandler(Interface sender, Datagram data) {
-		// TODO Auto-generated method stub	
+		
 	}
 	
 	@Override

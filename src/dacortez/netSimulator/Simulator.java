@@ -1,5 +1,6 @@
 package dacortez.netSimulator;
 
+import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.parser.Parser;
 
 /**
@@ -7,14 +8,23 @@ import dacortez.netSimulator.parser.Parser;
  * @version 2012.11.07
  */
 public class Simulator {
+	// Objeto responsável pelo parser do arquivo de entrada da simulação.
+	private Parser parser;
 
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada>");
 			return;
 		}
-		Parser parser = new Parser(args[0]);
+		Simulator sim = new Simulator();
+		sim.simulate(args[0]);
+	}
+	
+	public void simulate(String file) {
+		parser = new Parser(file);
 		if (parser.parse())
 			parser.printElements();
+		HttpClient httpc1 = parser.getHttpClients().get("httpc1");
+		httpc1.test();
 	}
 }

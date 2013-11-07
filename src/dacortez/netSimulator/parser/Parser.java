@@ -359,6 +359,8 @@ public class Parser {
 		sniffer.setPoint1(point1);
 		sniffer.setPoint2(point2);
 		sniffer.setFile(file);
+		point1.addLinkEventListener(sniffer);
+		point2.addLinkEventListener(sniffer);
 		String p1 = getIpAndPort(point1);
 		String p2 = getIpAndPort(point2);
 		System.out.println("[Sniffer " + name + " configurado entre " + p1 + " e " + p2 + "]");
@@ -388,7 +390,9 @@ public class Parser {
 		printHttpServers();
 		printHttpClients();
 		printRouters();
+		printSniffers();
 		printSimEvents();
+		System.out.println();
 	}
 	
 	private void printLinks() {
@@ -425,6 +429,12 @@ public class Parser {
 		System.out.println("------------ Lista de Roteadores ------------");
 		for (Router router: routers.values())
 			System.out.println(router);
+	}
+	
+	private void printSniffers() {
+		System.out.println("------------ Lista de Sniffers ------------");
+		for (Sniffer sniffer: sniffers.values())
+			System.out.println(sniffer);
 	}
 	
 	private void printSimEvents() {

@@ -34,6 +34,12 @@ public class Ip {
 		bytes[k++] = Integer.parseInt(address.substring(j));
 	}
 	
+	public Ip subNetIp() { 
+		int k = address.lastIndexOf('.');
+		String subNet = address.substring(0, k) + ".0";
+		return new Ip(subNet);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

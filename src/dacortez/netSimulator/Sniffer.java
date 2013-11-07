@@ -28,16 +28,8 @@ public class Sniffer implements LinkEvent {
 		this.file = file;
 	}
 
-	public Interface getPoint1() {
-		return point1;
-	}
-
 	public void setPoint1(Interface point1) {
 		this.point1 = point1;
-	}
-
-	public Interface getPoint2() {
-		return point2;
 	}
 
 	public void setPoint2(Interface point2) {
@@ -50,7 +42,10 @@ public class Sniffer implements LinkEvent {
 	
 	@Override
 	public void linkEventHandler(Interface sender, Datagram data) {
-		// TODO Auto-generated method stub
+		System.out.println("Sniffer " + name + " capturou datagrama:");
+		System.out.println(data);
+		System.out.println("[FAZER SAÍDA EM ARQUIVO]");
+		System.out.println(); 
 	}
 	
 	@Override

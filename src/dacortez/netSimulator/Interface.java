@@ -50,6 +50,11 @@ public class Interface implements LinkEvent {
 		networkEventListeners.add(listener);
 	}
 	
+	public void send(Datagram data) {
+		for (LinkEvent listener: linkEventListeners)
+			listener.linkEventHandler(this, data);
+	}
+	
 	@Override
 	public void linkEventHandler(Interface sender, Datagram data) {
 		for (NetworkEvent listener: networkEventListeners)

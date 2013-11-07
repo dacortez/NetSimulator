@@ -22,7 +22,8 @@ public class Router implements NetworkEvent {
 	private double processingTime; 
 	// Rotas que apontam para uma porta.
 	private HashMap<Ip, Integer> portForIp;
-	// Rotas que apontam para outro roteador.
+	// TODO
+	// Rotas que apontam para outro roteador. (TIRAR ISSO E PRÉ-PROCESSAR)
 	private HashMap<Ip, Ip> ipForIp;
 	
 	public String getName() {
@@ -72,7 +73,23 @@ public class Router implements NetworkEvent {
 	
 	@Override
 	public void networkEventHandler(Interface sender, Datagram data) {
-		// TODO Auto-generated method stub	
+		System.out.println("Roteador " + name + " recebeu datagrama:");
+		System.out.println(data);
+		System.out.println("[ROTEANDO]");
+		RouterInterface ri = route(data.getDestinationIp());
+		if (ri != null) 
+			ri.send(data);
+	}
+	
+	private RouterInterface route(Ip destinationIp) {
+		Ip sub = destinationIp.subNetIp();
+		if (portForIp.containsKey(sub)) {
+			Integer port = portForIp.get(sub);
+			for (RouterInterface ri: interfaces)
+				if (ri.getPort() == port)
+					return ri;
+		}
+		return null;
 	}
 	
 	@Override

@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.Interface;
+import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.transport.TcpProvider;
 import dacortez.netSimulator.transport.UdpProvider;
 
@@ -12,7 +14,6 @@ public class HttpClient extends Host {
 	// Nome do cliente HTTP.
 	private String clientName;
 	// Provedor de serviços UDP (estaria no kernel do "SO").
-	@SuppressWarnings("unused")
 	private UdpProvider udpProvider;
 	// Provedor de serviços TCP (estaria no kernel do "SO").
 	@SuppressWarnings("unused")
@@ -25,8 +26,24 @@ public class HttpClient extends Host {
 	public HttpClient(String clientName) {
 		super();
 		this.clientName = clientName;
-		udpProvider = new UdpProvider();
-		tcpProvider = new TcpProvider();
+	}
+	
+	@Override
+	public void attach(Host host) {
+		super.attach(host);
+		udpProvider = new UdpProvider(iface);
+		tcpProvider = new TcpProvider(iface);
+	}
+	
+	// Método de teste preliminar.
+	public void test() {
+		Message message = new Message("Oi, mundo!");
+		udpProvider.send(message, 53, dnsServerIp);
+	}
+	
+	@Override
+	public void networkEventHandler(Interface sender, Datagram data) {
+		// TODO
 	}
 	
 	@Override

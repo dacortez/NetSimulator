@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.Interface;
+import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.transport.UdpProvider;
 
 
@@ -21,7 +23,17 @@ public class DnsServer extends Host {
 	public DnsServer(String serverName) {
 		super();
 		this.serverName = serverName;
-		udpProvider = new UdpProvider();
+	}
+	
+	@Override
+	public void attach(Host host) {
+		super.attach(host);
+		udpProvider = new UdpProvider(iface);
+	}
+	
+	@Override
+	public void networkEventHandler(Interface sender, Datagram data) {
+		// TODO
 	}
 	
 	@Override

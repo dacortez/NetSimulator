@@ -1,19 +1,17 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.network.Datagram;
-import dacortez.netSimulator.network.NetworkEvent;
+import dacortez.netSimulator.transport.HostInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2012.10.20
  */
-public class Host implements NetworkEvent {
+public class Host {
 	// Nome textual do hospedeiro.
 	protected String name;
 	// Interface do hospedeiro.
-	protected Interface iface;
+	protected HostInterface hostInterface;
 	// Endereço IP do roteador padrão associado.
 	protected Ip standardRouterIp;
 	// Endereço IP do servidor DNS associado.
@@ -23,12 +21,12 @@ public class Host implements NetworkEvent {
 		return name;
 	}
 	
-	public Interface getInterface() {
-		return iface;
+	public HostInterface getHostInterface() {
+		return hostInterface;
 	}
 
-	public void setInterface(Interface iface) {
-		this.iface = iface;
+	public void setHostInterface(HostInterface hostInterface) {
+		this.hostInterface = hostInterface;
 	}
 
 	public Ip getStandardRouterIp() {
@@ -52,24 +50,18 @@ public class Host implements NetworkEvent {
 		
 	public Host(String name) {
 		this.name = name;
-		iface = new Interface();
+		hostInterface = new HostInterface();
 	}
 	
 	public void attach(Host host) {
 		name = host.getName();
-		iface = host.getInterface();
-		iface.addNetworkEventListener(this);
+		hostInterface = host.getHostInterface();
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
 	}
 	
 	@Override
-	public void networkEventHandler(Interface sender, Datagram data) {
-		
-	}
-	
-	@Override
 	public String toString() {
-		return name + ": (" + iface + ", " + standardRouterIp + ", " + dnsServerIp + ")";
+		return name + ": (" + hostInterface + ", " + standardRouterIp + ", " + dnsServerIp + ")";
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
 
 /**
@@ -48,18 +47,18 @@ public class Router implements NetworkEvent {
 		this.totalInterfaces = totalInterfaces;
 		interfaces = new ArrayList<RouterInterface>(totalInterfaces);
 		for (int port = 0; port < totalInterfaces; port++) {
-			RouterInterface iface = new RouterInterface(port);
-			interfaces.add(port, iface);
-			iface.addNetworkEventListener(this);
+			RouterInterface routerInterface = new RouterInterface(port);
+			interfaces.add(port, routerInterface);
+			routerInterface.addNetworkEventListener(this);
 		}
 		routes = new HashMap<Ip, RouterInterface>();
 	}
 	
-	public RouterInterface getInterface(int port) {
+	public RouterInterface getRouterInterface(int port) {
 		return interfaces.get(port);
 	}
 	
-	public RouterInterface getInterface(Ip ip) {
+	public RouterInterface getRouterInterface(Ip ip) {
 		for (RouterInterface ri: interfaces) 
 			if (ri.getIp().equals(ip))
 				return ri;
@@ -75,12 +74,12 @@ public class Router implements NetworkEvent {
 	}
 	
 	@Override
-	public void networkEventHandler(Interface sender, Datagram data) {
+	public void networkEventHandler(Datagram data) {
 		System.out.println("Roteador " + name + " recebeu datagrama:");
 		System.out.println(data);
 		RouterInterface routedInterface = routes.get(data.getDestinationIp().subNetIp());
 		if (routedInterface != null) { 
-			System.out.println("[ROTEANDO PORTA " + routedInterface.getPort()  + "]\n");
+			System.out.println("[ROTEANDO PARA PORTA " + routedInterface.getPort()  + "]\n");
 			routedInterface.send(data);
 		}
 	}

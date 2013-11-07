@@ -1,5 +1,8 @@
 package dacortez.netSimulator.network;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dacortez.netSimulator.Interface;
 
 /**
@@ -11,6 +14,8 @@ public class RouterInterface extends Interface {
 	private Integer port;
 	// Tamanho da fila em quantidade de pacotes.
 	private int queueSize;
+	// Coleção de classes registradas ao evento NetworkEvent (roteadores).
+	private List<NetworkEvent> networkEventListeners;
 	
 	public Integer getPort() {
 		return port;
@@ -29,9 +34,19 @@ public class RouterInterface extends Interface {
 		this.port = port;
 	}
 	
+	public void addNetworkEventListener(NetworkEvent listener) {
+		if (networkEventListeners == null)
+			networkEventListeners = new ArrayList<NetworkEvent>();
+		networkEventListeners.add(listener);
+	}
+	
 	@Override
-	public void linkEventHandler(Interface sender, Datagram data) {
-		super.linkEventHandler(sender, data);
+	public void linkEventHandler(Datagram data) {
+		System.out.println("Interface do roteador recebeu datagrama:");
+		System.out.println(data);
+		System.out.println("[REPASSANDO DATAGRAMA PARA ROTEADOR]\n");
+		for (NetworkEvent listener: networkEventListeners)
+			listener.networkEventHandler(data);
 	}
 	
 	@Override

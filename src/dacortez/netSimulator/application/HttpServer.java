@@ -1,7 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.Interface;
-import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.transport.TcpProvider;
 
 
@@ -9,10 +7,10 @@ import dacortez.netSimulator.transport.TcpProvider;
  * @author dacortez (dacortez79@gmail.com)
  * @version 2012.11.07
  */
-public class HttpServer extends Host {
+public class HttpServer extends Host implements ApplicationEvent {
 	// Nome do servidor DNS.
 	private String serverName;
-	@SuppressWarnings("unused")
+	// Provedor de serviços TCP (estaria no kernel do "SO").
 	private TcpProvider tcpProvider;
 	
 	public String getServerName() {
@@ -27,11 +25,12 @@ public class HttpServer extends Host {
 	@Override
 	public void attach(Host host) {
 		super.attach(host);
-		tcpProvider = new TcpProvider(iface);
+		tcpProvider = new TcpProvider(hostInterface);
+		tcpProvider.addApplicationEventListener(this);
 	}
 	
 	@Override
-	public void networkEventHandler(Interface sender, Datagram data) {
+	public void applicationEventHandler(Message message) {
 		// TODO	
 	}
 	

@@ -219,12 +219,12 @@ public class Parser {
 		if (portString != null) {
 			Router router = routers.get(name);
 			Integer port = Integer.parseInt(portString);
-			router.getInterface(port).setLink(link);
+			router.getRouterInterface(port).setLink(link);
 			System.out.println("[Associado link " + link + " à porta " + port + " do roteador " + name + "]");
 		}
 		else {
 			Host host = hosts.get(name);
-			host.getInterface().setLink(link);
+			host.getHostInterface().setLink(link);
 			System.out.println("[Associado link " + link + " ao host " + name + "]");
 		}
 	}
@@ -240,10 +240,10 @@ public class Parser {
 		if (portString != null) {
 			Router router = routers.get(name);
 			Integer port = Integer.parseInt(portString);
-			return router.getInterface(port);
+			return router.getRouterInterface(port);
 		}
 		Host host = hosts.get(name);
-		return host.getInterface();
+		return host.getHostInterface();
 	}
 	
 	private void setHostIps(Matcher match) {
@@ -252,7 +252,7 @@ public class Parser {
 		Ip standardRouterIp = new Ip(match.group(3));
 		Ip dnsServerIp = new Ip(match.group(4));
 		Host host = hosts.get(name);
-		host.getInterface().setIp(ip);
+		host.getHostInterface().setIp(ip);
 		host.setStandardRouterIp(standardRouterIp);
 		host.setDnsServerIp(dnsServerIp);
 		System.out.println("[Configurado IPs do host " + name + ": " + ip + ", " + standardRouterIp + ", " + dnsServerIp + "]");
@@ -265,7 +265,7 @@ public class Parser {
 		for (int i = 0; i < portIp.length; i += 2) {
 			Integer port = Integer.parseInt(portIp[i]);
 			Ip ip = new Ip(portIp[i + 1]);
-			router.getInterface(port).setIp(ip); 
+			router.getRouterInterface(port).setIp(ip); 
 			System.out.println("[Configurado IP da porta " + port + " do roteador " + name + ": " + ip + "]");
 		}
 	}
@@ -292,7 +292,7 @@ public class Parser {
 	
 	private Integer getPortConnectedToIp(Router router, Ip to) {
 		for (Router other: routers.values()) {
-			RouterInterface otherInterface = other.getInterface(to);
+			RouterInterface otherInterface = other.getRouterInterface(to);
 			if (otherInterface != null) {
 				DuplexLink link = otherInterface.getLink();
 				for (RouterInterface ri: router.getInterfaces())
@@ -313,7 +313,7 @@ public class Parser {
 		for (int i = 0; i < queues.length; i += 2) {
 			Integer port = Integer.parseInt(queues[i]);
 			Integer queueSize = Integer.parseInt(queues[i + 1]);
-			router.getInterface(port).setQueueSize(queueSize); 
+			router.getRouterInterface(port).setQueueSize(queueSize); 
 			System.out.println("[Configurado tamanha da fila da porta " + port + " do roteador " + name + ": " + queueSize + "]");
 		}
 	}

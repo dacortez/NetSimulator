@@ -1,6 +1,5 @@
 package dacortez.netSimulator.transport;
 
-import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.network.Datagram;
@@ -11,20 +10,22 @@ import dacortez.netSimulator.network.Datagram;
  */
 public class UdpProvider extends ServiceProvider {
 
-	public UdpProvider(Interface iface) {
-		super(iface);
+	public UdpProvider(HostInterface hostInterface) {
+		super(hostInterface);
 	}
-
+	
 	@Override
 	public void send(Message message, Integer destinationPort, Ip destinationIp) {
 		Segment segment = new Segment(message, 1000, destinationPort);
-		Datagram data = new Datagram(segment, iface.getIp(), destinationIp);
-		iface.send(data);
+		Datagram data = new Datagram(segment, hostInterface.getIp(), destinationIp);
+		hostInterface.send(data);
 	}
-
+	
 	@Override
-	public void receive(Datagram datagram) {
-		// TODO Auto-generated method stub
-		
+	public void transportEventHandler(Segment segment) {
+		System.out.println("UdpProvide recebeu segmento:");
+		System.out.println(segment);
+		System.out.println();
+		super.transportEventHandler(segment);
 	}
 }

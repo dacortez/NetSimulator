@@ -41,7 +41,7 @@ public class Sniffer implements LinkEvent {
 	}
 	
 	@Override
-	public void linkEventHandler(Interface sender, Datagram data) {
+	public void linkEventHandler(Datagram data) {
 		System.out.println("Sniffer " + name + " capturou datagrama:");
 		System.out.println(data);
 		System.out.println("[FAZER SAÍDA EM ARQUIVO]");

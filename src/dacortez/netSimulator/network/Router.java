@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2012.10.20
  */
-public class Router {
+public class Router implements NetworkEvent {
 	// Nome do roteador.
 	private String name;
 	// Número total de interfaces do roteadror.
@@ -66,6 +67,11 @@ public class Router {
 	
 	public void addRoute(Ip from, Ip to) {
 		ipForIp.put(from, to);
+	}
+	
+	@Override
+	public void networkEventHandler(Interface sender, Datagram data) {
+		// TODO Auto-generated method stub	
 	}
 	
 	@Override

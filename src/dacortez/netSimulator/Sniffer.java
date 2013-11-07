@@ -1,10 +1,13 @@
 package dacortez.netSimulator;
 
+import dacortez.netSimulator.link.LinkEvent;
+import dacortez.netSimulator.network.Datagram;
+
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2012.10.20
  */
-public class Sniffer {
+public class Sniffer implements LinkEvent {
 	// Nome textual do sniffer.
 	private String name;
 	// Nome do arquivo de saída.
@@ -43,6 +46,11 @@ public class Sniffer {
 	
 	public Sniffer(String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public void linkEventHandler(Interface sender, Datagram data) {
+		// TODO Auto-generated method stub
 	}
 	
 	@Override

@@ -2,12 +2,14 @@ package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.network.Datagram;
+import dacortez.netSimulator.network.NetworkEvent;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2012.10.20
  */
-public class Host {
+public class Host implements NetworkEvent {
 	// Nome textual do hospedeiro.
 	protected String name;
 	// Interface do hospedeiro.
@@ -58,6 +60,11 @@ public class Host {
 		iface = host.getInterface();
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
+	}
+	
+	@Override
+	public void networkEventHandler(Interface sender, Datagram data) {
+		// TODO Auto-generated method stub	
 	}
 	
 	@Override

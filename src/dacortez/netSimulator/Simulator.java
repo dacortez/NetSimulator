@@ -4,7 +4,7 @@ import dacortez.netSimulator.parser.Parser;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.21
+ * @version 2012.11.07
  */
 public class Simulator {
 
@@ -14,14 +14,7 @@ public class Simulator {
 			return;
 		}
 		Parser parser = new Parser(args[0]);
-		if (parser.parse()) {
-			parser.printLinks();
-			parser.printHosts();
-			parser.printDnsServers();
-			parser.printHttpServers();
-			parser.printHttpClients();
-			parser.printRouters();
-			parser.printSimEvents();
-		}
+		if (parser.parse())
+			parser.printElements();
 	}
 }

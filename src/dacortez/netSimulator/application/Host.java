@@ -58,6 +58,7 @@ public class Host implements NetworkEvent {
 	public void attach(Host host) {
 		name = host.getName();
 		iface = host.getInterface();
+		iface.addNetworkEventListener(this);
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
 	}

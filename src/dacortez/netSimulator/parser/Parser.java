@@ -212,6 +212,7 @@ public class Parser {
 		System.out.println("[Criado duplex-link: " + link + "]");
 		setInterfaceLink(match.group(1), match.group(2), link);
 		setInterfaceLink(match.group(3), match.group(4), link);
+		setListeners(match);
 	}
 	
 	private void setInterfaceLink(String name, String portString, DuplexLink link) {
@@ -226,6 +227,23 @@ public class Parser {
 			host.getInterface().setLink(link);
 			System.out.println("[Associado link " + link + " ao host " + name + "]");
 		}
+	}
+	
+	private void setListeners(Matcher match) {
+		Interface iface1 = getInterfaceFrom(match.group(1), match.group(2));
+		Interface iface2 = getInterfaceFrom(match.group(3), match.group(4));
+		iface1.addLinkEventListener(iface2);
+		iface2.addLinkEventListener(iface1);
+	}
+	
+	private Interface getInterfaceFrom(String name, String portString) {
+		if (portString != null) {
+			Router router = routers.get(name);
+			Integer port = Integer.parseInt(portString);
+			return router.getInterface(port);
+		}
+		Host host = hosts.get(name);
+		return host.getInterface();
 	}
 	
 	private void setHostIps(Matcher match) {
@@ -335,8 +353,8 @@ public class Parser {
 	private void attachSniffer(Matcher match) {
 		String name = match.group(1);
 		String file = match.group(6);
-		Interface point1 = getInterface(match.group(2), match.group(3));
-		Interface point2 = getInterface(match.group(4), match.group(5));
+		Interface point1 = getInterfaceFrom(match.group(2), match.group(3));
+		Interface point2 = getInterfaceFrom(match.group(4), match.group(5));
 		Sniffer sniffer = sniffers.get(name);
 		sniffer.setPoint1(point1);
 		sniffer.setPoint2(point2);
@@ -355,16 +373,6 @@ public class Parser {
 		return iface.getIp().toString();
 	}
 	
-	private Interface getInterface(String name, String portString) {
-		if (portString != null) {
-			Router router = routers.get(name);
-			Integer port = Integer.parseInt(portString);
-			return router.getInterface(port);
-		}
-		Host host = hosts.get(name);
-		return host.getInterface();
-	}
-	
 	private void simEvent(Matcher match) {
 		Double time = Double.parseDouble(match.group(1));
 		String action = match.group(2);
@@ -373,43 +381,53 @@ public class Parser {
 		System.out.println("[Adicionado evento: " + simEvent + "]");
 	}
 	
-	public void printHosts() {
-		System.out.println("------------ Lista de Hosts ------------");
-		for (Host host: hosts.values())
-			System.out.println(host);
+	public void printElements() {
+		printLinks();
+		printHosts();
+		printDnsServers();
+		printHttpServers();
+		printHttpClients();
+		printRouters();
+		printSimEvents();
 	}
 	
-	public void printDnsServers() {
-		System.out.println("------------ Lista de Servidores DNS ------------");
-		for (DnsServer dnsServer: dnsServers.values())
-			System.out.println(dnsServer);
-	}
-	
-	public void printHttpServers() {
-		System.out.println("------------ Lista de Servidores HTTP ------------");
-		for (HttpServer httpServer: httpServers.values())
-			System.out.println(httpServer);
-	}
-	
-	public void printHttpClients() {
-		System.out.println("------------ Lista de Clientes HTTP ------------");
-		for (HttpClient httpClient: httpClients.values())
-			System.out.println(httpClient);
-	}
-	
-	public void printRouters() {
-		System.out.println("------------ Lista de Roteadores ------------");
-		for (Router router: routers.values())
-			System.out.println(router);
-	}
-	
-	public void printLinks() {
+	private void printLinks() {
 		System.out.println("----------- Lista de Duplex-Links ------------");
 		for (DuplexLink link: links)
 			System.out.println(link);
 	}
 	
-	public void printSimEvents() {
+	private void printHosts() {
+		System.out.println("------------ Lista de Hosts ------------");
+		for (Host host: hosts.values())
+			System.out.println(host);
+	}
+	
+	private void printDnsServers() {
+		System.out.println("------------ Lista de Servidores DNS ------------");
+		for (DnsServer dnsServer: dnsServers.values())
+			System.out.println(dnsServer);
+	}
+	
+	private void printHttpServers() {
+		System.out.println("------------ Lista de Servidores HTTP ------------");
+		for (HttpServer httpServer: httpServers.values())
+			System.out.println(httpServer);
+	}
+	
+	private void printHttpClients() {
+		System.out.println("------------ Lista de Clientes HTTP ------------");
+		for (HttpClient httpClient: httpClients.values())
+			System.out.println(httpClient);
+	}
+	
+	private void printRouters() {
+		System.out.println("------------ Lista de Roteadores ------------");
+		for (Router router: routers.values())
+			System.out.println(router);
+	}
+	
+	private void printSimEvents() {
 		System.out.println("------------ Lista de Eventos ------------");
 		for (SimEvent simEvent: simEvents)
 			System.out.println(simEvent);

@@ -52,6 +52,7 @@ public class Router implements NetworkEvent {
 		for (int port = 0; port < totalInterfaces; port++) {
 			RouterInterface iface = new RouterInterface(port);
 			interfaces.add(port, iface);
+			iface.addNetworkEventListener(this);
 		}
 		portForIp = new HashMap<Ip, Integer>();
 		ipForIp = new HashMap<Ip, Ip>();
@@ -84,7 +85,7 @@ public class Router implements NetworkEvent {
 	}
 
 	private void appendInterfaces(StringBuilder sb) {
-		sb.append("+ Interfaces: ");
+		sb.append("  + Interfaces: ");
 		for (RouterInterface ri: interfaces)
 			sb.append(ri).append(", ");
 		sb.deleteCharAt(sb.length() - 2);
@@ -92,7 +93,7 @@ public class Router implements NetworkEvent {
 	}
 	
 	private void appendRoutes(StringBuilder sb) {
-		sb.append("+ Rotas: ");
+		sb.append("  + Rotas: ");
 		for (Ip from: portForIp.keySet())
 			sb.append(from).append(" > ").append(portForIp.get(from)).append(", ");
 		for (Ip from: ipForIp.keySet())

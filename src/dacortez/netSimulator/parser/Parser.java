@@ -21,7 +21,7 @@ import dacortez.netSimulator.network.RouterInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2012.11.07
  */
 public class Parser {
 	// Nome do arquivo a ser parseado.
@@ -100,6 +100,7 @@ public class Parser {
 			System.out.println("Ocorreu um erro na tradução do arquivo de entrada: " + e.getMessage());
 			System.out.println("O problema ocorreu na linha: " + line);
 			System.out.println("Não será possível realizar a simulação.");
+			e.printStackTrace();
 			return false;
 		}
 	}

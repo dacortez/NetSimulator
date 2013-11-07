@@ -1,13 +1,22 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.transport.TcpProvider;
+import dacortez.netSimulator.transport.UdpProvider;
+
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2012.11.07
  */
 public class HttpClient extends Host {
 	// Nome do cliente HTTP.
 	private String clientName;
+	// Provedor de serviços UDP (estaria no kernel do "SO").
+	@SuppressWarnings("unused")
+	private UdpProvider udpProvider;
+	// Provedor de serviços TCP (estaria no kernel do "SO").
+	@SuppressWarnings("unused")
+	private TcpProvider tcpProvider;
 	
 	public String getClientName() {
 		return clientName;
@@ -16,6 +25,8 @@ public class HttpClient extends Host {
 	public HttpClient(String clientName) {
 		super();
 		this.clientName = clientName;
+		udpProvider = new UdpProvider();
+		tcpProvider = new TcpProvider();
 	}
 	
 	@Override

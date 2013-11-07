@@ -2,10 +2,11 @@ package dacortez.netSimulator.parser;
 
 import java.util.regex.Pattern;
 
+/**
+ * @author dacortez (dacortez79@gmail.com)
+ * @version 2012.11.07
+ */
 public class Regex {
-	// #
-	public static final Pattern COMMENT = Pattern.compile("\\s*#");
-	
 	// set h0 [$simulator host]
 	public static final Pattern SET_HOST = Pattern.compile("set\\s+(\\w+)\\s+\\[\\$simulator\\s+host\\]");
 	

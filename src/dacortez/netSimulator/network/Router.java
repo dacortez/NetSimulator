@@ -20,11 +20,8 @@ public class Router implements NetworkEvent {
 	private List<RouterInterface> interfaces;
 	// Tempo em para processar um pacote em us.
 	private double processingTime; 
-	// Rotas que apontam para uma porta.
-	private HashMap<Ip, Integer> portForIp;
-	// TODO
-	// Rotas que apontam para outro roteador. (TIRAR ISSO E PRÉ-PROCESSAR)
-	private HashMap<Ip, Ip> ipForIp;
+	// Tabela de rotas: ip da subrede apontando para interface do roteador.
+	private HashMap<Ip, RouterInterface> routes;
 	
 	public String getName() {
 		return name;
@@ -33,11 +30,11 @@ public class Router implements NetworkEvent {
 	public int getTotalInterfaces() {
 		return totalInterfaces;
 	}
-
+	
 	public List<RouterInterface> getInterfaces() {
 		return interfaces;
 	}
-	
+
 	public double getProcessingTime() {
 		return processingTime;
 	}
@@ -55,41 +52,37 @@ public class Router implements NetworkEvent {
 			interfaces.add(port, iface);
 			iface.addNetworkEventListener(this);
 		}
-		portForIp = new HashMap<Ip, Integer>();
-		ipForIp = new HashMap<Ip, Ip>();
+		routes = new HashMap<Ip, RouterInterface>();
 	}
 	
 	public RouterInterface getInterface(int port) {
 		return interfaces.get(port);
 	}
 	
-	public void addRoute(Ip from, Integer to) {
-		portForIp.put(from, to);
+	public RouterInterface getInterface(Ip ip) {
+		for (RouterInterface ri: interfaces) 
+			if (ri.getIp().equals(ip))
+				return ri;
+		return null;
 	}
 	
-	public void addRoute(Ip from, Ip to) {
-		ipForIp.put(from, to);
+	public void addRoute(Ip from, Integer toPort) {
+		for (RouterInterface ri: interfaces)
+			if (ri.getPort() == toPort) {
+				routes.put(from, ri);
+				return;
+			}
 	}
 	
 	@Override
 	public void networkEventHandler(Interface sender, Datagram data) {
 		System.out.println("Roteador " + name + " recebeu datagrama:");
 		System.out.println(data);
-		System.out.println("[ROTEANDO]");
-		RouterInterface ri = route(data.getDestinationIp());
-		if (ri != null) 
-			ri.send(data);
-	}
-	
-	private RouterInterface route(Ip destinationIp) {
-		Ip sub = destinationIp.subNetIp();
-		if (portForIp.containsKey(sub)) {
-			Integer port = portForIp.get(sub);
-			for (RouterInterface ri: interfaces)
-				if (ri.getPort() == port)
-					return ri;
+		RouterInterface routedInterface = routes.get(data.getDestinationIp().subNetIp());
+		if (routedInterface != null) { 
+			System.out.println("[ROTEANDO PORTA " + routedInterface.getPort()  + "]\n");
+			routedInterface.send(data);
 		}
-		return null;
 	}
 	
 	@Override
@@ -111,10 +104,8 @@ public class Router implements NetworkEvent {
 	
 	private void appendRoutes(StringBuilder sb) {
 		sb.append("  + Rotas: ");
-		for (Ip from: portForIp.keySet())
-			sb.append(from).append(" > ").append(portForIp.get(from)).append(", ");
-		for (Ip from: ipForIp.keySet())
-			sb.append(from).append(" > ").append(ipForIp.get(from)).append(", ");
+		for (Ip from: routes.keySet())
+			sb.append(from).append(" > ").append(routes.get(from).getPort()).append(", ");
 		sb.deleteCharAt(sb.length() - 2);
 	}
 }

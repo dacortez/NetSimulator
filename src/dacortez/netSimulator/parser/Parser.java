@@ -277,9 +277,10 @@ public class Parser {
 		for (int i = 0; i < route.length; i += 2) {
 			Ip from = new Ip(route[i]);
 			if (route[i + 1].contains(".")) {
-				Ip to = new Ip(route[i + 1]);
+				Ip toIp = new Ip(route[i + 1]);
+				Integer to = getPortConnectedToIp(router, toIp);
 				router.addRoute(from, to);
-				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + to + "]");
+				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + toIp + "]");
 			}
 			else {
 				Integer to = Integer.parseInt(route[i + 1]);
@@ -289,6 +290,19 @@ public class Parser {
 		}
 	}
 	
+	private Integer getPortConnectedToIp(Router router, Ip to) {
+		for (Router other: routers.values()) {
+			RouterInterface otherInterface = other.getInterface(to);
+			if (otherInterface != null) {
+				DuplexLink link = otherInterface.getLink();
+				for (RouterInterface ri: router.getInterfaces())
+					if (link == ri.getLink())
+						return ri.getPort();
+			}
+		}
+		return -1;
+	}
+
 	private void setRouterPerformance(Matcher match) {
 		String name = match.group(1);
 		Double processingTime = Double.parseDouble(match.group(2));

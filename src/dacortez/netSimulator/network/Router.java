@@ -8,9 +8,9 @@ import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2013.11.08
  */
-public class Router implements NetworkEvent {
+public class Router {
 	// Nome do roteador.
 	private String name;
 	// Número total de interfaces do roteadror.
@@ -47,9 +47,8 @@ public class Router implements NetworkEvent {
 		this.totalInterfaces = totalInterfaces;
 		interfaces = new ArrayList<RouterInterface>(totalInterfaces);
 		for (int port = 0; port < totalInterfaces; port++) {
-			RouterInterface routerInterface = new RouterInterface(port);
+			RouterInterface routerInterface = new RouterInterface(this, port);
 			interfaces.add(port, routerInterface);
-			routerInterface.addNetworkEventListener(this);
 		}
 		routes = new HashMap<Ip, RouterInterface>();
 	}
@@ -73,14 +72,13 @@ public class Router implements NetworkEvent {
 			}
 	}
 	
-	@Override
-	public void networkEventHandler(Datagram data) {
+	public void route(Datagram data) {
 		System.out.println("Roteador " + name + " recebeu datagrama:");
 		System.out.println(data);
-		RouterInterface routedInterface = routes.get(data.getDestinationIp().subNetIp());
-		if (routedInterface != null) { 
-			System.out.println("[ROTEANDO PARA PORTA " + routedInterface.getPort()  + "]\n");
-			routedInterface.send(data);
+		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
+		if (toInterface != null) { 
+			System.out.println("[ROTEANDO PARA PORTA " + toInterface.getPort()  + "]\n");
+			toInterface.fireNetworkEvent(data);
 		}
 	}
 	

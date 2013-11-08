@@ -2,7 +2,7 @@ package dacortez.netSimulator.link;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2013.10.20
  */
 public class DuplexLink {
 	// Capacidade do enlace em Mbps.

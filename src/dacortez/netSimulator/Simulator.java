@@ -5,7 +5,7 @@ import dacortez.netSimulator.parser.Parser;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.11.07
+ * @version 2013.11.07
  */
 public class Simulator {
 	// Objeto responsável pelo parser do arquivo de entrada da simulação.
@@ -26,5 +26,8 @@ public class Simulator {
 			parser.printElements();
 		HttpClient httpc1 = parser.getHttpClients().get("httpc1");
 		httpc1.test();
+		
+		HttpClient httpc0 = parser.getHttpClients().get("httpc0");
+		httpc0.test();
 	}
 }

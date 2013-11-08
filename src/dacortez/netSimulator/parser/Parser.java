@@ -21,7 +21,7 @@ import dacortez.netSimulator.network.RouterInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.11.07
+ * @version 2013.11.08
  */
 public class Parser {
 	// Nome do arquivo a ser parseado.
@@ -232,8 +232,8 @@ public class Parser {
 	private void setListeners(Matcher match) {
 		Interface iface1 = getInterfaceFrom(match.group(1), match.group(2));
 		Interface iface2 = getInterfaceFrom(match.group(3), match.group(4));
-		iface1.addLinkEventListener(iface2);
-		iface2.addLinkEventListener(iface1);
+		iface1.addNetworkEventListener(iface2);
+		iface2.addNetworkEventListener(iface1);
 	}
 	
 	private Interface getInterfaceFrom(String name, String portString) {
@@ -373,8 +373,8 @@ public class Parser {
 		sniffer.setPoint1(point1);
 		sniffer.setPoint2(point2);
 		sniffer.setFile(file);
-		point1.addLinkEventListener(sniffer);
-		point2.addLinkEventListener(sniffer);
+		point1.addNetworkEventListener(sniffer);
+		point2.addNetworkEventListener(sniffer);
 		String p1 = getIpAndPort(point1);
 		String p2 = getIpAndPort(point2);
 		System.out.println("[Sniffer " + name + " configurado entre " + p1 + " e " + p2 + "]");

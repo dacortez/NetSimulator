@@ -2,7 +2,7 @@ package dacortez.netSimulator.application;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.11.07
+ * @version 2013.11.07
  */
 public class Message {
 	// Para fins de testes.

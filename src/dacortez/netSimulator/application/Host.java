@@ -5,7 +5,7 @@ import dacortez.netSimulator.transport.HostInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.10.20
+ * @version 2013.11.08
  */
 public class Host {
 	// Nome textual do hospedeiro.
@@ -56,8 +56,15 @@ public class Host {
 	public void attach(Host host) {
 		name = host.getName();
 		hostInterface = host.getHostInterface();
+		hostInterface.setHost(this);
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
+	}
+	
+	public void receive(Message message) {
+		System.out.println("Aplicação do host " + name + " recebeu menssagem:");
+		System.out.println(message);
+		System.out.println("[PROCESSANDO]\n");
 	}
 	
 	@Override

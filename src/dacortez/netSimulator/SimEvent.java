@@ -2,7 +2,7 @@ package dacortez.netSimulator;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.11.06
+ * @version 2013.11.06
  */
 public class SimEvent {
 	// Instante real quando será disparado o evento. 

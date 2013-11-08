@@ -5,13 +5,17 @@ import dacortez.netSimulator.transport.TcpProvider;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2012.11.07
+ * @version 2013.11.08
  */
-public class HttpServer extends Host implements ApplicationEvent {
+public class HttpServer extends Host {
 	// Nome do servidor DNS.
 	private String serverName;
 	// Provedor de serviços TCP (estaria no kernel do "SO").
 	private TcpProvider tcpProvider;
+	
+	public TcpProvider getTcpProvider() {
+		return tcpProvider;
+	}
 	
 	public String getServerName() {
 		return serverName;
@@ -20,18 +24,14 @@ public class HttpServer extends Host implements ApplicationEvent {
 	public HttpServer(String serverName) {
 		super();
 		this.serverName = serverName;
+		tcpProvider = new TcpProvider(this);
 	}
 	
 	@Override
-	public void attach(Host host) {
-		super.attach(host);
-		tcpProvider = new TcpProvider(hostInterface);
-		tcpProvider.addApplicationEventListener(this);
-	}
-	
-	@Override
-	public void applicationEventHandler(Message message) {
-		// TODO	
+	public void receive(Message message) {
+		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
+		System.out.println(message);
+		System.out.println("[PROCESSANDO]\n");
 	}
 	
 	@Override

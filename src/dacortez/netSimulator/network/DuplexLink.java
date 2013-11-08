@@ -1,4 +1,4 @@
-package dacortez.netSimulator.link;
+package dacortez.netSimulator.network;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

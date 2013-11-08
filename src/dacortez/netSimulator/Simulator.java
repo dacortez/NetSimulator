@@ -8,12 +8,13 @@ import dacortez.netSimulator.parser.Parser;
  * @version 2013.11.07
  */
 public class Simulator {
-	// Objeto responsável pelo parser do arquivo de entrada da simulação.
+	// Objeto responsável pela leitura do arquivo de entrada 
+	// e construção dos objetos da simulação (a rede).
 	private Parser parser;
 
 	public static void main(String[] args) {
 		if (args.length != 1) {
-			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada>");
+			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
 			return;
 		}
 		Simulator sim = new Simulator();
@@ -24,6 +25,7 @@ public class Simulator {
 		parser = new Parser(file);
 		if (parser.parse())
 			parser.printElements();
+		
 		HttpClient httpc1 = parser.getHttpClients().get("httpc1");
 		httpc1.test();
 		

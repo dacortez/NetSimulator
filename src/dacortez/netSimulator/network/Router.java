@@ -13,11 +13,9 @@ import dacortez.netSimulator.Ip;
 public class Router {
 	// Nome do roteador.
 	private String name;
-	// Número total de interfaces do roteadror.
-	private int totalInterfaces; 
 	// Lista de interfaces do roteador.
 	private List<RouterInterface> interfaces;
-	// Tempo em para processar um pacote em us.
+	// Tempo para processar um pacote em us (microsegundos).
 	private double processingTime; 
 	// Tabela de rotas: ip da subrede apontando para interface do roteador.
 	private HashMap<Ip, RouterInterface> routes;
@@ -26,9 +24,7 @@ public class Router {
 		return name;
 	}
 
-	public int getTotalInterfaces() {
-		return totalInterfaces;
-	}
+	
 	
 	public List<RouterInterface> getInterfaces() {
 		return interfaces;
@@ -44,7 +40,6 @@ public class Router {
 	
 	public Router(String name, int totalInterfaces) {
 		this.name = name;
-		this.totalInterfaces = totalInterfaces;
 		interfaces = new ArrayList<RouterInterface>(totalInterfaces);
 		for (int port = 0; port < totalInterfaces; port++) {
 			RouterInterface routerInterface = new RouterInterface(this, port);

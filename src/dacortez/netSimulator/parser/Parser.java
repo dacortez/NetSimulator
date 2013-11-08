@@ -15,7 +15,7 @@ import dacortez.netSimulator.application.DnsServer;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
-import dacortez.netSimulator.link.DuplexLink;
+import dacortez.netSimulator.network.DuplexLink;
 import dacortez.netSimulator.network.Router;
 import dacortez.netSimulator.network.RouterInterface;
 

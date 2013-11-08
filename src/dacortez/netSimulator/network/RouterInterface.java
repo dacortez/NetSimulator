@@ -42,6 +42,6 @@ public class RouterInterface extends Interface {
 	
 	@Override
 	public String toString() {
-		return "(" + ip + ":" + port + ", " + queueSize + ") => " + link; 
+		return "(" + ip + ":" + port + ", fila: " + queueSize + ") => " + link; 
 	}
 }

@@ -11,7 +11,7 @@ import dacortez.netSimulator.network.Datagram;
  * @version 2013.11.08
  */
 public abstract class ServiceProvider {	
-	// Host associado ao provedor de serviços da camada de transporte.
+	// Host associado a este provedor de serviços da camada de transporte.
 	protected Host host;
 	
 	public ServiceProvider(Host host) {

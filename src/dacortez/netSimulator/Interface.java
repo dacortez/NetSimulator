@@ -3,8 +3,8 @@ package dacortez.netSimulator;
 import java.util.ArrayList;
 import java.util.List;
 
-import dacortez.netSimulator.link.DuplexLink;
 import dacortez.netSimulator.network.Datagram;
+import dacortez.netSimulator.network.DuplexLink;
 import dacortez.netSimulator.network.NetworkEvent;
 
 /**

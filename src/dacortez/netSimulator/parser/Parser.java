@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import dacortez.netSimulator.SimEvent;
-import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Sniffer;
 import dacortez.netSimulator.application.DnsServer;
@@ -16,6 +15,7 @@ import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
 import dacortez.netSimulator.network.DuplexLink;
+import dacortez.netSimulator.network.Interface;
 import dacortez.netSimulator.network.Router;
 import dacortez.netSimulator.network.RouterInterface;
 

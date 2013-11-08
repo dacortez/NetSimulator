@@ -1,6 +1,5 @@
 package dacortez.netSimulator.network;
 
-import dacortez.netSimulator.Interface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

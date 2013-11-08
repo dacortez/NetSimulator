@@ -1,11 +1,9 @@
-package dacortez.netSimulator.transport;
+package dacortez.netSimulator.network;
 
-import dacortez.netSimulator.Interface;
 import dacortez.netSimulator.application.DnsServer;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
-import dacortez.netSimulator.network.Datagram;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

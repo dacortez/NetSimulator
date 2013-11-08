@@ -1,6 +1,7 @@
 package dacortez.netSimulator;
 
 import dacortez.netSimulator.network.Datagram;
+import dacortez.netSimulator.network.Interface;
 import dacortez.netSimulator.network.NetworkEvent;
 
 /**

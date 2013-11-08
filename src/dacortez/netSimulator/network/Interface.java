@@ -1,11 +1,9 @@
-package dacortez.netSimulator;
+package dacortez.netSimulator.network;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import dacortez.netSimulator.network.Datagram;
-import dacortez.netSimulator.network.DuplexLink;
-import dacortez.netSimulator.network.NetworkEvent;
+import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

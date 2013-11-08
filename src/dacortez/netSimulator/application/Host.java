@@ -1,7 +1,7 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.transport.HostInterface;
+import dacortez.netSimulator.network.HostInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

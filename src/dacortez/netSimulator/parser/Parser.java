@@ -46,35 +46,7 @@ public class Parser {
 	public String getFile() {
 		return file;
 	}
-	
-	public HashMap<String, DnsServer> getDnsServers() {
-		return dnsServers;
-	}
-
-	public HashMap<String, HttpClient> getHttpClients() {
-		return httpClients;
-	}
-
-	public HashMap<String, HttpServer> getHttpServers() {
-		return httpServers;
-	}
-
-	public HashMap<String, Router> getRouters() {
-		return routers;
-	}
-
-	public List<DuplexLink> getLinks() {
-		return links;
-	}
-	
-	public HashMap<String, Sniffer> getSniffer() {
-		return sniffers;
-	}
-	
-	public List<SimEvent> getSimEvents() {
-		return simEvents;
-	}
-	
+		
 	public Parser(String file) {
 		this.file = file;
 		hosts = new HashMap<String, Host>();
@@ -455,5 +427,29 @@ public class Parser {
 		System.out.println("------------ Lista de Eventos ------------");
 		for (SimEvent simEvent: simEvents)
 			System.out.println(simEvent);
+	}
+	
+	public DnsServer getDnsServer(String name) {
+		return dnsServers.get(name);
+	}
+
+	public HttpClient getHttpClient(String name) {
+		return httpClients.get(name);
+	}
+
+	public HttpServer getHttpServer(String name) {
+		return httpServers.get(name);
+	}
+
+	public Router getRouter(String name) {
+		return routers.get(name);
+	}
+
+	public Sniffer getSniffer(String name) {
+		return sniffers.get(name);
+	}
+	
+	public List<SimEvent> getSimEvents() {
+		return simEvents;
 	}
 }

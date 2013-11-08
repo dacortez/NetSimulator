@@ -23,10 +23,10 @@ public class Simulator {
 	
 	public void simulate(String file) {
 		parser = new Parser(file);
-		if (parser.parse())
+		if (parser.parse()) {
 			parser.printElements();
-		
-		HttpClient httpc1 = parser.getHttpClients().get("httpc1");
-		httpc1.test();
+			HttpClient httpc1 = parser.getHttpClient("httpc1");
+			httpc1.test();
+		}
 	}
 }

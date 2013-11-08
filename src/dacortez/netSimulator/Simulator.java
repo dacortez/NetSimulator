@@ -28,8 +28,5 @@ public class Simulator {
 		
 		HttpClient httpc1 = parser.getHttpClients().get("httpc1");
 		httpc1.test();
-		
-		HttpClient httpc0 = parser.getHttpClients().get("httpc0");
-		httpc0.test();
 	}
 }

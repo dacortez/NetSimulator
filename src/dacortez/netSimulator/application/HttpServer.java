@@ -19,10 +19,12 @@ public class HttpServer extends Host {
 	}
 	
 	@Override
-	public void receive(Message message) {
-		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
-		System.out.println(message);
-		System.out.println("[PROCESSANDO]\n");
+	public void receive(Message message, Process process) {
+		if (process != null) {
+			System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
+			System.out.println(message);
+			System.out.println("[PROCESSANDO]\n");
+		}
 	}
 	
 	@Override

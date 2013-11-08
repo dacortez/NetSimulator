@@ -1,5 +1,7 @@
 package dacortez.netSimulator.network;
 
+import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.transport.Segment;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -14,11 +16,16 @@ public class HostInterface extends Interface {
 		this.serviceProvider = serviceProvider;
 	}
 	
+	public void send(Segment segment, Ip sourceIp, Ip destinationIp) {
+		Datagram data = new Datagram(segment, sourceIp, destinationIp);
+		fireNetworkEvent(data);		
+	}
+	
 	@Override
 	public void networkEventHandler(Datagram data) {
 		System.out.println("Interface do host " + ip + " recebeu datagrama:");
 		System.out.println(data);
 		System.out.println("[REPASSANDO DATAGRAMA PARA O PROVEDOR DE SERVIÇOS ADEQUADO]\n");
-		serviceProvider.receive(data);
+		serviceProvider.receive(data.getSegment(), data.getSourceIp(), data.getDestinationIp());
 	}
 }

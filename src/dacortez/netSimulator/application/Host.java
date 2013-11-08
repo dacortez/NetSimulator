@@ -19,8 +19,8 @@ public class Host {
 	protected Ip dnsServerIp;
 	// Provedor de serviços da camada de transporte associado.
 	protected ServiceProvider serviceProvider;
-	// Lista de processos ativos do hospedeiro.
-	protected List<Thread> threads;
+	// Lista de processos em execução no hospedeiro.
+	protected List<Process> processes;
 
 	public String getName() {
 		return name;
@@ -46,6 +46,10 @@ public class Host {
 		return serviceProvider;
 	}
 	
+	public List<Process> getProcesses() {
+		return processes;
+	}
+	
 	public Host() {
 	}
 		
@@ -60,13 +64,15 @@ public class Host {
 		dnsServerIp = host.getDnsServerIp();
 		serviceProvider = host.getServiceProvider();
 		serviceProvider.setHost(this);
-		threads = new ArrayList<Thread>();
+		processes = new ArrayList<Process>();
 	}
 	
-	public void receive(Message message) {
-		System.out.println("Aplicação do host " + name + " recebeu menssagem:");
-		System.out.println(message);
-		System.out.println("[PROCESSANDO]\n");
+	public void receive(Message message, Process process) {
+		if (process != null) {
+			System.out.println("Aplicação do host " + name + " recebeu menssagem:");
+			System.out.println(message);
+			System.out.println("[PROCESSANDO]\n");
+		}
 	}
 	
 	@Override

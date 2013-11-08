@@ -1,8 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.Ip;
-
-
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.08
@@ -22,18 +19,19 @@ public class HttpClient extends Host {
 	
 	// Método de teste preliminar.
 	public void test() {
+		Process process = new Process(dnsServerIp, 53);
+		processes.add(process);
 		Message message = new Message("Oi DNS Server!");
-		serviceProvider.send(message, 53, dnsServerIp);
-		
-		message = new Message("Oi HTTP Server!");
-		serviceProvider.send(message, 80, new Ip("192.168.2.2"));
+		serviceProvider.send(message, process);
 	}
 	
 	@Override
-	public void receive(Message message) {
-		System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
-		System.out.println(message);
-		System.out.println("[PROCESSANDO]\n");
+	public void receive(Message message, Process process) {
+		if (process != null) {
+			System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
+			System.out.println(message);
+			System.out.println("[PROCESSANDO]\n");
+		}
 	}
 	
 	@Override

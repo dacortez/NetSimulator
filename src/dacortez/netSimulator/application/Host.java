@@ -1,7 +1,10 @@
 package dacortez.netSimulator.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.network.HostInterface;
+import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -10,25 +13,19 @@ import dacortez.netSimulator.network.HostInterface;
 public class Host {
 	// Nome textual do hospedeiro.
 	protected String name;
-	// Interface do hospedeiro.
-	protected HostInterface hostInterface;
 	// Endereço IP do roteador padrão associado.
 	protected Ip standardRouterIp;
 	// Endereço IP do servidor DNS associado.
 	protected Ip dnsServerIp;
+	// Provedor de serviços da camada de transporte associado.
+	protected ServiceProvider serviceProvider;
+	// Lista de processos ativos do hospedeiro.
+	protected List<Thread> threads;
 
 	public String getName() {
 		return name;
 	}
 	
-	public HostInterface getHostInterface() {
-		return hostInterface;
-	}
-
-	public void setHostInterface(HostInterface hostInterface) {
-		this.hostInterface = hostInterface;
-	}
-
 	public Ip getStandardRouterIp() {
 		return standardRouterIp;
 	}
@@ -45,20 +42,25 @@ public class Host {
 		this.dnsServerIp = dnsServerIp;
 	}
 	
+	public ServiceProvider getServiceProvider() {
+		return serviceProvider;
+	}
+	
 	public Host() {
 	}
 		
 	public Host(String name) {
 		this.name = name;
-		hostInterface = new HostInterface();
+		serviceProvider = new ServiceProvider();
 	}
 	
 	public void attach(Host host) {
 		name = host.getName();
-		hostInterface = host.getHostInterface();
-		hostInterface.setHost(this);
 		standardRouterIp = host.getStandardRouterIp();
 		dnsServerIp = host.getDnsServerIp();
+		serviceProvider = host.getServiceProvider();
+		serviceProvider.setHost(this);
+		threads = new ArrayList<Thread>();
 	}
 	
 	public void receive(Message message) {
@@ -69,6 +71,6 @@ public class Host {
 	
 	@Override
 	public String toString() {
-		return name + ": (" + hostInterface + ", " + standardRouterIp + ", " + dnsServerIp + ")";
+		return name + ": (" + serviceProvider + ", " + standardRouterIp + ", " + dnsServerIp + ")";
 	}
 }

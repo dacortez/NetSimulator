@@ -224,7 +224,7 @@ public class Parser {
 		}
 		else {
 			Host host = hosts.get(name);
-			host.getHostInterface().setLink(link);
+			host.getServiceProvider().getHostInterface().setLink(link);
 			System.out.println("[Associado link " + link + " ao host " + name + "]");
 		}
 	}
@@ -243,7 +243,7 @@ public class Parser {
 			return router.getRouterInterface(port);
 		}
 		Host host = hosts.get(name);
-		return host.getHostInterface();
+		return host.getServiceProvider().getHostInterface();
 	}
 	
 	private void setHostIps(Matcher match) {
@@ -252,7 +252,7 @@ public class Parser {
 		Ip standardRouterIp = new Ip(match.group(3));
 		Ip dnsServerIp = new Ip(match.group(4));
 		Host host = hosts.get(name);
-		host.getHostInterface().setIp(ip);
+		host.getServiceProvider().getHostInterface().setIp(ip);
 		host.setStandardRouterIp(standardRouterIp);
 		host.setDnsServerIp(dnsServerIp);
 		System.out.println("[Configurado IPs do host " + name + ": " + ip + ", " + standardRouterIp + ", " + dnsServerIp + "]");

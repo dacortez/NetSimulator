@@ -1,7 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.transport.TcpProvider;
-
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -10,12 +8,6 @@ import dacortez.netSimulator.transport.TcpProvider;
 public class HttpServer extends Host {
 	// Nome do servidor DNS.
 	private String serverName;
-	// Provedor de serviços TCP (estaria no kernel do "SO").
-	private TcpProvider tcpProvider;
-	
-	public TcpProvider getTcpProvider() {
-		return tcpProvider;
-	}
 	
 	public String getServerName() {
 		return serverName;
@@ -24,7 +16,6 @@ public class HttpServer extends Host {
 	public HttpServer(String serverName) {
 		super();
 		this.serverName = serverName;
-		tcpProvider = new TcpProvider(this);
 	}
 	
 	@Override

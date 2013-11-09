@@ -2,7 +2,7 @@ package dacortez.netSimulator.application.process;
 
 import dacortez.netSimulator.application.Message;
 
-public class DnsServerListening implements State {
+public class DnsServerListening implements ApplicationState {
 
 	@Override
 	public Message request() {

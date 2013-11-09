@@ -5,9 +5,8 @@ import java.util.Random;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
-import dacortez.netSimulator.application.process.Process;
+import dacortez.netSimulator.application.Socket;
 import dacortez.netSimulator.network.HostInterface;
-
 
 
 /**
@@ -35,53 +34,50 @@ public class ServiceProvider {
 		random = new Random();
 	}
 	
-	public void send(Message message, Process process) {
+	public void send(Message message, Socket socket) {
 		System.out.println("Provider de serviços do host " + hostInterface.getIp() + " recebeu mensagem:");
 		System.out.println(message);
 		System.out.println("[MULTIPLEXING E PASSANDO SEGMENTO PARA INTERFACE DO HOST]\n");
-		Segment segment = multiplexing(message, process);
-		hostInterface.send(segment, process.getSourceIp(), process.getDestinationIp());
+		Segment segment = multiplexing(message, socket);
+		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	// Multiplexing: gathering data at the source host from different application 
 	// processes, enveloping the data with header information to create segments, 
 	// and passing the segments to the network layer.	
-	private Segment multiplexing(Message message, Process process) {
-		if (process.getSourcePort() == null) {
+	private Segment multiplexing(Message message, Socket socket) {
+		if (socket.getSourcePort() == null) {
 			Integer sourcePort = 5000 + random.nextInt(5000);
-			process.setSourceIp(hostInterface.getIp());
-			process.setSourcePort(sourcePort);
+			socket.setSourceIp(hostInterface.getIp());
+			socket.setSourcePort(sourcePort);
 		}
-		return new Segment(message, process.getSourcePort(), process.getDestinationPort());
+		return new Segment(message, socket.getSourcePort(), socket.getDestinationPort());
 	}
 
 	public void receive(Segment segment, Ip sourceIp, Ip destinationIp) {
 		System.out.println("Provider de serviços do host " + hostInterface.getIp() + " recebeu segmento:");
 		System.out.println(segment);
 		System.out.println("[DEMULTIPLEXING E PASSANDO MENSSAGEM PARA A APLICAÇÃO]\n");
-		Process process = demultiplexing(segment, sourceIp, destinationIp);
-		host.receive(segment.getMessage(), process);	
+		Socket socket = demultiplexing(segment, sourceIp, destinationIp);
+		host.receive(segment.getMessage(), socket);	
 	}
 
 	// Demultiplexing: delivering the data in a transport-layer segment 
 	// to the correct application process. 
-	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
-		for (Process process: host.getProcesses()) 
-			if (testProcess(process, segment, sourceIp))
-				return process;
-		return null;
-	}
-
-	private boolean testProcess(Process process, Segment segment, Ip sourceIp) {
+	private Socket demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
+		Socket socket = host.getSocket();
 		Integer sourcePort = segment.getSourcePort();
 		Integer destinationPort = segment.getDestinationPort();
-		if (process.getDestinationPort() == null)
-			if (process.getSourcePort() == destinationPort) {
-				process.setDestinationIp(sourceIp);
-				process.setDestinationPort(sourcePort);
-				return true;
+		if (socket.isListening()) {
+			if (socket.getSourcePort() == destinationPort) {
+				socket.setDestinationIp(sourceIp);
+				socket.setDestinationPort(sourcePort);
+				return socket;
 			}
-		return process.getSourcePort() == destinationPort && process.getDestinationPort() == sourcePort;
+		}
+		else if (socket.getSourcePort() == destinationPort && socket.getDestinationPort() == sourcePort)
+			return socket;
+		return null;
 	}
 	
 	@Override

@@ -1,7 +1,6 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.application.process.DnsLooking;
-import dacortez.netSimulator.application.process.Process;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -22,16 +21,16 @@ public class HttpClient extends Host {
 	
 	// Método de teste preliminar.
 	public void test() {
-		Process process = new Process(new DnsLooking());
-		process.setDestinationIp(dnsServerIp);
-		process.setDestinationPort(DnsServer.LISTEN_PORT);
-		processes.add(process);
-		serviceProvider.send(process.request(), process);
+		socket = new Socket();
+		socket.setDestinationIp(dnsServerIp);
+		socket.setDestinationPort(DnsServer.LISTEN_PORT);
+		state = new DnsLooking();
+		serviceProvider.send(state.request(), socket);
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		if (process != null) {
+	public void receive(Message message, Socket socket) {
+		if (socket != null) {
 			System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
 			System.out.println(message);
 			System.out.println("[PROCESSANDO]\n");

@@ -2,7 +2,7 @@ package dacortez.netSimulator.application.process;
 
 import dacortez.netSimulator.application.Message;
 
-public interface State {
+public interface ApplicationState {
 	Message request();
 	Message respond(Message message);
 }

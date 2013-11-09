@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.process.DnsServerListening;
-import dacortez.netSimulator.application.process.Process;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -37,24 +36,24 @@ public class DnsServer extends Host {
 	}
 	
 	public void start() {
-		Process process = new Process(new DnsServerListening());
-		process.setSourceIp(getIp());
-		process.setSourcePort(LISTEN_PORT);
-		processes.add(process);
+		socket = new Socket();
+		socket.setSourceIp(getIp());
+		socket.setSourcePort(LISTEN_PORT);
+		state = new DnsServerListening();
 		System.out.println("Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + "\n");
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		if (process != null) {
+	public void receive(Message message, Socket socket) {
+		if (socket != null) {
 			System.out.println("Aplicação do servidor DNS " + serverName + " recebeu menssagem:");
 			System.out.println(message);
 			System.out.println("[PROCESSANDO]\n");
-			Message response = process.respond(message);
+			Message response = state.respond(message);
 			if (response != null) {
-				serviceProvider.send(response, process);
-				process.setDestinationIp(null);
-				process.setDestinationPort(null);
+				serviceProvider.send(response, socket);
+				socket.setDestinationIp(null);
+				socket.setDestinationPort(null);
 			}
 		}
 	}

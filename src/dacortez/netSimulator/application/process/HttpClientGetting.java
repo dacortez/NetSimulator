@@ -2,7 +2,7 @@ package dacortez.netSimulator.application.process;
 
 import dacortez.netSimulator.application.Message;
 
-public class HttpClientGetting implements State {
+public class HttpClientGetting implements ApplicationState {
 
 	public HttpClientGetting() {
 		// TODO Auto-generated constructor stub

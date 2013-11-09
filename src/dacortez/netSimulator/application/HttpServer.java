@@ -1,6 +1,5 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.application.process.Process;
 
 
 /**
@@ -21,8 +20,8 @@ public class HttpServer extends Host {
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		if (process != null) {
+	public void receive(Message message, Socket socket) {
+		if (socket != null) {
 			System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
 			System.out.println(message);
 			System.out.println("[PROCESSANDO]\n");

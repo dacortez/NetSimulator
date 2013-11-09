@@ -1,13 +1,12 @@
-package dacortez.netSimulator.application.process;
+package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.07
  */
-public class Process {
+public class Socket {
 	// Ip de origem do hospedeiro rodando o processo.
 	private Ip sourceIp;
 	// Porta de origem do hospedeiro rodando o processo.
@@ -16,8 +15,6 @@ public class Process {
 	private Ip destinationIp;
 	// Porta de dentino que receberá as mensagens enviadas.
 	private Integer destinationPort;
-	// Estado em que o processo se encontra (determina as mensagens a serem trocadas). 
-	private State state;
 	
 	public Ip getSourceIp() {
 		return sourceIp;
@@ -50,20 +47,8 @@ public class Process {
 	public void setDestinationPort(Integer destinationPort) {
 		this.destinationPort = destinationPort;
 	}
-
-	public void setState(State state) {
-		this.state = state;
-	}
 	
-	public Process(State state) {
-		this.state = state;
-	}
-	
-	public Message request() {
-		return state.request();
-	}
-	
-	public Message respond(Message message) {
-		return state.respond(message);
+	public boolean isListening() {
+		return (destinationIp == null && destinationPort == null);
 	}
 }

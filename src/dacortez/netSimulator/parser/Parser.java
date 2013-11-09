@@ -67,6 +67,7 @@ public class Parser {
 			while ((line = reader.readLine()) != null)
 				parseLine(line);
 			reader.close();
+			setupDnsServers();
 			return true;
 		} catch (Exception e) {
 			System.out.println("Ocorreu um erro na tradução do arquivo de entrada: " + e.getMessage());
@@ -367,6 +368,17 @@ public class Parser {
 		SimEvent simEvent = new SimEvent(time, action);
 		simEvents.add(simEvent);
 		System.out.println("[Adicionado evento: " + simEvent + "]");
+	}
+	
+	private void setupDnsServers() {
+		for (DnsServer dnsServer: dnsServers.values())
+			for (Host host: hosts.values()) {
+				String name = host.getName();
+				Ip ip = host.getIp();
+				dnsServer.addHost(name, ip);
+				System.out.println("[Adicionado registro ao servidor DNS " 
+						+ dnsServer.getServerName() + ": (" + name + ", " + ip + ")]");
+			}
 	}
 	
 	public void printElements() {

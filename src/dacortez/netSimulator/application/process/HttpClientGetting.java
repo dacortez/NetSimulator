@@ -2,15 +2,22 @@ package dacortez.netSimulator.application.process;
 
 import dacortez.netSimulator.application.Message;
 
-public class DnsListening implements State {
+public class HttpClientGetting implements State {
+
+	public HttpClientGetting() {
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public Message request() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Message respond(Message message) {
-		return new Message("Servidor DNS responde Oi!");
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 }

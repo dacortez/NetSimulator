@@ -1,6 +1,9 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.application.process.DnsListening;
+import java.util.HashMap;
+
+import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.process.DnsServerListening;
 import dacortez.netSimulator.application.process.Process;
 
 /**
@@ -12,7 +15,9 @@ public class DnsServer extends Host {
 	public static final Integer LISTEN_PORT = 53;
 	// Nome do servidor DNS.
 	private String serverName;
-	
+	// Mapa de endereços IPs.
+	private HashMap<String, Ip> ipsMap;
+
 	public String getServerName() {
 		return serverName;
 	}
@@ -20,14 +25,23 @@ public class DnsServer extends Host {
 	public DnsServer(String serverName) {
 		super();
 		this.serverName = serverName;
+		ipsMap = new HashMap<String, Ip>();
+	}
+	
+	public void addHost(String name, Ip ip) {
+		ipsMap.put(name, ip);
+	}
+	
+	public Ip getIpForHost(String name) {
+		return ipsMap.get(name);
 	}
 	
 	public void start() {
-		Process process = new Process(new DnsListening());
+		Process process = new Process(new DnsServerListening());
 		process.setSourceIp(getIp());
 		process.setSourcePort(LISTEN_PORT);
 		processes.add(process);
-		System.out.println("Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT);
+		System.out.println("Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + "\n");
 	}
 	
 	@Override

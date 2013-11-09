@@ -1,6 +1,5 @@
 package dacortez.netSimulator;
 
-import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.parser.Parser;
 
 /**
@@ -25,8 +24,8 @@ public class Simulator {
 		parser = new Parser(file);
 		if (parser.parse()) {
 			parser.printElements();
-			HttpClient httpc1 = parser.getHttpClient("httpc1");
-			httpc1.test();
+			parser.getDnsServer("dns3").start();
+			parser.getHttpClient("httpc1").test();
 		}
 	}
 }

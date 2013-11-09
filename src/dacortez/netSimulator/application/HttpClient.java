@@ -1,5 +1,8 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.application.process.DnsLooking;
+import dacortez.netSimulator.application.process.Process;
+
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.08
@@ -19,10 +22,11 @@ public class HttpClient extends Host {
 	
 	// Método de teste preliminar.
 	public void test() {
-		Process process = new Process(dnsServerIp, 53);
+		Process process = new Process(new DnsLooking());
+		process.setDestinationIp(dnsServerIp);
+		process.setDestinationPort(DnsServer.LISTEN_PORT);
 		processes.add(process);
-		Message message = new Message("Oi DNS Server!");
-		serviceProvider.send(message, process);
+		serviceProvider.send(process.request(), process);
 	}
 	
 	@Override

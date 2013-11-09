@@ -4,8 +4,8 @@ import java.util.Random;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Host;
-import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Message;
+import dacortez.netSimulator.application.process.Process;
 import dacortez.netSimulator.network.HostInterface;
 
 
@@ -47,9 +47,11 @@ public class ServiceProvider {
 	// processes, enveloping the data with header information to create segments, 
 	// and passing the segments to the network layer.	
 	private Segment multiplexing(Message message, Process process) {
-		Integer sourcePort = 5000 + random.nextInt(5000);
-		process.setSourceIp(hostInterface.getIp());
-		process.setSourcePort(sourcePort);
+		if (process.getSourcePort() == null) {
+			Integer sourcePort = 5000 + random.nextInt(5000);
+			process.setSourceIp(hostInterface.getIp());
+			process.setSourcePort(sourcePort);
+		}
 		return new Segment(message, process.getSourcePort(), process.getDestinationPort());
 	}
 
@@ -64,13 +66,22 @@ public class ServiceProvider {
 	// Demultiplexing: delivering the data in a transport-layer segment 
 	// to the correct application process. 
 	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
+		for (Process process: host.getProcesses()) 
+			if (testProcess(process, segment, sourceIp))
+				return process;
+		return null;
+	}
+
+	private boolean testProcess(Process process, Segment segment, Ip sourceIp) {
 		Integer sourcePort = segment.getSourcePort();
 		Integer destinationPort = segment.getDestinationPort();
-		for (Process process: host.getProcesses()) {
-			if (process.getSourcePort() == destinationPort && process.getDestinationPort() == sourcePort)
-				return process;
-		}
-		return null;
+		if (process.getDestinationPort() == null)
+			if (process.getSourcePort() == destinationPort) {
+				process.setDestinationIp(sourceIp);
+				process.setDestinationPort(sourcePort);
+				return true;
+			}
+		return process.getSourcePort() == destinationPort && process.getDestinationPort() == sourcePort;
 	}
 	
 	@Override

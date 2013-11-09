@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.process.Process;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -58,6 +59,10 @@ public class Host {
 		serviceProvider = new ServiceProvider();
 	}
 	
+	public Ip getIp() {
+		return serviceProvider.getHostInterface().getIp();
+	}
+	
 	public void attach(Host host) {
 		name = host.getName();
 		standardRouterIp = host.getStandardRouterIp();
@@ -71,7 +76,6 @@ public class Host {
 		if (process != null) {
 			System.out.println("Aplicação do host " + name + " recebeu menssagem:");
 			System.out.println(message);
-			System.out.println("[PROCESSANDO]\n");
 		}
 	}
 	

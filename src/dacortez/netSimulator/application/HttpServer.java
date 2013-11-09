@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.application.process.Process;
+
 
 /**
  * @author dacortez (dacortez79@gmail.com)

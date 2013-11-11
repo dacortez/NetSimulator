@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.events.SimEvent;
+import dacortez.netSimulator.events.SimEventListener;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.10.20
  */
-public abstract class Interface implements NetworkEvent {
+public abstract class Interface implements NetworkEventListener {
 	// Endereço IP da interface.
 	protected Ip ip;
 	// Enlace ao qual a interface está conectada.
 	protected DuplexLink link;
+	// Coleção de classes registradas ao evento SimEventListener (o simulator).
+	private List<SimEventListener> simEventListeners;
 	// Coleção de classes registradas ao evento NetworkEvent (sniffers e outras interfaces).
-	private List<NetworkEvent> networkEventListeners;
-
+	private List<NetworkEventListener> networkEventListeners;
+	
 	public Ip getIp() {
 		return ip;
 	}
@@ -33,18 +37,32 @@ public abstract class Interface implements NetworkEvent {
 		this.link = link;
 	}
 	
-	public void addNetworkEventListener(NetworkEvent listener) {
+	public void addSimEventListener(SimEventListener listener) {
+		if (simEventListeners == null)
+			simEventListeners = new ArrayList<SimEventListener>();
+		simEventListeners.add(listener);
+	}
+	
+	public void fireSimEvent(SimEvent e) {
+		if (simEventListeners != null)
+			for (SimEventListener listener: simEventListeners)
+				listener.simEventHandler(e);
+	}
+	
+	public void addNetworkEventListener(NetworkEventListener listener) {
 		if (networkEventListeners == null)
-			networkEventListeners = new ArrayList<NetworkEvent>();
+			networkEventListeners = new ArrayList<NetworkEventListener>();
 		networkEventListeners.add(listener);
 	}
 	
 	public void fireNetworkEvent(Datagram data) {
-		System.out.println("Interface " + ip + " recebeu datagrama:");
-		System.out.println(data);
-		System.out.println("[ENVIANDO DATAGRAMA VIA LINK]\n");
-		for (NetworkEvent listener: networkEventListeners)
-			listener.networkEventHandler(data);
+		if (networkEventListeners != null) {
+			System.out.println("Interface " + ip + " recebeu datagrama:");
+			System.out.println(data);
+			System.out.println("[ENVIANDO DATAGRAMA VIA LINK]\n");
+			for (NetworkEventListener listener: networkEventListeners)
+				listener.networkEventHandler(data);
+		}
 	}
 	
 	@Override

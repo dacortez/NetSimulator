@@ -7,6 +7,10 @@ import java.util.regex.Pattern;
  * @version 2013.11.07
  */
 public class Regex {
+	
+	// # ...
+	public static final Pattern COMMENT = Pattern.compile("^\\s*#");
+
 	// set h0 [$simulator host]
 	public static final Pattern SET_HOST = Pattern.compile("set\\s+(\\w+)\\s+\\[\\$simulator\\s+host\\]");
 	

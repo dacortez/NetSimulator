@@ -120,8 +120,10 @@ public class Simulator implements SimEventListener {
 		String target = action.getTarget();
 		String resource = action.getResource();
 		HttpClient client = parser.getHttpClient(host);
-		if (client != null)
-			client.get(target, resource, action.getTime());
+		if (client != null) {
+			TimeUtil.setStartTime(action.getTime());
+			client.get(target, resource);
+		}
 	}
 	
 	private void processQueue() {

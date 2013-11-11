@@ -1,6 +1,9 @@
 package dacortez.netSimulator.network;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.TimeUtil;
+import dacortez.netSimulator.events.EventArgs;
+import dacortez.netSimulator.events.OutHost;
 import dacortez.netSimulator.transport.Segment;
 import dacortez.netSimulator.transport.ServiceProvider;
 
@@ -18,7 +21,10 @@ public class HostInterface extends Interface {
 	
 	public void send(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Datagram data = new Datagram(segment, sourceIp, destinationIp);
-		fireNetworkEvent(data);		
+		EventArgs args = new EventArgs(data, TimeUtil.getEndTime());
+		OutHost e = new OutHost(this, args);
+		fireSimEvent(e);
+		//fireNetworkEvent(data);		
 	}
 	
 	@Override

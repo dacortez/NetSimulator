@@ -18,7 +18,7 @@ public class ServiceProvider {
 	private Host host;
 	// Interface do host associado.
 	private HostInterface hostInterface;
-	
+	// Gerador de números aleatórios.
 	private Random random;
 	
 	public void setHost(Host host) {

@@ -40,7 +40,7 @@ public class Ip {
 		return new Ip(subNet);
 	}
 	
-	public static boolean isAddress(String address) {
+	public static boolean isValid(String address) {
 		return address.matches("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}");
 	}
 	

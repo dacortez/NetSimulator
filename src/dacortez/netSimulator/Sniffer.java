@@ -2,13 +2,13 @@ package dacortez.netSimulator;
 
 import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.network.Interface;
-import dacortez.netSimulator.network.NetworkEvent;
+import dacortez.netSimulator.network.NetworkEventListener;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.10.20
  */
-public class Sniffer implements NetworkEvent {
+public class Sniffer implements NetworkEventListener {
 	// Nome textual do sniffer.
 	private String name;
 	// Nome do arquivo de saída.

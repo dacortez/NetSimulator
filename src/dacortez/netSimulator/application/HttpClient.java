@@ -1,6 +1,8 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.messages.DnsQuery;
+import dacortez.netSimulator.application.messages.HttpRequest;
 import dacortez.netSimulator.application.messages.Message;
 
 /**
@@ -11,6 +13,12 @@ public class HttpClient extends Host {
 	// Nome do cliente HTTP.
 	private String clientName;
 	
+	// Talvez criar uma lista de processos contendo essas informações e vincular com o socket criado.
+	// Último host solicitada.
+	private String host;
+	// Último recurso solicitado
+	private String resource;
+	
 	public String getClientName() {
 		return clientName;
 	}
@@ -20,8 +28,10 @@ public class HttpClient extends Host {
 		this.clientName = clientName;
 	}
 	
-	public void get(String host, String resource, double time) {
-		if (Ip.isAddress(host))
+	public void get(String host, String resource) {
+		this.host = host;
+		this.resource = resource;
+		if (Ip.isValid(host))
 			httpGetting(new Ip(host));
 		else
 			dnsLooking(host);
@@ -32,12 +42,14 @@ public class HttpClient extends Host {
 		socket.setDestinationIp(host);
 		socket.setDestinationPort(HttpServer.LISTEN_PORT);
 		state = AppState.HTTP_GETTING;
-		serviceProvider.send(httpGettingMessage(), socket);
+		serviceProvider.send(httpGetMessage(), socket);
 	}
 	
-	private Message httpGettingMessage() {
+	private HttpRequest httpGetMessage() {
 		// TODO Auto-generated method stub
-		return new Message("GET /");
+		if (resource != null)
+			return new HttpRequest("GET " + host + " /" + resource);
+		return new HttpRequest("GET " + host);
 	}
 
 	private void dnsLooking(String host) {
@@ -45,11 +57,11 @@ public class HttpClient extends Host {
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
 		state = AppState.DNS_LOOKING;
-		serviceProvider.send(dnsLookingMessage(host), socket);
+		serviceProvider.send(dnsQueryMessage(host), socket);
 	}
 	
-	private Message dnsLookingMessage(String host) {
-		return new Message(host);
+	private DnsQuery dnsQueryMessage(String host) {
+		return new DnsQuery(host);
 	}
 	
 	@Override

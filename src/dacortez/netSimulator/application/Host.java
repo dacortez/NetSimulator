@@ -1,8 +1,5 @@
 package dacortez.netSimulator.application;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.messages.Message;
 import dacortez.netSimulator.events.SimEventListener;
@@ -25,9 +22,7 @@ public class Host {
 	protected Socket socket;
 	// Estado em que a aplicação rodando no host se encontra.
 	protected AppState state;
-	// Coleção de classes registradas ao evento SimEventListener (o simulator).
-	private List<SimEventListener> listeners;
-		
+
 	public String getName() {
 		return name;
 	}
@@ -63,12 +58,6 @@ public class Host {
 		this.name = name;
 		serviceProvider = new ServiceProvider();
 	}
-			
-	public void addSimEventListener(SimEventListener listener) {
-		if (listeners == null)
-			listeners = new ArrayList<SimEventListener>();
-		listeners.add(listener);
-	}
 	
 	public Ip getIp() {
 		return serviceProvider.getHostInterface().getIp();
@@ -80,6 +69,10 @@ public class Host {
 		dnsServerIp = host.getDnsServerIp();
 		serviceProvider = host.getServiceProvider();
 		serviceProvider.setHost(this);
+	}
+	
+	public void addSimEventListener(SimEventListener listener) {
+		serviceProvider.getHostInterface().addSimEventListener(listener);
 	}
 	
 	public void receive(Message message, Socket socket) {

@@ -90,7 +90,10 @@ public class Parser {
 	}
 	
 	private void parseLine(String line) {
-		Matcher match = Regex.SET_HOST.matcher(line);
+		Matcher match = Regex.COMMENT.matcher(line);
+		if (match.find())
+			return;
+		match = Regex.SET_HOST.matcher(line);
 		if (match.find()) {
 			setHost(match);
 			return;
@@ -249,7 +252,7 @@ public class Parser {
 		Router router = routers.get(name);
 		for (int i = 0; i < route.length; i += 2) {
 			Ip from = new Ip(route[i]);
-			if (Ip.isAddress(route[i + 1])) {
+			if (Ip.isValid(route[i + 1])) {
 				Ip toIp = new Ip(route[i + 1]);
 				Integer to = getPortConnectedToIp(router, toIp);
 				router.addRoute(from, to);

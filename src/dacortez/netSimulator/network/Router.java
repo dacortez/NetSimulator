@@ -20,8 +20,6 @@ public class Router {
 	private double processingTime; 
 	// Tabela de rotas: ip da subrede apontando para interface do roteador.
 	private HashMap<Ip, RouterInterface> routes;
-	// Coleção de classes registradas ao evento SimEventListener (o simulator).
-	private List<SimEventListener> listeners;
 		
 	public String getName() {
 		return name;
@@ -50,9 +48,8 @@ public class Router {
 	}
 	
 	public void addSimEventListener(SimEventListener listener) {
-		if (listeners == null)
-			listeners = new ArrayList<SimEventListener>();
-		listeners.add(listener);
+		for (RouterInterface ri: interfaces)
+			ri.addSimEventListener(listener);
 	}
 	
 	public RouterInterface getRouterInterface(int port) {

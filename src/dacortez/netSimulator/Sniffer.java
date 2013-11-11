@@ -43,7 +43,7 @@ public class Sniffer implements NetworkEvent {
 	
 	@Override
 	public void networkEventHandler(Datagram data) {
-		System.out.println("Sniffer " + name + " capturou datagrama:");
+		System.out.println("Sniffer " + name + " capturou datagrama [" + data.getId() + "]:");
 		System.out.println(data);
 		System.out.println("[FAZER SAÍDA EM ARQUIVO]");
 		System.out.println(); 

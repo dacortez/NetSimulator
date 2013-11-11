@@ -1,6 +1,7 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.message.Message;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**

@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.application.message.Message;
+
 
 
 /**

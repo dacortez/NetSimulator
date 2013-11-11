@@ -4,8 +4,8 @@ import java.util.Random;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Host;
-import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Socket;
+import dacortez.netSimulator.application.message.Message;
 import dacortez.netSimulator.network.HostInterface;
 
 

@@ -3,6 +3,7 @@ package dacortez.netSimulator.application;
 import java.util.HashMap;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.message.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

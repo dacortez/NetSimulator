@@ -3,8 +3,8 @@ package dacortez.netSimulator.parser;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 
 import dacortez.netSimulator.SimEvent;
@@ -37,11 +37,11 @@ public class Parser {
 	// HashMap de roteadores instanciados durante o parseamento.
 	private HashMap<String, Router> routers;
 	// Lista de duplex-links instanciados durante o parseamento.
-	private List<DuplexLink> links;
+	private Collection<DuplexLink> links;
 	// HashMap de sniffers instanciados durante o parseamento.
 	private HashMap<String, Sniffer> sniffers;
 	// Lista dos eventos a serem processados pelo simulador.
-	private List<SimEvent> simEvents;
+	private Collection<SimEvent> simEvents;
 
 	public String getFile() {
 		return file;
@@ -249,7 +249,7 @@ public class Parser {
 		Router router = routers.get(name);
 		for (int i = 0; i < route.length; i += 2) {
 			Ip from = new Ip(route[i]);
-			if (route[i + 1].contains(".")) {
+			if (Ip.isAddress(route[i + 1])) {
 				Ip toIp = new Ip(route[i + 1]);
 				Integer to = getPortConnectedToIp(router, toIp);
 				router.addRoute(from, to);
@@ -441,27 +441,47 @@ public class Parser {
 			System.out.println(simEvent);
 	}
 	
+	public Collection<DnsServer> getDnsServers() {
+		return dnsServers.values();
+	}
+	
 	public DnsServer getDnsServer(String name) {
 		return dnsServers.get(name);
+	}
+	
+	public Collection<HttpClient> getHttpClients() {
+		return httpClients.values();
 	}
 
 	public HttpClient getHttpClient(String name) {
 		return httpClients.get(name);
 	}
 
+	public Collection<HttpServer> getHttpServers() {
+		return httpServers.values();
+	}
+	
 	public HttpServer getHttpServer(String name) {
 		return httpServers.get(name);
+	}
+	
+	public Collection<Router> getRouters() {
+		return routers.values();
 	}
 
 	public Router getRouter(String name) {
 		return routers.get(name);
+	}
+	
+	public Collection<Sniffer> getSniffers() {
+		return sniffers.values();
 	}
 
 	public Sniffer getSniffer(String name) {
 		return sniffers.get(name);
 	}
 	
-	public List<SimEvent> getSimEvents() {
+	public Collection<SimEvent> getSimEvents() {
 		return simEvents;
 	}
 }

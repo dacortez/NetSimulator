@@ -25,7 +25,7 @@ public class Simulator {
 		if (parser.parse()) {
 			parser.printElements();
 			parser.getDnsServer("dns3").start();
-			parser.getHttpClient("httpc1").test();
+			parser.getHttpClient("httpc1").get("h2");
 		}
 	}
 }

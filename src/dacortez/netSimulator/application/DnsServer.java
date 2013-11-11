@@ -3,7 +3,6 @@ package dacortez.netSimulator.application;
 import java.util.HashMap;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.process.DnsServerListening;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -31,30 +30,33 @@ public class DnsServer extends Host {
 		ipsMap.put(name, ip);
 	}
 	
-	public Ip getIpForHost(String name) {
-		return ipsMap.get(name);
-	}
-	
 	public void start() {
 		socket = new Socket();
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
-		state = new DnsServerListening();
+		state = AppState.DNS_LISTENING;
 		System.out.println("Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + "\n");
 	}
 	
 	@Override
 	public void receive(Message message, Socket socket) {
-		if (socket != null) {
-			System.out.println("Aplicação do servidor DNS " + serverName + " recebeu menssagem:");
-			System.out.println(message);
-			System.out.println("[PROCESSANDO]\n");
-			Message response = state.respond(message);
-			if (response != null) {
-				serviceProvider.send(response, socket);
-				socket.setDestinationIp(null);
-				socket.setDestinationPort(null);
-			}
+		System.out.println("Aplicação do servidor DNS " + serverName + " recebeu menssagem:");
+		super.receive(message, socket);
+	}
+	
+	@Override
+	protected void processReceived(Message message) {
+		if (state == AppState.DNS_LISTENING) {
+			String name = message.getData();
+			Ip ip = ipsMap.get(name);
+			Message response;
+			if (ip != null)
+				response = new Message(ip.toString());
+			else 
+				response = new Message("NAO");
+			serviceProvider.send(response, socket);
+			socket.setDestinationIp(null);
+			socket.setDestinationPort(null);
 		}
 	}
 	

@@ -7,6 +7,8 @@ package dacortez.netSimulator.application;
  * @version 2013.11.08
  */
 public class HttpServer extends Host {
+	// Porta em que o processo servidor está escutando.
+	public static final Integer LISTEN_PORT = 80;
 	// Nome do servidor DNS.
 	private String serverName;
 	
@@ -21,13 +23,16 @@ public class HttpServer extends Host {
 	
 	@Override
 	public void receive(Message message, Socket socket) {
-		if (socket != null) {
-			System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
-			System.out.println(message);
-			System.out.println("[PROCESSANDO]\n");
-		}
+		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
+		super.receive(message, socket);
 	}
 	
+	@Override
+	protected void processReceived(Message message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
 	public String toString() {
 		return serverName + " <- " + super.toString();

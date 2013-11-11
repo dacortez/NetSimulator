@@ -1,7 +1,6 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.process.ApplicationState;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -20,7 +19,7 @@ public class Host {
 	// Socket da aplicação rodando no host.
 	protected Socket socket;
 	// Estado em que a aplicação rodando no host se encontra.
-	protected ApplicationState state;
+	protected AppState state;
 	
 	public String getName() {
 		return name;
@@ -71,10 +70,17 @@ public class Host {
 	}
 	
 	public void receive(Message message, Socket socket) {
+		System.out.println(message);
 		if (socket != null) {
-			System.out.println("Aplicação do host " + name + " recebeu menssagem:");
-			System.out.println(message);
+			System.out.println("[PROCESSANDO]\n");
+			processReceived(message);
 		}
+		else
+			System.out.println("Socket fechado!");
+	}
+	
+	protected void processReceived(Message message) {
+		
 	}
 	
 	@Override

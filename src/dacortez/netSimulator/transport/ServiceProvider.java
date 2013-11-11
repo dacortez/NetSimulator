@@ -68,6 +68,7 @@ public class ServiceProvider {
 		Socket socket = host.getSocket();
 		Integer sourcePort = segment.getSourcePort();
 		Integer destinationPort = segment.getDestinationPort();
+		if (socket == null) return null;
 		if (socket.isListening()) {
 			if (socket.getSourcePort() == destinationPort) {
 				socket.setDestinationIp(sourceIp);

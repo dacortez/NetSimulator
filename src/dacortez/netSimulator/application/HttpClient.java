@@ -1,6 +1,6 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.application.process.DnsLooking;
+import dacortez.netSimulator.Ip;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -19,24 +19,56 @@ public class HttpClient extends Host {
 		this.clientName = clientName;
 	}
 	
-	// Método de teste preliminar.
-	public void test() {
+	public void get(String host) {
+		if (Ip.isAddress(host))
+			httpGetting(new Ip(host));
+		else
+			dnsLooking(host);
+	}
+	
+	private void httpGetting(Ip host) {
+		socket = new Socket();
+		socket.setDestinationIp(host);
+		socket.setDestinationPort(HttpServer.LISTEN_PORT);
+		state = AppState.HTTP_GETTING;
+		serviceProvider.send(httpGettingMessage(), socket);
+	}
+	
+	private Message httpGettingMessage() {
+		// TODO Auto-generated method stub
+		return new Message("GET /");
+	}
+
+	private void dnsLooking(String host) {
 		socket = new Socket();
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
-		state = new DnsLooking();
-		serviceProvider.send(state.request(), socket);
+		state = AppState.DNS_LOOKING;
+		serviceProvider.send(dnsLookingMessage(host), socket);
+	}
+	
+	private Message dnsLookingMessage(String host) {
+		return new Message(host);
 	}
 	
 	@Override
 	public void receive(Message message, Socket socket) {
-		if (socket != null) {
-			System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
-			System.out.println(message);
-			System.out.println("[PROCESSANDO]\n");
-		}
+		System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
+		super.receive(message, socket);
 	}
 	
+	@Override
+	protected void processReceived(Message message) {
+		if (state == AppState.DNS_LOOKING) {
+			if (!message.getData().contentEquals("NAO")) {
+				httpGetting(new Ip(message.getData()));
+			}
+		}
+		else if (state == AppState.HTTP_GETTING) {
+
+		}
+	}
+
 	@Override
 	public String toString() {
 		return clientName + " <- " + super.toString();

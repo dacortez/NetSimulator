@@ -1,4 +1,4 @@
-package dacortez.netSimulator.application.message;
+package dacortez.netSimulator.application.messages;
 
 
 public class HttpResponse extends Message {

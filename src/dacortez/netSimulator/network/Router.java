@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.events.SimEventListener;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -19,13 +20,13 @@ public class Router {
 	private double processingTime; 
 	// Tabela de rotas: ip da subrede apontando para interface do roteador.
 	private HashMap<Ip, RouterInterface> routes;
-	
+	// Coleção de classes registradas ao evento SimEventListener (o simulator).
+	private List<SimEventListener> listeners;
+		
 	public String getName() {
 		return name;
 	}
 
-	
-	
 	public List<RouterInterface> getInterfaces() {
 		return interfaces;
 	}
@@ -46,6 +47,12 @@ public class Router {
 			interfaces.add(port, routerInterface);
 		}
 		routes = new HashMap<Ip, RouterInterface>();
+	}
+	
+	public void addSimEventListener(SimEventListener listener) {
+		if (listeners == null)
+			listeners = new ArrayList<SimEventListener>();
+		listeners.add(listener);
 	}
 	
 	public RouterInterface getRouterInterface(int port) {

@@ -2,9 +2,9 @@ package dacortez.netSimulator;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.06
+ * @version 2013.11.11
  */
-public class SimEvent {
+public class HostAction {
 	// Instante real quando será disparado o evento. 
 	private double time;
 	// Descrição da ação a ser disparada pelo evento.
@@ -18,7 +18,7 @@ public class SimEvent {
 		return action;
 	}
 	
-	public SimEvent(double time, String action) {
+	public HostAction(double time, String action) {
 		this.time = time;
 		this.action = action;
 	}

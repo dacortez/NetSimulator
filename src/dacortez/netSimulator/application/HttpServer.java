@@ -1,17 +1,15 @@
 package dacortez.netSimulator.application;
 
-import dacortez.netSimulator.application.message.Message;
-
-
+import dacortez.netSimulator.application.messages.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.08
+ * @version 2013.11.11
  */
 public class HttpServer extends Host {
 	// Porta em que o processo servidor está escutando.
-	public static final Integer LISTEN_PORT = 80;
-	// Nome do servidor DNS.
+	public static final int LISTEN_PORT = 80;
+	// Nome do servidor HTTP.
 	private String serverName;
 	
 	public String getServerName() {
@@ -21,6 +19,14 @@ public class HttpServer extends Host {
 	public HttpServer(String serverName) {
 		super();
 		this.serverName = serverName;
+	}
+	
+	public void start() {
+		socket = new Socket();
+		socket.setSourceIp(getIp());
+		socket.setSourcePort(LISTEN_PORT);
+		state = AppState.HTTP_LISTENING;
+		System.out.println("Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + "\n");
 	}
 	
 	@Override

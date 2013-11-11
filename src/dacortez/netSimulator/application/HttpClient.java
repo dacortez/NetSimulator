@@ -1,7 +1,7 @@
 package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.message.Message;
+import dacortez.netSimulator.application.messages.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

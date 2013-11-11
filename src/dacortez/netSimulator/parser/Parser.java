@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
-import dacortez.netSimulator.SimEvent;
+import dacortez.netSimulator.HostAction;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Sniffer;
 import dacortez.netSimulator.application.DnsServer;
@@ -41,7 +41,7 @@ public class Parser {
 	// HashMap de sniffers instanciados durante o parseamento.
 	private HashMap<String, Sniffer> sniffers;
 	// Lista dos eventos a serem processados pelo simulador.
-	private Collection<SimEvent> simEvents;
+	private Collection<HostAction> hostActions;
 
 	public String getFile() {
 		return file;
@@ -56,7 +56,7 @@ public class Parser {
 		routers = new HashMap<String, Router>();
 		links = new ArrayList<DuplexLink>();
 		sniffers = new HashMap<String, Sniffer>();
-		simEvents = new ArrayList<SimEvent>();
+		hostActions = new ArrayList<HostAction>();
 	}
 	
 	public boolean parse() {
@@ -86,7 +86,7 @@ public class Parser {
 		routers.clear();
 		links.clear();
 		sniffers.clear();
-		simEvents.clear();
+		hostActions.clear();
 	}
 	
 	private void parseLine(String line) {
@@ -155,9 +155,9 @@ public class Parser {
 			attachSniffer(match);			
 			return;
 		}
-		match = Regex.SIM_EVENT.matcher(line);
+		match = Regex.HOST_ACTION.matcher(line);
 		if (match.find()) {
-			simEvent(match);			
+			hostAction(match);			
 			return;
 		}
 	}
@@ -362,12 +362,12 @@ public class Parser {
 		return iface.getIp().toString();
 	}
 	
-	private void simEvent(Matcher match) {
+	private void hostAction(Matcher match) {
 		Double time = Double.parseDouble(match.group(1));
 		String action = match.group(2);
-		SimEvent simEvent = new SimEvent(time, action);
-		simEvents.add(simEvent);
-		System.out.println("[Adicionado evento: " + simEvent + "]");
+		HostAction hostAction = new HostAction(time, action);
+		hostActions.add(hostAction);
+		System.out.println("[Adicionada ação: " + hostAction + "]");
 	}
 	
 	private void setupDnsServers() {
@@ -389,7 +389,7 @@ public class Parser {
 		printHttpClients();
 		printRouters();
 		printSniffers();
-		printSimEvents();
+		printHostActions();
 		System.out.println();
 	}
 	
@@ -435,10 +435,10 @@ public class Parser {
 			System.out.println(sniffer);
 	}
 	
-	private void printSimEvents() {
-		System.out.println("------------ Lista de Eventos ------------");
-		for (SimEvent simEvent: simEvents)
-			System.out.println(simEvent);
+	private void printHostActions() {
+		System.out.println("------------ Lista de Ações ------------");
+		for (HostAction hostAction: hostActions)
+			System.out.println(hostAction);
 	}
 	
 	public Collection<DnsServer> getDnsServers() {
@@ -481,7 +481,7 @@ public class Parser {
 		return sniffers.get(name);
 	}
 	
-	public Collection<SimEvent> getSimEvents() {
-		return simEvents;
+	public Collection<HostAction> getHostActions() {
+		return hostActions;
 	}
 }

@@ -49,5 +49,5 @@ public class Regex {
 	public static final Pattern ATTACH_SNIFFER = Pattern.compile("\\$simulator\\s+attach-agent\\s+\\$(\\w+)\\s+\\$(\\w+).?(\\d+)?\\s+\\$(\\w+).?(\\d+)?\\s+\"([\\w/]+)\"");
 	
 	// $simulator at 0.5 "httpc0 GET h2"
-	public static final Pattern SIM_EVENT = Pattern.compile("\\$simulator\\s+at\\s+([\\d.]+)\\s+\"([\\w\\s]+)\"");
+	public static final Pattern HOST_ACTION = Pattern.compile("\\$simulator\\s+at\\s+([\\d.]+)\\s+\"([\\w\\s]+)\"");
 }

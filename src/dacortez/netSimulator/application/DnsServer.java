@@ -3,7 +3,7 @@ package dacortez.netSimulator.application;
 import java.util.HashMap;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.message.Message;
+import dacortez.netSimulator.application.messages.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -11,7 +11,7 @@ import dacortez.netSimulator.application.message.Message;
  */
 public class DnsServer extends Host {
 	// Porta em que o processo servidor está escutando.
-	public static final Integer LISTEN_PORT = 53;
+	public static final int LISTEN_PORT = 53;
 	// Nome do servidor DNS.
 	private String serverName;
 	// Mapa de endereços IPs.

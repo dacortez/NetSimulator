@@ -20,7 +20,7 @@ public class HttpClient extends Host {
 		this.clientName = clientName;
 	}
 	
-	public void get(String host) {
+	public void get(String host, String resource, double time) {
 		if (Ip.isAddress(host))
 			httpGetting(new Ip(host));
 		else

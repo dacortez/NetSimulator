@@ -10,7 +10,6 @@ import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.Finish;
-import dacortez.netSimulator.events.OutHost;
 import dacortez.netSimulator.events.SimEvent;
 import dacortez.netSimulator.events.SimEventListener;
 import dacortez.netSimulator.network.Router;
@@ -54,8 +53,7 @@ public class Simulator implements SimEventListener {
 			parser.printElements();
 			linkElementsToSimulator();
 			startAllServers();
-			//parser.getHttpClient("httpc1").get("h2");
-			putHostActionsIntoQueue();
+			processHostActions();
 			processQueue();
 		}
 	}
@@ -108,14 +106,22 @@ public class Simulator implements SimEventListener {
 			server.start();
 	}
 
-	private void putHostActionsIntoQueue() {
-		// TODO Auto-generated method stub
-		// Cria eventos associados as ações dos hosts no parser e coloca na fila.
-		queue.add(new OutHost(null, new EventArgs(null, 1.0)));
-		queue.add(new OutHost(null, new EventArgs(null, 2.0)));
-		queue.add(new OutHost(null, new EventArgs(null, 0.1)));
-		queue.add(new OutHost(null, new EventArgs(null, 1.5)));
-		queue.add(new Finish(new EventArgs(null, 1.9)));
+	private void processHostActions() {
+		Collection<HostAction> actions = parser.getHostActions();
+		for (HostAction action: actions)
+			if (action.isGet())
+				clientGet(action);
+			else if (action.isFinish())
+				queue.add(new Finish(new EventArgs(action.getTime())));
+	}
+
+	private void clientGet(HostAction action) {
+		String host = action.getHost();
+		String target = action.getTarget();
+		String resource = action.getResource();
+		HttpClient client = parser.getHttpClient(host);
+		if (client != null)
+			client.get(target, resource, action.getTime());
 	}
 	
 	private void processQueue() {

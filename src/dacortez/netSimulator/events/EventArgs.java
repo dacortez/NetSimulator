@@ -20,11 +20,16 @@ public class EventArgs {
 		return time;
 	}
 	
+	public EventArgs(double time) {
+		data = null;
+		this.time = time;
+	}
+	
 	public EventArgs(Datagram data, double time) {
 		this.data = data;
 		this.time = time;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (data == null)	

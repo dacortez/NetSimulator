@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.SimEvent;
 import dacortez.netSimulator.events.SimEventListener;
 
@@ -55,18 +56,18 @@ public abstract class Interface implements NetworkEventListener {
 		networkEventListeners.add(listener);
 	}
 	
-	public void fireNetworkEvent(Datagram data) {
+	public void fireNetworkEvent(EventArgs args) {
 		if (networkEventListeners != null) {
 			System.out.println("Interface " + ip + " recebeu datagrama:");
-			System.out.println(data);
+			System.out.println(args.getDatagram());
 			System.out.println("[ENVIANDO DATAGRAMA VIA LINK]\n");
 			for (NetworkEventListener listener: networkEventListeners)
-				listener.networkEventHandler(data);
+				listener.networkEventHandler(args);
 		}
 	}
 	
 	@Override
-	public abstract void networkEventHandler(Datagram data);
+	public abstract void networkEventHandler(EventArgs args);
 	
 	@Override
 	public String toString() {

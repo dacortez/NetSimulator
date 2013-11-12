@@ -16,6 +16,10 @@ public class Message {
 		this.data = data;
 	}
 	
+	public int getNumberOfBytes() {
+		return data.length();
+	}
+	
 	@Override
 	public String toString() {
 		return data;

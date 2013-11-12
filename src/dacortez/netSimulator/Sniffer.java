@@ -1,5 +1,6 @@
 package dacortez.netSimulator;
 
+import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.network.Interface;
 import dacortez.netSimulator.network.NetworkEventListener;
@@ -42,7 +43,8 @@ public class Sniffer implements NetworkEventListener {
 	}
 	
 	@Override
-	public void networkEventHandler(Datagram data) {
+	public void networkEventHandler(EventArgs args) {
+		Datagram data = args.getDatagram();
 		System.out.println("Sniffer " + name + " capturou datagrama [" + data.getId() + "]:");
 		System.out.println(data);
 		System.out.println("[FAZER SAÍDA EM ARQUIVO]");

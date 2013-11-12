@@ -19,6 +19,8 @@ public class Datagram {
 	private Ip sourceIp;
 	// Endereço IP de destino.
 	private Ip destinationIp;
+	// Tamanho do cabeçalho IP em bytes.
+	private static final int HEADER_SIZE = 20;
 	
 	public int getId() {
 		return id;
@@ -41,6 +43,10 @@ public class Datagram {
 		this.segment = segment;
 		this.sourceIp = sourceIp;
 		this.destinationIp = destinationIp;
+	}
+	
+	public int getNumberOfBytes() {
+		return HEADER_SIZE + segment.getNumberOfBytes();
 	}
 	
 	@Override

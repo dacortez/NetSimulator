@@ -25,6 +25,5 @@ public abstract class SimEvent {
 		this.args = args;
 	}
 	
-	// Melhorar este nome.
 	public abstract void fire();
 }

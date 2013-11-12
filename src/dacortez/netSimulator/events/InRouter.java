@@ -1,6 +1,7 @@
 package dacortez.netSimulator.events;
 
 import dacortez.netSimulator.network.Interface;
+import dacortez.netSimulator.network.RouterInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -14,8 +15,8 @@ public class InRouter extends SimEvent {
 
 	@Override
 	public void fire() {
-		// TODO Auto-generated method stub
-
+		RouterInterface ri = (RouterInterface) sender;
+		ri.queueing(args);
 	}
 	
 	@Override

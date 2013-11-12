@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.SimEventListener;
 
 /**
@@ -27,10 +28,6 @@ public class Router {
 
 	public List<RouterInterface> getInterfaces() {
 		return interfaces;
-	}
-
-	public double getProcessingTime() {
-		return processingTime;
 	}
 
 	public void setProcessingTime(double processingTime) {
@@ -70,15 +67,22 @@ public class Router {
 				return;
 			}
 	}
-	
-	public void route(Datagram data) {
-		System.out.println("Roteador " + name + " recebeu datagrama:");
+		
+	public void route(Datagram data, double time) {
+		System.out.println("Roteador " + name + " roteou datagrama:");
 		System.out.println(data);
 		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
 		if (toInterface != null) { 
-			System.out.println("[ROTEANDO PARA PORTA " + toInterface.getPort()  + "]\n");
-			toInterface.fireNetworkEvent(data);
+			System.out.println("[ROTEADO PARA PORTA " + toInterface.getPort()  + "]\n");
+			EventArgs args = new EventArgs(data, time);
+			toInterface.fireNetworkEvent(args);
 		}
+	}
+	
+	public double getProcessingTime(Datagram data) {
+		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
+		double transmissionTime = toInterface.getLink().getTransmissionTime(data.getNumberOfBytes());
+		return transmissionTime + (processingTime / 1000000.0);
 	}
 	
 	@Override

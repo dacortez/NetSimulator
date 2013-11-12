@@ -1,5 +1,6 @@
 package dacortez.netSimulator.events;
 
+import dacortez.netSimulator.network.HostInterface;
 import dacortez.netSimulator.network.Interface;
 
 /**
@@ -14,8 +15,8 @@ public class InHost extends SimEvent {
 
 	@Override
 	public void fire() {
-		// TODO Auto-generated method stub
-
+		HostInterface hi = (HostInterface) sender;
+		hi.receive(args);
 	}
 	
 	@Override

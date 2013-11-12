@@ -10,25 +10,13 @@ public class DuplexLink {
 	// Atraso da transmissão em ms.
 	private double delay;
 	
-	public double getCapacity() {
-		return capacity;
-	}
-
-	public void setCapacity(double capacity) {
-		this.capacity = capacity;
-	}
-
-	public double getDelay() {
-		return delay;
-	}
-
-	public void setDelay(double delay) {
-		this.delay = delay;
-	}
-
 	public DuplexLink(double capacity, double delay) {
 		this.capacity = capacity;
 		this.delay = delay;
+	}
+	
+	public double getTransmissionTime(int numberOfbytes) {
+		return (delay / 1000.0) +  (8.0 * numberOfbytes) / (1000000.0 * capacity); 
 	}
 	
 	@Override

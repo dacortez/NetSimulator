@@ -14,8 +14,7 @@ public class OutHost extends SimEvent {
 
 	@Override
 	public void fire() {
-		// TODO Auto-generated method stub
-
+		sender.fireNetworkEvent(args);
 	}
 	
 	@Override

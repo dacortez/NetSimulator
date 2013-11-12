@@ -12,7 +12,7 @@ public class EventArgs {
 	// Instante de tempo da simulação quando ocorre o evento.
 	private double time;
 	
-	public Datagram getData() {
+	public Datagram getDatagram() {
 		return data;
 	}
 	

@@ -13,7 +13,9 @@ public class Segment {
 	private Integer sourcePort;
 	// Porta de destino.
 	private Integer destinationPort;
-	
+	// Tamanho do cabeçalho TCP/UDP em bytes.
+	private static final int HEADER_SIZE = 20;
+
 	public Message getMessage() {
 		return message;
 	}
@@ -35,5 +37,9 @@ public class Segment {
 	@Override
 	public String toString() {
 		return sourcePort + " " + destinationPort + "\n" + message; 
+	}
+
+	public int getNumberOfBytes() {
+		return HEADER_SIZE + message.getNumberOfBytes();
 	}
 }

@@ -46,7 +46,6 @@ public class HttpClient extends Host {
 	}
 	
 	private HttpRequest httpGetMessage() {
-		// TODO Auto-generated method stub
 		if (resource != null)
 			return new HttpRequest("GET " + host + " /" + resource);
 		return new HttpRequest("GET " + host);

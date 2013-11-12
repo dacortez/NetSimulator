@@ -21,6 +21,9 @@ public class OutRouter extends SimEvent {
 	
 	@Override
 	public String toString() {
-		return "*** OutRouter: " + args.toString();
+		StringBuilder sb = new StringBuilder("OUT_ROUTER:\n");
+		sb.append("Sender: ").append(sender).append("\n");
+		sb.append(args);
+		return sb.toString();
 	}
 }

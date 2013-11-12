@@ -2,7 +2,6 @@ package dacortez.netSimulator.application;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.messages.Message;
-import dacortez.netSimulator.events.SimEventListener;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -69,10 +68,6 @@ public class Host {
 		dnsServerIp = host.getDnsServerIp();
 		serviceProvider = host.getServiceProvider();
 		serviceProvider.setHost(this);
-	}
-	
-	public void addSimEventListener(SimEventListener listener) {
-		serviceProvider.getHostInterface().addSimEventListener(listener);
 	}
 	
 	public void receive(Message message, Socket socket) {

@@ -26,7 +26,7 @@ public class HttpServer extends Host {
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
 		state = AppState.HTTP_LISTENING;
-		System.out.println("Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + "\n");
+		System.out.println("** Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override
@@ -37,8 +37,10 @@ public class HttpServer extends Host {
 	
 	@Override
 	protected void processReceived(Message message) {
-		// TODO Auto-generated method stub
-		
+		Message response = new Message("HTTP/1.1 200 OK");
+		serviceProvider.send(response, socket);
+		socket.setDestinationIp(null);
+		socket.setDestinationPort(null);
 	}
 
 	@Override

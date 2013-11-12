@@ -11,21 +11,19 @@ import dacortez.netSimulator.application.HttpServer;
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.Finish;
 import dacortez.netSimulator.events.SimEvent;
-import dacortez.netSimulator.events.SimEventListener;
-import dacortez.netSimulator.network.Router;
 import dacortez.netSimulator.parser.Parser;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.07
  */
-public class Simulator implements SimEventListener {
+public class Simulator {
 	// Objeto responsável pela leitura do arquivo de entrada 
 	// e construção dos objetos da simulação (a rede).
 	private Parser parser;
 	// Lista de eventos que ocorrem na rede da simulação que 
 	// devem ser processados em ordem (tempo da simulação).
-	private Queue<SimEvent> queue;
+	private static Queue<SimEvent> queue;
 	// Tamanho máximo da fila de eventos que o simulador pode suportar.
 	// private int MAX_QUEUE_SIZE = 1;
 
@@ -51,42 +49,10 @@ public class Simulator implements SimEventListener {
 	public void simulate() {
 		if (parser.parse()) {
 			parser.printElements();
-			linkElementsToSimulator();
 			startAllServers();
 			processHostActions();
 			processQueue();
 		}
-	}
-
-	private void linkElementsToSimulator() {
-		linkDnsServersToSimulator();
-		linkHttpServersToSimulator();
-		linkHttpClientsToSimulator();
-		linkRoutersToSimulator();
-	}
-	
-	private void linkDnsServersToSimulator() {
-		Collection<DnsServer> servers = parser.getDnsServers();
-		for (DnsServer server: servers)
-			server.addSimEventListener(this);
-	}
-
-	private void linkHttpServersToSimulator() {
-		Collection<HttpServer> servers = parser.getHttpServers();
-		for (HttpServer server: servers)
-			server.addSimEventListener(this);
-	}
-
-	private void linkHttpClientsToSimulator() {
-		Collection<HttpClient> clients = parser.getHttpClients();
-		for (HttpClient client: clients)
-			client.addSimEventListener(this);
-	}
-
-	private void linkRoutersToSimulator() {
-		Collection<Router> routers = parser.getRouters();
-		for (Router router: routers)
-			router.addSimEventListener(this);
 	}
 
 	private void startAllServers() {
@@ -129,14 +95,14 @@ public class Simulator implements SimEventListener {
 	private void processQueue() {
 		while (!queue.isEmpty()) {
 			SimEvent e = queue.poll();
-			System.out.println(e);
+			System.out.println("Evento retirado da fila:\n" + e + "\n");
 			e.fire();
 			if (e instanceof Finish) break;
 		}	
 	}
 
-	@Override
-	public void simEventHandler(SimEvent e) {
+	public static void addToQueue(SimEvent e) {
+		System.out.println("Evento adicionado à fila:\n" + e + "\n");
 		queue.add(e);
 	}
 }

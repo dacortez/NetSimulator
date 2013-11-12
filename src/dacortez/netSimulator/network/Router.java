@@ -6,7 +6,6 @@ import java.util.List;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.events.EventArgs;
-import dacortez.netSimulator.events.SimEventListener;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -44,11 +43,6 @@ public class Router {
 		routes = new HashMap<Ip, RouterInterface>();
 	}
 	
-	public void addSimEventListener(SimEventListener listener) {
-		for (RouterInterface ri: interfaces)
-			ri.addSimEventListener(listener);
-	}
-	
 	public RouterInterface getRouterInterface(int port) {
 		return interfaces.get(port);
 	}
@@ -69,11 +63,8 @@ public class Router {
 	}
 		
 	public void route(Datagram data, double time) {
-		System.out.println("Roteador " + name + " roteou datagrama:");
-		System.out.println(data);
 		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
 		if (toInterface != null) { 
-			System.out.println("[ROTEADO PARA PORTA " + toInterface.getPort()  + "]\n");
 			EventArgs args = new EventArgs(data, time);
 			toInterface.fireNetworkEvent(args);
 		}

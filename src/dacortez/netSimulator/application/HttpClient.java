@@ -12,10 +12,6 @@ import dacortez.netSimulator.application.messages.Message;
 public class HttpClient extends Host {
 	// Nome do cliente HTTP.
 	private String clientName;
-	
-	// Talvez criar uma lista de processos contendo essas informações e vincular com o socket criado.
-	// Último host solicitada.
-	private String host;
 	// Último recurso solicitado
 	private String resource;
 	
@@ -29,12 +25,23 @@ public class HttpClient extends Host {
 	}
 	
 	public void get(String host, String resource) {
-		this.host = host;
 		this.resource = resource;
-		if (Ip.isValid(host))
-			httpGetting(new Ip(host));
-		else
+		if (!Ip.isValid(host))
 			dnsLooking(host);
+		else
+			httpGetting(new Ip(host));
+	}
+	
+	private void dnsLooking(String host) {
+		socket = new Socket();
+		socket.setDestinationIp(dnsServerIp);
+		socket.setDestinationPort(DnsServer.LISTEN_PORT);
+		state = AppState.DNS_LOOKING;
+		serviceProvider.send(dnsQueryMessage(host), socket);
+	}
+	
+	private DnsQuery dnsQueryMessage(String host) {
+		return new DnsQuery(host);
 	}
 	
 	private void httpGetting(Ip host) {
@@ -47,20 +54,8 @@ public class HttpClient extends Host {
 	
 	private HttpRequest httpGetMessage() {
 		if (resource != null)
-			return new HttpRequest("GET " + host + " /" + resource);
-		return new HttpRequest("GET " + host);
-	}
-
-	private void dnsLooking(String host) {
-		socket = new Socket();
-		socket.setDestinationIp(dnsServerIp);
-		socket.setDestinationPort(DnsServer.LISTEN_PORT);
-		state = AppState.DNS_LOOKING;
-		serviceProvider.send(dnsQueryMessage(host), socket);
-	}
-	
-	private DnsQuery dnsQueryMessage(String host) {
-		return new DnsQuery(host);
+			return new HttpRequest("GET /" + resource);
+		return new HttpRequest("GET /");
 	}
 	
 	@Override

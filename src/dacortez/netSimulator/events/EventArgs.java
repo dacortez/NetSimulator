@@ -32,8 +32,17 @@ public class EventArgs {
 
 	@Override
 	public String toString() {
-		if (data == null)	
-			return "Datagrama = null; Time = " + time;
-		return "Datagrama = " + data.getId() + "; Time = " + time;
+		StringBuilder sb = new StringBuilder();
+		if (data == null) {
+			sb.append("Datagrama:\n");
+			sb.append("null\n");
+			sb.append("Time: ").append(time);
+		}
+		else {
+			sb.append("Datagrama: #").append(data.getId()).append("\n");
+			sb.append(data).append("\n");
+			sb.append("Time: ").append(time);
+		}
+		return sb.toString();
 	}
 }

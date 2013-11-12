@@ -1,5 +1,6 @@
 package dacortez.netSimulator.network;
 
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.InRouter;
 import dacortez.netSimulator.events.OutRouter;
@@ -7,7 +8,7 @@ import dacortez.netSimulator.events.OutRouter;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.08
+ * @version 2013.11.12
  */
 public class RouterInterface extends Interface {
 	// Roteador associado a esta interface.
@@ -43,26 +44,17 @@ public class RouterInterface extends Interface {
 
 	@Override
 	public void networkEventHandler(EventArgs args) {
-		System.out.println("Interface do roteador " + ip + " recebeu datagrama:");
-		System.out.println(args.getDatagram());
-		System.out.println("[ENVIANDO EVENTO IN_ROUTER PARA O SIM]\n");
-		InRouter e = new InRouter(this, args);
-		fireSimEvent(e);
+		Simulator.addToQueue(new InRouter(this, args));
 	}
 	
 	public void queueing(EventArgs args) {
-		System.out.println("Interface " + ip + " do roteador 'queueing' datagrama:");
-		System.out.println(args.getDatagram());
-		System.out.println("[ENVIANDO EVENTO OUT_ROUTER PARA O SIM]\n");
 		if (currentSize < queueSize) {
 			Datagram data = args.getDatagram();
 			double time = args.getTime();
-			currentSize++;
-			if (currentSize == 1) queueEmptyTime = time;
+			if (++currentSize == 1) queueEmptyTime = time;
 			queueEmptyTime += router.getProcessingTime(data);
 			EventArgs out = new EventArgs(data, queueEmptyTime);
-			OutRouter e = new OutRouter(this, out);
-			fireSimEvent(e);
+			Simulator.addToQueue(new OutRouter(this, out));
 		}
 	}
 	

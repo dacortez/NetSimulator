@@ -21,6 +21,9 @@ public class InHost extends SimEvent {
 	
 	@Override
 	public String toString() {
-		return "*** InHost: " + args.toString();
+		StringBuilder sb = new StringBuilder("IN_HOST:\n");
+		sb.append("Sender: ").append(sender).append("\n");
+		sb.append(args);
+		return sb.toString();
 	}
 }

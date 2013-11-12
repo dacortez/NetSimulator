@@ -19,6 +19,9 @@ public class OutHost extends SimEvent {
 	
 	@Override
 	public String toString() {
-		return "*** OutHost: " + args.toString();
+		StringBuilder sb = new StringBuilder("OUT_HOST:\n");
+		sb.append("Sender: ").append(sender).append("\n");
+		sb.append(args);
+		return sb.toString();
 	}
 }

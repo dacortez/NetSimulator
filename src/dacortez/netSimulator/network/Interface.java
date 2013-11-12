@@ -5,8 +5,6 @@ import java.util.List;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.events.EventArgs;
-import dacortez.netSimulator.events.SimEvent;
-import dacortez.netSimulator.events.SimEventListener;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -17,8 +15,6 @@ public abstract class Interface implements NetworkEventListener {
 	protected Ip ip;
 	// Enlace ao qual a interface está conectada.
 	protected DuplexLink link;
-	// Coleção de classes registradas ao evento SimEventListener (o simulator).
-	private List<SimEventListener> simEventListeners;
 	// Coleção de classes registradas ao evento NetworkEvent (sniffers e outras interfaces).
 	private List<NetworkEventListener> networkEventListeners;
 	
@@ -38,18 +34,6 @@ public abstract class Interface implements NetworkEventListener {
 		this.link = link;
 	}
 	
-	public void addSimEventListener(SimEventListener listener) {
-		if (simEventListeners == null)
-			simEventListeners = new ArrayList<SimEventListener>();
-		simEventListeners.add(listener);
-	}
-	
-	public void fireSimEvent(SimEvent e) {
-		if (simEventListeners != null)
-			for (SimEventListener listener: simEventListeners)
-				listener.simEventHandler(e);
-	}
-	
 	public void addNetworkEventListener(NetworkEventListener listener) {
 		if (networkEventListeners == null)
 			networkEventListeners = new ArrayList<NetworkEventListener>();
@@ -57,13 +41,9 @@ public abstract class Interface implements NetworkEventListener {
 	}
 	
 	public void fireNetworkEvent(EventArgs args) {
-		if (networkEventListeners != null) {
-			System.out.println("Interface " + ip + " recebeu datagrama:");
-			System.out.println(args.getDatagram());
-			System.out.println("[ENVIANDO DATAGRAMA VIA LINK]\n");
+		if (networkEventListeners != null)
 			for (NetworkEventListener listener: networkEventListeners)
 				listener.networkEventHandler(args);
-		}
 	}
 	
 	@Override

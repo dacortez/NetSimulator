@@ -21,6 +21,9 @@ public class InRouter extends SimEvent {
 	
 	@Override
 	public String toString() {
-		return "*** InRouter: " + args.toString();
+		StringBuilder sb = new StringBuilder("IN_ROUTER:\n");
+		sb.append("Sender: ").append(sender).append("\n");
+		sb.append(args);
+		return sb.toString();
 	}
 }

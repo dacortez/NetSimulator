@@ -35,9 +35,6 @@ public class ServiceProvider {
 	}
 	
 	public void send(Message message, Socket socket) {
-		System.out.println("Provider de serviços do host " + hostInterface.getIp() + " recebeu mensagem:");
-		System.out.println(message);
-		System.out.println("[MULTIPLEXING E PASSANDO SEGMENTO PARA INTERFACE DO HOST]\n");
 		Segment segment = multiplexing(message, socket);
 		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
@@ -55,9 +52,6 @@ public class ServiceProvider {
 	}
 
 	public void receive(Segment segment, Ip sourceIp, Ip destinationIp) {
-		System.out.println("Provider de serviços do host " + hostInterface.getIp() + " recebeu segmento:");
-		System.out.println(segment);
-		System.out.println("[DEMULTIPLEXING E PASSANDO MENSSAGEM PARA A APLICAÇÃO]\n");
 		Socket socket = demultiplexing(segment, sourceIp, destinationIp);
 		host.receive(segment.getMessage(), socket);	
 	}

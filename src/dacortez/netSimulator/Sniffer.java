@@ -1,6 +1,8 @@
 package dacortez.netSimulator;
 
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.network.Datagram;
@@ -19,6 +21,8 @@ public class Sniffer implements NetworkEventListener {
 	// Interfaces entre os quais o sniffer fará o monitoramento da rede.
 	private Interface point1; 
 	private Interface point2;
+	// PrintStream utilizado para imprimir dados em arquivo.
+	private PrintStream ps;
 
 	public String getName() {
 		return name;
@@ -30,6 +34,13 @@ public class Sniffer implements NetworkEventListener {
 
 	public void setFile(String file) {
 		this.file = file;
+		try {
+			ps = new PrintStream(new File(file));
+		} catch (FileNotFoundException e) {
+			System.err.println("Erro ao criar arquivo de captura de dados do Sniffer " + name + ".");
+			System.err.println("(dados capturados serão mostrados apenas na saída padrão).");
+			ps = null;
+		}
 	}
 
 	public void setPoint1(Interface point1) {
@@ -46,15 +57,22 @@ public class Sniffer implements NetworkEventListener {
 	
 	@Override
 	public void networkEventHandler(EventArgs args) {
+		String output = getOutput(args);
+		System.out.println(output);
+		if (ps != null) ps.println(output); 
+	}
+	
+	private String getOutput(EventArgs args) {
 		Datagram data = args.getDatagram();
-		System.out.println("--------------------------------------------------------------");
-		System.out.println("Sniffer: " + name);
-		System.out.println("Instante da captura: " + args.getTime());
-		System.out.println("Número do datagrama: " + data.getId());
-		System.out.println("Datagrama:");
-		System.out.println(data);
-		System.out.println("--------------------------------------------------------------");
-		System.out.println(); 
+		StringBuilder sb = new StringBuilder();
+		sb.append("--------------------------------------------------------------\n");
+		sb.append("Sniffer: " + name + "\n");
+		sb.append("Instante da captura: " + args.getTime() + "\n");
+		sb.append("Número do datagrama: " + data.getId() + "\n");
+		sb.append("Datagrama:\n");
+		sb.append(data + "\n");
+		sb.append("--------------------------------------------------------------\n");
+		return sb.toString();
 	}
 	
 	@Override

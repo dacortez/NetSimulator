@@ -54,6 +54,12 @@ public class RouterInterface extends Interface {
 			if (++currentSize == 1) queueEmptyTime = time;
 			queueEmptyTime += router.getProcessingTime(data);
 			EventArgs out = new EventArgs(data, queueEmptyTime);
+			
+			// DEBUG
+			System.err.println("qs  " + ip + ": " + currentSize);
+			System.err.println("qet " + ip + ": " + queueEmptyTime);
+			System.err.println();
+			
 			Simulator.addToQueue(new OutRouter(this, out));
 		}
 	}

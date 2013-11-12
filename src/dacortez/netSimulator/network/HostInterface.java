@@ -24,6 +24,9 @@ public class HostInterface extends Interface {
 	public void send(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Datagram data = new Datagram(segment, sourceIp, destinationIp);
 		double time = TimeUtil.getEndTime() + link.getTransmissionTime(data.getNumberOfBytes());
+		
+		System.out.println("*************** DATA_SIZE = " + data.getNumberOfBytes());
+		
 		EventArgs args = new EventArgs(data, time);
 		Simulator.addToQueue(new OutHost(this, args));
 	}

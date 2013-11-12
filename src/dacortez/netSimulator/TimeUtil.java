@@ -16,7 +16,12 @@ public class TimeUtil {
 	}
 	
 	public static double getEndTime() {
+		//return time + elapsedTime();
+		return time;
+	}
+	
+	public static double elapsedTime() {
 		long now = System.currentTimeMillis();
-		return time + (now - setTime) / 1000.0;
+		return (now - setTime) / 1000.0;
 	}
 }

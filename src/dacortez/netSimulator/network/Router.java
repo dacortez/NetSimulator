@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
+import dacortez.netSimulator.events.InterfaceOutcomingData;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -27,6 +29,10 @@ public class Router {
 
 	public List<RouterInterface> getInterfaces() {
 		return interfaces;
+	}
+	
+	public double getProcessingTime() {
+		return processingTime;
 	}
 
 	public void setProcessingTime(double processingTime) {
@@ -66,14 +72,8 @@ public class Router {
 		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
 		if (toInterface != null) { 
 			EventArgs args = new EventArgs(data, time);
-			toInterface.fireNetworkEvent(args);
+			Simulator.addToQueue(new InterfaceOutcomingData(toInterface, args));
 		}
-	}
-	
-	public double getProcessingTime(Datagram data) {
-		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
-		double transmissionTime = toInterface.getLink().getTransmissionTime(data.getNumberOfBytes());
-		return transmissionTime + (processingTime / 1000000.0);
 	}
 	
 	@Override

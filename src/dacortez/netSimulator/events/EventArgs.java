@@ -39,7 +39,8 @@ public class EventArgs {
 			sb.append("Time: ").append(time);
 		}
 		else {
-			sb.append("Datagrama: #").append(data.getId()).append("\n");
+			sb.append("Datagrama: #").append(data.getId());
+			sb.append(" (").append(data.getNumberOfBytes()).append("):\n");
 			sb.append(data).append("\n");
 			sb.append("Time: ").append(time);
 		}

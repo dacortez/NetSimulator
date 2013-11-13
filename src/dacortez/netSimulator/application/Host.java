@@ -77,7 +77,7 @@ public class Host {
 			processReceived(message);
 		}
 		else
-			System.out.println("Socket fechado!");
+			System.out.println("Socket fechado!\n");
 	}
 	
 	protected void processReceived(Message message) {

@@ -1,9 +1,12 @@
 package dacortez.netSimulator.network;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
-import dacortez.netSimulator.events.InRouter;
-import dacortez.netSimulator.events.OutRouter;
+import dacortez.netSimulator.events.RouterIncomingData;
+import dacortez.netSimulator.events.DataQueuedInRouter;
 
 
 /**
@@ -17,10 +20,8 @@ public class RouterInterface extends Interface {
 	private Integer port;
 	// Tamanho da fila em quantidade de pacotes.
 	private int queueSize;
-
-	private int currentSize;
-	
-	private double queueEmptyTime;
+	// Fila da interface do roteador.
+	private List<EventArgs> queue;
 	
 	public Integer getPort() {
 		return port;
@@ -38,37 +39,59 @@ public class RouterInterface extends Interface {
 		super();
 		this.router = router;
 		this.port = port;
-		currentSize = 0;
-		queueEmptyTime = 0.0;
+		linkQueue = new ArrayList<EventArgs>();
+		queue = new ArrayList<EventArgs>();
+	}
+	
+	public void queueing(EventArgs args) {
+		if (queue.size() < queueSize) {
+			Datagram data = args.getDatagram();
+			double outOfQueueTime = getOutOfQueueTime(args);
+			EventArgs out = new EventArgs(data, outOfQueueTime);
+			queue.add(args);
+			debugQueue(outOfQueueTime);
+			Simulator.addToQueue(new DataQueuedInRouter(this, out));
+		}
+	}
+
+	private void debugQueue(double outOfQueueTime) {
+		if (Simulator.debugMode) {
+			System.out.println("***************************************************");
+			System.out.println("Router interface " + ip + " QUEUE: " + queue.size());
+			System.out.println("Out of queue time: " + outOfQueueTime);
+			System.out.println("***************************************************");
+			System.out.println();
+		}
+	}
+	
+	private double getOutOfQueueTime(EventArgs in) {
+		double inTime = in.getTime();
+		double processingTime = router.getProcessingTime() / 1000000.0;
+		if (queue.isEmpty())
+			return inTime + processingTime;
+		double first = Double.MAX_VALUE;
+		for (EventArgs args: queue)
+			if (args.getTime() < first)
+				first = args.getTime();
+		return first + queue.size() * processingTime;
+	}
+	
+	public void dequeueing(EventArgs args) {
+		int index = -1;
+		for (EventArgs queueArgs: queue)
+			if (queueArgs.getDatagram() == args.getDatagram())
+				index = queue.indexOf(queueArgs);
+		if (index != -1) {
+			queue.remove(index);
+			router.route(args.getDatagram(), args.getTime());
+		}
 	}
 
 	@Override
 	public void networkEventHandler(EventArgs args) {
-		Simulator.addToQueue(new InRouter(this, args));
+		Simulator.addToQueue(new RouterIncomingData(this, args));
 	}
-	
-	public void queueing(EventArgs args) {
-		if (currentSize < queueSize) {
-			Datagram data = args.getDatagram();
-			double time = args.getTime();
-			if (++currentSize == 1) queueEmptyTime = time;
-			queueEmptyTime += router.getProcessingTime(data);
-			EventArgs out = new EventArgs(data, queueEmptyTime);
-			
-			// DEBUG
-			System.err.println("qs  " + ip + ": " + currentSize);
-			System.err.println("qet " + ip + ": " + queueEmptyTime);
-			System.err.println();
-			
-			Simulator.addToQueue(new OutRouter(this, out));
-		}
-	}
-	
-	public void route(EventArgs args) {
-		currentSize--;
-		router.route(args.getDatagram(), args.getTime());
-	}
-	
+		
 	@Override
 	public String toString() {
 		return "(" + ip + ":" + port + ", fila: " + queueSize + ") => " + link; 

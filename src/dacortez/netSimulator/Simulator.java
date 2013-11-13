@@ -24,9 +24,9 @@ public class Simulator {
 	// Lista de eventos que ocorrem na rede da simulação que 
 	// devem ser processados em ordem (tempo da simulação).
 	private static Queue<SimEvent> queue;
-	// Tamanho máximo da fila de eventos que o simulador pode suportar.
-	// private int MAX_QUEUE_SIZE = 1;
-
+	// Variável indicando se o modo de depuração de mensagens está ativo.
+	public static boolean debugMode = true;
+	
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
@@ -46,7 +46,7 @@ public class Simulator {
 		});
 	}
 	
-	public void simulate() {
+	public void simulate() {		
 		if (parser.parse()) {
 			parser.printElements();
 			startAllServers();
@@ -95,14 +95,14 @@ public class Simulator {
 	private void processQueue() {
 		while (!queue.isEmpty()) {
 			SimEvent e = queue.poll();
-			System.out.println("Evento retirado da fila:\n" + e + "\n");
+			if (debugMode) System.out.println("Evento retirado da fila:\n" + e + "\n");
 			e.fire();
 			if (e instanceof Finish) break;
 		}	
 	}
 
 	public static void addToQueue(SimEvent e) {
-		System.out.println("Evento adicionado à fila:\n" + e + "\n");
+		if (debugMode) System.out.println("Evento adicionado à fila:\n" + e + "\n");
 		queue.add(e);
 	}
 }

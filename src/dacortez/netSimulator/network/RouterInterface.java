@@ -56,11 +56,10 @@ public class RouterInterface extends Interface {
 
 	private void debugQueue(double outOfQueueTime) {
 		if (Simulator.debugMode) {
-			System.out.println("***************************************************");
+			System.out.println("**************************************************************");
 			System.out.println("Router interface " + ip + " QUEUE: " + queue.size());
 			System.out.println("Out of queue time: " + outOfQueueTime);
-			System.out.println("***************************************************");
-			System.out.println();
+			System.out.println("**************************************************************\n");
 		}
 	}
 	
@@ -94,6 +93,6 @@ public class RouterInterface extends Interface {
 		
 	@Override
 	public String toString() {
-		return "(" + ip + ":" + port + ", fila: " + queueSize + ") => " + link; 
+		return "(" + ip + ":" + port + ", queue_size: " + queueSize + ") => " + link; 
 	}
 }

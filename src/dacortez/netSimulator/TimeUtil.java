@@ -10,7 +10,7 @@ public class TimeUtil {
 	// Aramazena o instante de tempo real em que o método setStartTime() foi chamado.
 	private static long setTime;
 	// Diz se a simulação deve considerar os tempos reais de processamento pelos hosts.
-	public static boolean hostRealProcessingTime = true;
+	public static boolean useHostsRealProcessingTime = true;
 	
 	public static void setStartTime(double time) {
 		setTime = System.nanoTime();
@@ -18,7 +18,7 @@ public class TimeUtil {
 	}
 	
 	public static double getEndTime() {
-		if (hostRealProcessingTime)
+		if (useHostsRealProcessingTime)
 			return time + elapsedTime();
 		return time;
 	}

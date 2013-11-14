@@ -51,6 +51,12 @@ public class Datagram {
 	
 	@Override
 	public String toString() {
-		return sourceIp + "\n" + destinationIp + "\n" + segment; 
+		StringBuilder sb = new StringBuilder();
+		sb.append("DATAGRAM #").append(id);
+		sb.append(" (").append(getNumberOfBytes()).append(" bytes):\n");
+		sb.append(sourceIp).append("\n");
+		sb.append(destinationIp).append("\n");
+		sb.append(segment).append("\n");
+		return sb.toString(); 
 	}
 }

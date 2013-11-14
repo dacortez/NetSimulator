@@ -33,7 +33,7 @@ public class Simulator {
 			return;
 		}
 		Simulator sim = new Simulator(args[0]);
-		sim.simulate();
+		sim.simulate(false);
 	}
 	
 	public Simulator(String file) {
@@ -46,7 +46,8 @@ public class Simulator {
 		});
 	}
 	
-	public void simulate() {		
+	public void simulate(boolean flag) {
+		TimeUtil.useHostsRealProcessingTime = flag;
 		if (parser.parse()) {
 			parser.printElements();
 			startAllServers();
@@ -95,14 +96,16 @@ public class Simulator {
 	private void processQueue() {
 		while (!queue.isEmpty()) {
 			SimEvent e = queue.poll();
-			if (debugMode) System.out.println("Evento retirado da fila:\n" + e + "\n");
+			if (debugMode) 
+				System.out.println("(-) Evento retirado da fila do simulador:\n" + e);
 			e.fire();
 			if (e instanceof Finish) break;
 		}	
 	}
 
 	public static void addToQueue(SimEvent e) {
-		if (debugMode) System.out.println("Evento adicionado à fila:\n" + e + "\n");
+		if (debugMode) 
+			System.out.println("(+) Evento adicionado à fila do simulador:\n" + e);
 		queue.add(e);
 	}
 }

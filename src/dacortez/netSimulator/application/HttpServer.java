@@ -26,7 +26,7 @@ public class HttpServer extends Host {
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
 		state = AppState.HTTP_LISTENING;
-		System.out.println("** Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
+		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override

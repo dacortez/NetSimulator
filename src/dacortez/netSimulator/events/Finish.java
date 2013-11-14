@@ -13,6 +13,6 @@ public class Finish extends SimEvent {
 	
 	@Override
 	public String toString() {
-		return "*** Finish: " + args.toString();
+		return "FINISH:\n" + args.toString();
 	}
 }

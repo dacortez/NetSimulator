@@ -68,9 +68,7 @@ public class Sniffer implements NetworkEventListener {
 		sb.append("--------------------------------------------------------------\n");
 		sb.append("Sniffer: " + name + "\n");
 		sb.append("Instante da captura: " + args.getTime() + "\n");
-		sb.append("Datagrama #").append(data.getId());
-		sb.append(" (").append(data.getNumberOfBytes()).append("):\n");
-		sb.append(data + "\n");
+		sb.append(data);
 		sb.append("--------------------------------------------------------------\n");
 		return sb.toString();
 	}

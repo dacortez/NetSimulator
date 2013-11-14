@@ -33,17 +33,9 @@ public class EventArgs {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		if (data == null) {
-			sb.append("Datagrama:\n");
-			sb.append("null\n");
-			sb.append("Time: ").append(time);
-		}
-		else {
-			sb.append("Datagrama: #").append(data.getId());
-			sb.append(" (").append(data.getNumberOfBytes()).append("):\n");
-			sb.append(data).append("\n");
-			sb.append("Time: ").append(time);
-		}
+		sb.append("Time: ").append(time).append("\n");
+		if (data != null)
+			sb.append(data);			
 		return sb.toString();
 	}
 }

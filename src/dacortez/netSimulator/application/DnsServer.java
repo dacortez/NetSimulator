@@ -36,7 +36,7 @@ public class DnsServer extends Host {
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
 		state = AppState.DNS_LISTENING;
-		System.out.println("** Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
+		System.out.println("# Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override

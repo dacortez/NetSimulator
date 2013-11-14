@@ -62,11 +62,10 @@ public abstract class Interface implements NetworkEventListener {
 
 	private void debugLinkQueue(double timeAtDestination) {
 		if (Simulator.debugMode) {
-			System.out.println("***************************************************");
+			System.out.println("**************************************************************");
 			System.out.println("Interface " + ip + " LINK_QUEUE: " + linkQueue.size());
 			System.out.println("Time at destination: " + timeAtDestination);
-			System.out.println("***************************************************");
-			System.out.println();
+			System.out.println("**************************************************************\n");
 		}
 	}
 	

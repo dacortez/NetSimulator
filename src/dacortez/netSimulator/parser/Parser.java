@@ -397,49 +397,49 @@ public class Parser {
 	}
 	
 	private void printLinks() {
-		System.out.println("----------- Lista de Duplex-Links ------------");
+		System.out.println("\n** Lista de Duplex-Links **");
 		for (DuplexLink link: links)
 			System.out.println(link);
 	}
 	
 	private void printHosts() {
-		System.out.println("------------ Lista de Hosts ------------");
+		System.out.println("\n** Lista de Hosts **");
 		for (Host host: hosts.values())
 			System.out.println(host);
 	}
 	
 	private void printDnsServers() {
-		System.out.println("------------ Lista de Servidores DNS ------------");
+		System.out.println("\n** Lista de Servidores DNS **");
 		for (DnsServer dnsServer: dnsServers.values())
 			System.out.println(dnsServer);
 	}
 	
 	private void printHttpServers() {
-		System.out.println("------------ Lista de Servidores HTTP ------------");
+		System.out.println("\n** Lista de Servidores HTTP **");
 		for (HttpServer httpServer: httpServers.values())
 			System.out.println(httpServer);
 	}
 	
 	private void printHttpClients() {
-		System.out.println("------------ Lista de Clientes HTTP ------------");
+		System.out.println("\n** Lista de Clientes HTTP **");
 		for (HttpClient httpClient: httpClients.values())
 			System.out.println(httpClient);
 	}
 	
 	private void printRouters() {
-		System.out.println("------------ Lista de Roteadores ------------");
+		System.out.println("\n** Lista de Roteadores **");
 		for (Router router: routers.values())
 			System.out.println(router);
 	}
 	
 	private void printSniffers() {
-		System.out.println("------------ Lista de Sniffers ------------");
+		System.out.println("\n** Lista de Sniffers **");
 		for (Sniffer sniffer: sniffers.values())
 			System.out.println(sniffer);
 	}
 	
 	private void printHostActions() {
-		System.out.println("------------ Lista de Ações ------------");
+		System.out.println("\n** Lista de Ações **");
 		for (HostAction hostAction: hostActions)
 			System.out.println(hostAction);
 	}

@@ -3,11 +3,10 @@ package dacortez.netSimulator.events;
 import dacortez.netSimulator.network.HostInterface;
 import dacortez.netSimulator.network.Interface;
 
-public class InterfaceIncomingData extends SimEvent {
+public class InboundData extends SimEvent {
 
-	public InterfaceIncomingData(Interface sender, EventArgs args) {
+	public InboundData(Interface sender, EventArgs args) {
 		super(sender, args);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -18,7 +17,7 @@ public class InterfaceIncomingData extends SimEvent {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("INTERFACE_INCOMING_DATA:\n");
+		StringBuilder sb = new StringBuilder("INBOUND_DATA:\n");
 		sb.append("Sender: ").append(sender).append("\n");
 		sb.append(args);
 		return sb.toString();

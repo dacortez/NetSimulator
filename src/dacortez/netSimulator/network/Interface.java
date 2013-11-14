@@ -6,7 +6,7 @@ import java.util.List;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
-import dacortez.netSimulator.events.DataQueuedInLink;
+import dacortez.netSimulator.events.QueuedData;
 
 
 /**
@@ -19,7 +19,7 @@ public abstract class Interface implements NetworkEventListener {
 	// Enlace ao qual a interface está conectada.
 	protected DuplexLink link;
 	// Fila de datagrams a serem enviados pelo link.
-	protected List<EventArgs> linkQueue;
+	protected List<EventArgs> queue;
 	// Coleção de classes registradas ao evento NetworkEvent (sniffers e outras interfaces).
 	private List<NetworkEventListener> networkEventListeners;
 	
@@ -51,46 +51,52 @@ public abstract class Interface implements NetworkEventListener {
 				listener.networkEventHandler(args);
 	}
 	
-	public void linkQueueing(EventArgs args) {
+	public void queuing(EventArgs args) {
 		Datagram data = args.getDatagram();
 		double timeAtDestination = getTimeAtDestination(args);
 		EventArgs destination = new EventArgs(data, timeAtDestination);
-		linkQueue.add(args);
+		queue.add(args);
 		debugLinkQueue(timeAtDestination);
-		Simulator.addToQueue(new DataQueuedInLink(this, destination));
-	}
-
-	private void debugLinkQueue(double timeAtDestination) {
-		if (Simulator.debugMode) {
-			System.out.println("**************************************************************");
-			System.out.println("Interface " + ip + " LINK_QUEUE: " + linkQueue.size());
-			System.out.println("Time at destination: " + timeAtDestination);
-			System.out.println("**************************************************************\n");
-		}
+		Simulator.addToQueue(new QueuedData(this, destination));
 	}
 	
 	private double getTimeAtDestination(EventArgs in) {
 		Datagram data = in.getDatagram();
 		double inTime = in.getTime();
-		double wait = link.getTransmissionTime(data.getNumberOfBytes());
-		if (linkQueue.isEmpty())
-			return inTime + wait;
+		double queuingDelay = delayToSend(data.getNumberOfBytes());
+		if (queue.isEmpty())
+			return inTime + queuingDelay;
 		double first = Double.MAX_VALUE;
-		for (EventArgs args: linkQueue) {
+		for (EventArgs args: queue) {
 			if (args.getTime() < first)
 				first = args.getTime();
-			wait += link.getTransmissionTime(args.getDatagram().getNumberOfBytes());
+			queuingDelay += delayToSend(args.getDatagram().getNumberOfBytes());
 		}
-		return first + wait;
+		return first + queuingDelay;
 	}
 	
-	public void linkDequeueing(EventArgs args) {
+	private double delayToSend(int numberOfBytes) {
+		double transmissionDelay = link.getTransmissionDelay(numberOfBytes);
+		double propagationDelay = link.getPropagationDelay();
+		return transmissionDelay + propagationDelay;
+	}
+
+	private void debugLinkQueue(double timeAtDestination) {
+		if (Simulator.debugMode) {
+			System.out.println("**************************************************************");
+			System.out.println("Interface " + ip + " QUEUE: " + queue.size());
+			System.out.println("Time at destination: " + timeAtDestination);
+			System.out.println("**************************************************************\n");
+		}
+	}
+	
+	public void dequeuing(EventArgs args) {
 		int index = -1;
-		for (EventArgs queueArgs: linkQueue)
+		for (EventArgs queueArgs: queue)
 			if (queueArgs.getDatagram() == args.getDatagram())
-				index = linkQueue.indexOf(queueArgs);
+				index = queue.indexOf(queueArgs);
 		if (index != -1) {
-			linkQueue.remove(index);
+			queue.remove(index);
 			fireNetworkEvent(args);
 		}
 	}

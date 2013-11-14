@@ -10,7 +10,7 @@ import dacortez.netSimulator.transport.Segment;
  */
 public class Datagram {
 	// Contador estático para identificação dos datagrmas.
-	private static int count = 0;
+	public static int count = 0;
 	// Identificador do datagrama.
 	private int id;
 	// Segmento da camada de transporte associado ao datagrama.

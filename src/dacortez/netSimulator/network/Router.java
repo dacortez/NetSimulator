@@ -7,7 +7,7 @@ import java.util.List;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
-import dacortez.netSimulator.events.InterfaceOutcomingData;
+import dacortez.netSimulator.events.OutboundData;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -19,7 +19,7 @@ public class Router {
 	// Lista de interfaces do roteador.
 	private List<RouterInterface> interfaces;
 	// Tempo para processar um pacote em us (microsegundos).
-	private double processingTime; 
+	private double processingDelay; 
 	// Tabela de rotas: ip da subrede apontando para interface do roteador.
 	private HashMap<Ip, RouterInterface> routes;
 		
@@ -31,12 +31,12 @@ public class Router {
 		return interfaces;
 	}
 	
-	public double getProcessingTime() {
-		return processingTime;
+	public double getProcessingDelay() {
+		return processingDelay;
 	}
 
-	public void setProcessingTime(double processingTime) {
-		this.processingTime = processingTime;
+	public void setProcessingDelay(double processingDelay) {
+		this.processingDelay = processingDelay;
 	}
 	
 	public Router(String name, int totalInterfaces) {
@@ -71,15 +71,16 @@ public class Router {
 	public void route(Datagram data, double time) {
 		RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
 		if (toInterface != null) { 
-			EventArgs args = new EventArgs(data, time);
-			Simulator.addToQueue(new InterfaceOutcomingData(toInterface, args));
+			double delayInSecs = processingDelay / 1000000.0;
+			EventArgs args = new EventArgs(data, time + delayInSecs);
+			Simulator.addToQueue(new OutboundData(toInterface, args));
 		}
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(name).append(": ").append(processingTime).append("us\n");
+		sb.append(name).append(": ").append(processingDelay).append("us\n");
 		appendInterfaces(sb);
 		appendRoutes(sb);
 		return sb.toString();

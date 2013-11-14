@@ -284,7 +284,7 @@ public class Parser {
 		Double processingTime = Double.parseDouble(match.group(2));
 		String[] queues = match.group(3).split("\\s+");
 		Router router = routers.get(name);
-		router.setProcessingTime(processingTime);
+		router.setProcessingDelay(processingTime);
 		System.out.println("[Configurado tempo de processamento do roteador " + name + ": " + processingTime + "us]");
 		for (int i = 0; i < queues.length; i += 2) {
 			Integer port = Integer.parseInt(queues[i]);

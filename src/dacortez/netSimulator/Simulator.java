@@ -25,7 +25,7 @@ public class Simulator {
 	// devem ser processados em ordem (tempo da simulação).
 	private static Queue<SimEvent> queue;
 	// Variável indicando se o modo de depuração de mensagens está ativo.
-	public static boolean debugMode = false;
+	public static boolean debugMode = true;
 	
 	public static void main(String[] args) {
 		if (args.length != 1) {

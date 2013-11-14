@@ -15,8 +15,12 @@ public class DuplexLink {
 		this.delay = delay;
 	}
 	
-	public double getTransmissionTime(int numberOfbytes) {
-		return (delay / 1000.0) +  (8.0 * numberOfbytes) / (1000000.0 * capacity); 
+	public double getTransmissionDelay(int numberOfbytes) {
+		return (8.0 * numberOfbytes) / (1000000.0 * capacity); 
+	}
+	
+	public double getPropagationDelay() {
+		return (delay / 1000.0); 
 	}
 	
 	@Override

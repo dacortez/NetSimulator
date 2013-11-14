@@ -12,6 +12,10 @@ public class Message {
 		return data;
 	}
 	
+	public Message() {
+		this.data = null;
+	}
+	
 	public Message(String data) {
 		this.data = data;
 	}

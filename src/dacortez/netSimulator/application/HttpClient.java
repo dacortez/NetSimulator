@@ -3,7 +3,11 @@ package dacortez.netSimulator.application;
 import java.util.ArrayList;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.messages.DnsQuery;
+import dacortez.netSimulator.application.dns.DnsAnswer;
+import dacortez.netSimulator.application.dns.DnsMessage;
+import dacortez.netSimulator.application.dns.DnsQuestion;
+import dacortez.netSimulator.application.dns.DnsServer;
+import dacortez.netSimulator.application.dns.RRType;
 import dacortez.netSimulator.application.messages.HttpRequest;
 import dacortez.netSimulator.application.messages.Message;
 
@@ -41,11 +45,13 @@ public class HttpClient extends Host {
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
 		Process process = new Process(socket, ProcessState.DNS_LOOKING);
 		processes.add(process);
-		serviceProvider.send(dnsQueryMessage(host), process);
+		serviceProvider.send(dnsMessage(host), process);
 	}
 	
-	private DnsQuery dnsQueryMessage(String host) {
-		return new DnsQuery(host);
+	private DnsMessage dnsMessage(String host) {
+		DnsMessage message = new DnsMessage(0, false);
+		message.addQuestion(new DnsQuestion(host, RRType.A));
+		return message;
 	}
 	
 	private void httpGetting(Ip host) {
@@ -74,13 +80,23 @@ public class HttpClient extends Host {
 	@Override
 	protected void handleReceived(Message message, ProcessState state) {
 		if (state == ProcessState.DNS_LOOKING) {
-			if (!message.getData().contentEquals("NAO")) {
-				httpGetting(new Ip(message.getData()));
+			if (message instanceof DnsMessage) {
+				Ip hostIp = getIp((DnsMessage) message);
+				if (hostIp != null) 
+					httpGetting(hostIp);
 			}
 		}
 		else if (state == ProcessState.HTTP_GETTING) {
 
 		}
+	}
+
+	private Ip getIp(DnsMessage reply) {
+		if (reply.isReply() && !reply.getAnswears().isEmpty()) {
+			DnsAnswer answer = reply.getAnswears().get(0);
+			return new Ip(answer.getValue());
+		}
+		return null;
 	}
 
 	@Override

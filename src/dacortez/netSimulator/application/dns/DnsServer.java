@@ -1,9 +1,13 @@
-package dacortez.netSimulator.application;
+package dacortez.netSimulator.application.dns;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.application.Host;
+import dacortez.netSimulator.application.Process;
+import dacortez.netSimulator.application.ProcessState;
+import dacortez.netSimulator.application.Socket;
 import dacortez.netSimulator.application.messages.Message;
 
 /**
@@ -16,7 +20,7 @@ public class DnsServer extends Host {
 	// Nome do servidor DNS.
 	private String serverName;
 	// Mapa de endereços IPs.
-	private HashMap<String, Ip> ipsMap;
+	private List<ResourceRecord> resourceRecords;
 	// Processo permanente responsável por ficar escutando as requisições.
 	private Process serverProcess;
 
@@ -27,12 +31,14 @@ public class DnsServer extends Host {
 	public DnsServer(String serverName) {
 		super();
 		this.serverName = serverName;
-		ipsMap = new HashMap<String, Ip>();
+		resourceRecords = new ArrayList<ResourceRecord>();
 		processes = new ArrayList<Process>();
 	}
 	
 	public void addHost(String name, Ip ip) {
-		ipsMap.put(name, ip);
+		ResourceRecord rr = new ResourceRecord(name, ip.toString(), RRType.A, 0);
+		resourceRecords.add(rr);
+		System.out.println("+ Adicionado registro ao servidor dns " + serverName + ": " + rr + "\n");
 	}
 	
 	public void start() {
@@ -53,17 +59,33 @@ public class DnsServer extends Host {
 	@Override
 	protected void handleReceived(Message message, ProcessState state) {
 		if (state == ProcessState.DNS_LISTENING) {
-			String name = message.getData();
-			Ip ip = ipsMap.get(name);
-			Message response;
-			if (ip != null)
-				response = new Message(ip.toString());
-			else 
-				response = new Message("NAO");
-			serviceProvider.send(response, serverProcess);
+			if (message instanceof DnsMessage)
+				sendAnswers((DnsMessage) message);
 			serverProcess.getSocket().setDestinationIp(null);
 			serverProcess.getSocket().setDestinationPort(null);
 		}
+	}
+
+	private void sendAnswers(DnsMessage request) {
+		if (!request.isReply()) {
+			DnsMessage message = new DnsMessage(request.getId(), true);
+			for (DnsQuestion question: request.getQuestions()) {
+				DnsAnswer answer = answer(question);
+				if (answer != null) message.addAnswer(answer);
+			}
+			serviceProvider.send(message, serverProcess);
+		}
+	}
+	
+	private DnsAnswer answer(DnsQuestion question) {
+		for (ResourceRecord rr: resourceRecords)
+			if (question.getName().contentEquals(rr.getName())) {
+				RRType type = rr.getType();
+				String value = rr.getValue();
+				Integer ttl = rr.getTtl();
+				return new DnsAnswer(type, value, ttl); 
+			}
+		return null;
 	}
 	
 	@Override

@@ -10,10 +10,10 @@ import java.util.regex.Matcher;
 import dacortez.netSimulator.HostAction;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Sniffer;
-import dacortez.netSimulator.application.DnsServer;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.HttpClient;
 import dacortez.netSimulator.application.HttpServer;
+import dacortez.netSimulator.application.dns.DnsServer;
 import dacortez.netSimulator.network.DuplexLink;
 import dacortez.netSimulator.network.Interface;
 import dacortez.netSimulator.network.Router;
@@ -67,7 +67,6 @@ public class Parser {
 			while ((line = reader.readLine()) != null)
 				parseLine(line);
 			reader.close();
-			setupDnsServers();
 			return true;
 		} catch (Exception e) {
 			System.out.println("Ocorreu um erro na tradução do arquivo de entrada: " + e.getMessage());
@@ -373,18 +372,8 @@ public class Parser {
 		System.out.println("[Adicionada ação: " + hostAction + "]");
 	}
 	
-	private void setupDnsServers() {
-		for (DnsServer dnsServer: dnsServers.values())
-			for (Host host: hosts.values()) {
-				String name = host.getName();
-				Ip ip = host.getIp();
-				dnsServer.addHost(name, ip);
-				System.out.println("[Adicionado registro ao servidor DNS " 
-						+ dnsServer.getServerName() + ": (" + name + ", " + ip + ")]");
-			}
-	}
-	
 	public void printElements() {
+		System.out.println();
 		printLinks();
 		printHosts();
 		printDnsServers();
@@ -393,55 +382,66 @@ public class Parser {
 		printRouters();
 		printSniffers();
 		printHostActions();
-		System.out.println();
 	}
 	
 	private void printLinks() {
-		System.out.println("\n** Lista de Duplex-Links **");
+		System.out.println("LISTA DE DUPLEX-LINKS:");
 		for (DuplexLink link: links)
 			System.out.println(link);
+		System.out.println();
 	}
 	
 	private void printHosts() {
-		System.out.println("\n** Lista de Hosts **");
+		System.out.println("LISTA DE HOSTS:");
 		for (Host host: hosts.values())
 			System.out.println(host);
+		System.out.println();
 	}
 	
 	private void printDnsServers() {
-		System.out.println("\n** Lista de Servidores DNS **");
+		System.out.println("LISTA DE SERVIDORES DNS:");
 		for (DnsServer dnsServer: dnsServers.values())
 			System.out.println(dnsServer);
+		System.out.println();
 	}
 	
 	private void printHttpServers() {
-		System.out.println("\n** Lista de Servidores HTTP **");
+		System.out.println("LISTA DE SERVIDORES HTTP:");
 		for (HttpServer httpServer: httpServers.values())
 			System.out.println(httpServer);
+		System.out.println();
 	}
 	
 	private void printHttpClients() {
-		System.out.println("\n** Lista de Clientes HTTP **");
+		System.out.println("LISTA DE CLIENTES HTTP:");
 		for (HttpClient httpClient: httpClients.values())
 			System.out.println(httpClient);
+		System.out.println();
 	}
 	
 	private void printRouters() {
-		System.out.println("\n** Lista de Roteadores **");
+		System.out.println("LISTA DE ROTEADORES:");
 		for (Router router: routers.values())
 			System.out.println(router);
+		System.out.println();
 	}
 	
 	private void printSniffers() {
-		System.out.println("\n** Lista de Sniffers **");
+		System.out.println("LISTA DE SNIFFERS:");
 		for (Sniffer sniffer: sniffers.values())
 			System.out.println(sniffer);
+		System.out.println();
 	}
 	
 	private void printHostActions() {
-		System.out.println("\n** Lista de Ações **");
+		System.out.println("LISTA DE AÇÕES:");
 		for (HostAction hostAction: hostActions)
 			System.out.println(hostAction);
+		System.out.println();
+	}
+	
+	public Collection<Host> getHosts() {
+		return hosts.values();
 	}
 	
 	public Collection<DnsServer> getDnsServers() {

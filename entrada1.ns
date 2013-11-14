@@ -93,7 +93,6 @@ $simulator attach-agent $sniffer2 $h1 $r0.1 "/tmp/sniffer2"
 # consulta DNS não deverá ser realizada.
  
 $simulator at 0.5 "httpc0 GET h2"
-
  
 #$simulator at 0.5 "httpc0 GET h2"
 #$simulator at 0.5 "httpc1 GET h2"

@@ -48,7 +48,15 @@ public class Socket {
 		this.destinationPort = destinationPort;
 	}
 	
-	public boolean isListening() {
+	public boolean isServerSocket() {
 		return (destinationIp == null && destinationPort == null);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("SOCKET:\n");
+		sb.append("<= Source ").append(sourceIp).append(":").append(sourcePort).append("\n");
+		sb.append("=> Destination ").append(destinationIp).append(":").append(destinationPort).append("\n");
+		return sb.toString();
 	}
 }

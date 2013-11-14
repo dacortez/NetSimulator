@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import java.util.List;
+
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.messages.Message;
 import dacortez.netSimulator.transport.ServiceProvider;
@@ -17,10 +19,8 @@ public class Host {
 	protected Ip dnsServerIp;
 	// Provedor de serviços da camada de transporte associado.
 	protected ServiceProvider serviceProvider;
-	// Socket da aplicação rodando no host.
-	protected Socket socket;
-	// Estado em que a aplicação rodando no host se encontra.
-	protected AppState state;
+	// Lista de processos gerenciados pelo host.
+	protected List<Process> processes;
 
 	public String getName() {
 		return name;
@@ -46,8 +46,8 @@ public class Host {
 		return serviceProvider;
 	}
 	
-	public Socket getSocket() {
-		return socket;
+	public List<Process> getProcesses() {
+		return processes;
 	}
 	
 	public Host() {
@@ -70,18 +70,17 @@ public class Host {
 		serviceProvider.setHost(this);
 	}
 	
-	public void receive(Message message, Socket socket) {
+	public void receive(Message message, Process process) {
 		System.out.println(message);
-		if (socket != null) {
+		if (process != null) {
 			System.out.println("[PROCESSANDO]\n");
-			processReceived(message);
+			handleReceived(message, process.getState());
 		}
 		else
 			System.out.println("Socket fechado!\n");
 	}
 	
-	protected void processReceived(Message message) {
-		
+	protected void handleReceived(Message message, ProcessState state) {
 	}
 	
 	@Override

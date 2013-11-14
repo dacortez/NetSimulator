@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import java.util.ArrayList;
+
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.messages.DnsQuery;
 import dacortez.netSimulator.application.messages.HttpRequest;
@@ -22,6 +24,7 @@ public class HttpClient extends Host {
 	public HttpClient(String clientName) {
 		super();
 		this.clientName = clientName;
+		processes = new ArrayList<Process>();
 	}
 	
 	public void get(String host, String resource) {
@@ -33,11 +36,12 @@ public class HttpClient extends Host {
 	}
 	
 	private void dnsLooking(String host) {
-		socket = new Socket();
+		Socket socket = new Socket();
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
-		state = AppState.DNS_LOOKING;
-		serviceProvider.send(dnsQueryMessage(host), socket);
+		Process process = new Process(socket, ProcessState.DNS_LOOKING);
+		processes.add(process);
+		serviceProvider.send(dnsQueryMessage(host), process);
 	}
 	
 	private DnsQuery dnsQueryMessage(String host) {
@@ -45,11 +49,12 @@ public class HttpClient extends Host {
 	}
 	
 	private void httpGetting(Ip host) {
-		socket = new Socket();
+		Socket socket = new Socket();
 		socket.setDestinationIp(host);
 		socket.setDestinationPort(HttpServer.LISTEN_PORT);
-		state = AppState.HTTP_GETTING;
-		serviceProvider.send(httpGetMessage(), socket);
+		Process process = new Process(socket, ProcessState.HTTP_GETTING);
+		processes.add(process);
+		serviceProvider.send(httpGetMessage(), process);
 	}
 	
 	private HttpRequest httpGetMessage() {
@@ -59,19 +64,21 @@ public class HttpClient extends Host {
 	}
 	
 	@Override
-	public void receive(Message message, Socket socket) {
+	public void receive(Message message, Process process) {
 		System.out.println("Aplicação do client HTTP " + clientName + " recebeu menssagem:");
-		super.receive(message, socket);
+		super.receive(message, process);
+		if (process != null) 
+			processes.remove(process);
 	}
 	
 	@Override
-	protected void processReceived(Message message) {
-		if (state == AppState.DNS_LOOKING) {
+	protected void handleReceived(Message message, ProcessState state) {
+		if (state == ProcessState.DNS_LOOKING) {
 			if (!message.getData().contentEquals("NAO")) {
 				httpGetting(new Ip(message.getData()));
 			}
 		}
-		else if (state == AppState.HTTP_GETTING) {
+		else if (state == ProcessState.HTTP_GETTING) {
 
 		}
 	}

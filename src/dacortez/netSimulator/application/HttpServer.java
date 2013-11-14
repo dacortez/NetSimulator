@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import java.util.ArrayList;
+
 import dacortez.netSimulator.application.messages.Message;
 
 /**
@@ -11,6 +13,8 @@ public class HttpServer extends Host {
 	public static final int LISTEN_PORT = 80;
 	// Nome do servidor HTTP.
 	private String serverName;
+	// Processo permanente responsável por ficar escutando as requisições.
+	private Process serverProcess;
 	
 	public String getServerName() {
 		return serverName;
@@ -19,28 +23,30 @@ public class HttpServer extends Host {
 	public HttpServer(String serverName) {
 		super();
 		this.serverName = serverName;
+		processes = new ArrayList<Process>();
 	}
 	
 	public void start() {
-		socket = new Socket();
+		Socket socket = new Socket();
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
-		state = AppState.HTTP_LISTENING;
+		serverProcess = new Process(socket, ProcessState.HTTP_LISTENING); 
+		processes.add(serverProcess);
 		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override
-	public void receive(Message message, Socket socket) {
+	public void receive(Message message, Process process) {
 		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
-		super.receive(message, socket);
+		super.receive(message, process);
 	}
 	
 	@Override
-	protected void processReceived(Message message) {
+	protected void handleReceived(Message message, ProcessState state) {
 		Message response = new Message("HTTP/1.1 200 OK");
-		serviceProvider.send(response, socket);
-		socket.setDestinationIp(null);
-		socket.setDestinationPort(null);
+		serviceProvider.send(response, serverProcess);
+		serverProcess.getSocket().setDestinationIp(null);
+		serverProcess.getSocket().setDestinationPort(null);
 	}
 
 	@Override

@@ -6,9 +6,9 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import dacortez.netSimulator.application.Host;
-import dacortez.netSimulator.application.HttpClient;
-import dacortez.netSimulator.application.HttpServer;
 import dacortez.netSimulator.application.dns.DnsServer;
+import dacortez.netSimulator.application.http.HttpClient;
+import dacortez.netSimulator.application.http.HttpServer;
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.Finish;
 import dacortez.netSimulator.events.SimEvent;

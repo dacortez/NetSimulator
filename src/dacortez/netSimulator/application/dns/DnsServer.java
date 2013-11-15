@@ -5,10 +5,9 @@ import java.util.List;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Host;
+import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
-import dacortez.netSimulator.application.ProcessState;
 import dacortez.netSimulator.application.Socket;
-import dacortez.netSimulator.application.messages.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -21,7 +20,7 @@ public class DnsServer extends Host {
 	private String serverName;
 	// Mapa de endereços IPs.
 	private List<ResourceRecord> resourceRecords;
-	// Processo permanente responsável por ficar escutando as requisições.
+	// Processo permanente responsável por responder as requisições DNS.
 	private Process serverProcess;
 
 	public String getServerName() {
@@ -45,49 +44,19 @@ public class DnsServer extends Host {
 		Socket socket = new Socket();
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
-		serverProcess = new Process(socket, ProcessState.DNS_LISTENING); 
+		serverProcess = new DnsServerProcess(socket, resourceRecords); 
+		serverProcess.listening();
 		processes.add(serverProcess);
 		System.out.println("# Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override
 	public void receive(Message message, Process process) {
-		System.out.println("Aplicação do servidor DNS " + serverName + " recebeu menssagem:");
+		System.out.println("Aplicação do servidor DNS " + serverName + " recebeu uma mensagem:");
 		super.receive(message, process);
+		if (process != null) process.listening();
 	}
-	
-	@Override
-	protected void handleReceived(Message message, ProcessState state) {
-		if (state == ProcessState.DNS_LISTENING) {
-			if (message instanceof DnsMessage)
-				sendAnswers((DnsMessage) message);
-			serverProcess.getSocket().setDestinationIp(null);
-			serverProcess.getSocket().setDestinationPort(null);
-		}
-	}
-
-	private void sendAnswers(DnsMessage request) {
-		if (!request.isReply()) {
-			DnsMessage message = new DnsMessage(request.getId(), true);
-			for (DnsQuestion question: request.getQuestions()) {
-				DnsAnswer answer = answer(question);
-				if (answer != null) message.addAnswer(answer);
-			}
-			serviceProvider.send(message, serverProcess);
-		}
-	}
-	
-	private DnsAnswer answer(DnsQuestion question) {
-		for (ResourceRecord rr: resourceRecords)
-			if (question.getName().contentEquals(rr.getName())) {
-				RRType type = rr.getType();
-				String value = rr.getValue();
-				Integer ttl = rr.getTtl();
-				return new DnsAnswer(type, value, ttl); 
-			}
-		return null;
-	}
-	
+		
 	@Override
 	public String toString() {
 		return serverName + " <- " + super.toString();

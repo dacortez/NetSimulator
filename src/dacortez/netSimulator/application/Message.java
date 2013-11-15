@@ -1,4 +1,4 @@
-package dacortez.netSimulator.application.messages;
+package dacortez.netSimulator.application;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

@@ -3,7 +3,6 @@ package dacortez.netSimulator.application;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
-import dacortez.netSimulator.application.messages.Message;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -74,13 +73,12 @@ public class Host {
 		System.out.println(message);
 		if (process != null) {
 			System.out.println("[PROCESSANDO]\n");
-			handleReceived(message, process.getState());
+			Message respond = process.respond(message);
+			if (respond != null)
+				serviceProvider.send(respond, process);
 		}
 		else
 			System.out.println("Socket fechado!\n");
-	}
-	
-	protected void handleReceived(Message message, ProcessState state) {
 	}
 	
 	@Override

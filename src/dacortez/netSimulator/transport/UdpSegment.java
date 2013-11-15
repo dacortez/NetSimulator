@@ -1,6 +1,6 @@
 package dacortez.netSimulator.transport;
 
-import dacortez.netSimulator.application.messages.Message;
+import dacortez.netSimulator.application.Message;
 
 public class UdpSegment extends Segment {
 

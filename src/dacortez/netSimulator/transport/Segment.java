@@ -1,6 +1,6 @@
 package dacortez.netSimulator.transport;
 
-import dacortez.netSimulator.application.messages.Message;
+import dacortez.netSimulator.application.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)

@@ -1,8 +1,11 @@
-package dacortez.netSimulator.application;
+package dacortez.netSimulator.application.http;
 
 import java.util.ArrayList;
 
-import dacortez.netSimulator.application.messages.Message;
+import dacortez.netSimulator.application.Host;
+import dacortez.netSimulator.application.Message;
+import dacortez.netSimulator.application.Process;
+import dacortez.netSimulator.application.Socket;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -30,25 +33,19 @@ public class HttpServer extends Host {
 		Socket socket = new Socket();
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
-		serverProcess = new Process(socket, ProcessState.HTTP_LISTENING); 
+		serverProcess = new HttpServerProcess(socket); 
+		serverProcess.listening();
 		processes.add(serverProcess);
 		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override
 	public void receive(Message message, Process process) {
-		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu menssagem:");
+		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu uma mensagem:");
 		super.receive(message, process);
+		if (process != null) process.listening();
 	}
 	
-	@Override
-	protected void handleReceived(Message message, ProcessState state) {
-		Message response = new Message("HTTP/1.1 200 OK");
-		serviceProvider.send(response, serverProcess);
-		serverProcess.getSocket().setDestinationIp(null);
-		serverProcess.getSocket().setDestinationPort(null);
-	}
-
 	@Override
 	public String toString() {
 		return serverName + " <- " + super.toString();

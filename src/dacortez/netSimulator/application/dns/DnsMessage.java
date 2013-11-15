@@ -3,7 +3,7 @@ package dacortez.netSimulator.application.dns;
 import java.util.ArrayList;
 import java.util.List;
 
-import dacortez.netSimulator.application.messages.Message;
+import dacortez.netSimulator.application.Message;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -82,6 +82,7 @@ public class DnsMessage extends Message {
 			sb.append(question).append("\n");
 		for (DnsAnswer answer: answers)
 			sb.append(answer).append("\n");
+		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 }

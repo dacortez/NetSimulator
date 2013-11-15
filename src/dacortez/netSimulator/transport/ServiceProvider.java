@@ -5,9 +5,9 @@ import java.util.Random;
 
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.application.Host;
+import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
-import dacortez.netSimulator.application.messages.Message;
 import dacortez.netSimulator.network.HostInterface;
 
 

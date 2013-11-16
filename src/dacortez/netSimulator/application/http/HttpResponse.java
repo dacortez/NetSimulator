@@ -25,13 +25,6 @@ public class HttpResponse extends Message {
 	private int contentLength;
 	// Tipo de recurso.
 	private HttpAccept contentType;
-	// Dados do recurso.
-	private byte[] data;
-	// Vetor utilizado para conversão de bytes em hexadecimal.
-	private static final char[] chars = {
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
-		'a', 'b', 'c', 'd', 'd', 'e', 'f'
-	};
 	
 	public void setStatus(HttpStatus status) {
 		this.status = status;
@@ -68,6 +61,18 @@ public class HttpResponse extends Message {
 	}
 	
 	@Override
+	public byte[] toBytes() {
+		byte[] bytes = new byte[getNumberOfBytes()];
+		byte[] headerBytes = header().getBytes();
+		for (int i = 0; i < headerBytes.length; i++)
+			bytes[i] = headerBytes[i];
+		if (data != null)
+			for (int i = 0; i < data.length; i++)
+				bytes[headerBytes.length + i] = data[i];
+		return bytes;
+	}
+	
+	@Override
 	public int getNumberOfBytes() {
 		if (data == null)
 			return header().length();
@@ -77,6 +82,7 @@ public class HttpResponse extends Message {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP_RESPONSE (").append(getNumberOfBytes()).append(" bytes):\n");
 		sb.append(header());
 		sb.append(data());
 		return sb.toString();
@@ -97,35 +103,9 @@ public class HttpResponse extends Message {
 	
 	private String data() {
 		if (contentType == HttpAccept.PNG)
-			return pngData();
+			return binaryData();
 		else if (contentType == HttpAccept.HTML)
-			return htmlData();
+			return textData();
 		return null;
-	}
-
-	private String pngData() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < data.length; i++) {
-			sb.append(toHex(data[i])).append(" ");
-			if ((i + 1) % 16 == 0)
-				sb.append("\n");
-		}
-		return sb.toString();
-	}
-	
-	private String htmlData() {
-		StringBuilder sb = new StringBuilder();
-		for (byte b: data)
-			sb.append((char) b);
-		return sb.toString();
-	}
-	
-	private String toHex(byte b) {
-		StringBuilder sb = new StringBuilder();
-		if (b < 0) b += 128;
-		int first = b / 16;
-		int second = b % 16;
-		sb.append(chars[first]).append(chars[second]);
-		return sb.toString();
 	}
 }

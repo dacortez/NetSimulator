@@ -1,5 +1,6 @@
 package dacortez.netSimulator.transport;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -22,6 +23,8 @@ public class ServiceProvider {
 	private HostInterface hostInterface;
 	// Gerador de números aleatórios.
 	private Random random;
+	// Hash de controladores TCP (um para cada processo).
+	private HashMap<Process, TcpController> controllers;
 	
 	public void setHost(Host host) {
 		this.host = host;
@@ -34,10 +37,11 @@ public class ServiceProvider {
 	public ServiceProvider() {
 		hostInterface = new HostInterface(this);
 		random = new Random();
+		controllers = new HashMap<Process, TcpController>();
 	}
 	
-	public void send(Message message, Process process) {
-		Segment segment = multiplexing(message, process);
+	public void udpSend(Message message, Process process) {
+		Segment segment = udpMultiplexing(message, process);
 		Socket socket = process.getSocket();
 		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
@@ -45,24 +49,36 @@ public class ServiceProvider {
 	// Multiplexing: gathering data at the source host from different application 
 	// processes, enveloping the data with header information to create segments, 
 	// and passing the segments to the network layer.	
-	private Segment multiplexing(Message message, Process process) {
+	private UdpSegment udpMultiplexing(Message message, Process process) {
 		Socket socket = process.getSocket();
 		if (socket.getSourcePort() == null) {
 			Integer sourcePort = 5000 + random.nextInt(5000);
 			socket.setSourceIp(hostInterface.getIp());
 			socket.setSourcePort(sourcePort);
 		}
-		return new Segment(message, socket.getSourcePort(), socket.getDestinationPort());
+		return new UdpSegment(message, socket.getSourcePort(), socket.getDestinationPort());
+	}
+	
+	public void tcpSend(Message message, Process process) {
+		TcpController controller = new TcpController(process, hostInterface);
+		controllers.put(process, controller);
+		controller.establishConnection();
+		controller.send(message);
 	}
 
 	public void receive(Segment segment, Ip sourceIp, Ip destinationIp) {
-		Process process = demultiplexing(segment, sourceIp, destinationIp);
-		host.receive(segment.getMessage(), process);	
+		if (segment instanceof UdpSegment) {
+			Process process = udpDemultiplexing(segment, sourceIp, destinationIp);
+			host.receive(segment.getMessage(), process);
+		}
+		else if (segment instanceof TcpSegment) {
+			
+		}
 	}
 
 	// Demultiplexing: delivering the data in a transport-layer segment 
 	// to the correct application process. 
-	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
+	private Process udpDemultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
 		List<Process> processes = host.getProcesses();
 		for (Process process: processes) {
 			Socket socket = process.getSocket();

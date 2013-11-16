@@ -59,7 +59,7 @@ public class DnsMessage extends Message {
 		answers.add(answer);
 		numberOfAnswers++;
 	}
-	
+		
 	@Override
 	public int getNumberOfBytes() {
 		int total = HEADER_SIZE;

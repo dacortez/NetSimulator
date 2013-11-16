@@ -64,7 +64,24 @@ public class HttpRequest extends Message {
 	}
 	
 	@Override
+	public byte[] toBytes() {
+		return header().getBytes();
+	}
+	
+	@Override
+	public int getNumberOfBytes() {
+		return header().length();
+	}
+	
+	@Override
 	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP_REQUEST (").append(getNumberOfBytes()).append(" bytes):\n");
+		sb.append(header());
+		return sb.toString();
+	}
+	
+	public String header() {
 		StringBuilder sb = new StringBuilder() ;
 		sb.append(method).append(" ").append(resource).append(" ").append(version).append("\r\n");
 		sb.append("Host: ").append(host).append("\r\n");

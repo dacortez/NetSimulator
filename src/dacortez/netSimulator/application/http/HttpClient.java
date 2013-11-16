@@ -41,7 +41,7 @@ public class HttpClient extends Host {
 		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		process.setWaitingDns(true);
 		processes.add(process);
-		serviceProvider.send(process.request(), process);
+		serviceProvider.udpSend(process.request(), process);
 	}
 	
 	private void httpGetting(String host, String resource) {
@@ -50,7 +50,7 @@ public class HttpClient extends Host {
 		socket.setDestinationPort(HttpServer.LISTEN_PORT);
 		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		processes.add(process);
-		serviceProvider.send(process.request(), process);
+		serviceProvider.udpSend(process.request(), process);
 	}
 	
 	@Override

@@ -74,7 +74,7 @@ public class Host {
 		if (process != null) {
 			Message respond = process.respond(message);
 			if (respond != null)
-				serviceProvider.send(respond, process);
+				serviceProvider.udpSend(respond, process);
 		}
 		else
 			System.out.println("Socket fechado!\n");

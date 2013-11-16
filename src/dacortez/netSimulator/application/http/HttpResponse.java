@@ -96,32 +96,33 @@ public class HttpResponse extends Message {
 	}
 	
 	private String data() {
-		StringBuilder sb = new StringBuilder();
-		if (contentType == HttpAccept.PNG) {
-			char[] aux = new char[32];
-			for (int i = 0, j = 0; i < data.length; i++) {
-				sb.append(toHex(data[i])).append(" ");
-				aux[j++] = (char) data[i];
-				if ((i + 1) % 16 == 0) {
-					sb.append("| ");
-					for (int k = 0; k < j; k++)
-						if (aux[k] == '\n')
-							sb.append("\\n");
-						else
-							sb.append(aux[k]);
-					sb.append("\n");
-					j = 0;
-				}
-			}
-		}
+		if (contentType == HttpAccept.PNG)
+			return pngData();
 		else if (contentType == HttpAccept.HTML)
-			for (byte b: data)
-				sb.append((char) b);
+			return htmlData();
+		return null;
+	}
+
+	private String pngData() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < data.length; i++) {
+			sb.append(toHex(data[i])).append(" ");
+			if ((i + 1) % 16 == 0)
+				sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
+	private String htmlData() {
+		StringBuilder sb = new StringBuilder();
+		for (byte b: data)
+			sb.append((char) b);
 		return sb.toString();
 	}
 	
 	private String toHex(byte b) {
 		StringBuilder sb = new StringBuilder();
+		if (b < 0) b += 128;
 		int first = b / 16;
 		int second = b % 16;
 		sb.append(chars[first]).append(chars[second]);

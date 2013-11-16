@@ -72,7 +72,6 @@ public class Host {
 	public void receive(Message message, Process process) {
 		System.out.println(message);
 		if (process != null) {
-			System.out.println("[PROCESSANDO]\n");
 			Message respond = process.respond(message);
 			if (respond != null)
 				serviceProvider.send(respond, process);

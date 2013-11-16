@@ -38,7 +38,7 @@ public class HttpClient extends Host {
 		Socket socket = new Socket();
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
-		HttpClientProcess process = new HttpClientProcess(socket, host, resource);
+		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		process.setWaitingDns(true);
 		processes.add(process);
 		serviceProvider.send(process.request(), process);
@@ -48,7 +48,7 @@ public class HttpClient extends Host {
 		Socket socket = new Socket();
 		socket.setDestinationIp(new Ip(host));
 		socket.setDestinationPort(HttpServer.LISTEN_PORT);
-		HttpClientProcess process = new HttpClientProcess(socket, host, resource);
+		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		processes.add(process);
 		serviceProvider.send(process.request(), process);
 	}

@@ -20,6 +20,8 @@ public class HttpClientProcess extends Process {
 	private String resource;
 	// Sinaliza que o processo está esperando pela resposta do servidor DNS.
 	private boolean isWaitingDns;
+	// Nome do host rodando o processo cliente HTTP.
+	private String clientName;
 	// Identificador das mensagens DNS.
 	private int dnsId;
 	// Contador estático a ser utilizado na identificação das mensagens DNS.
@@ -37,10 +39,11 @@ public class HttpClientProcess extends Process {
 		this.isWaitingDns = isWaitingDns;
 	}
 	
-	public HttpClientProcess(Socket socket, String host, String resource) {
+	public HttpClientProcess(Socket socket, String host, String resource, String clientName) {
 		super(socket);
 		this.host = host;
 		this.resource = resource;
+		this.clientName = clientName;
 	}
 	
 	@Override
@@ -57,9 +60,13 @@ public class HttpClientProcess extends Process {
 	}
 	
 	private HttpRequest httpRequest() {
-		if (resource != null)
-			return new HttpRequest("GET /" + resource);
-		return new HttpRequest("GET /");
+		String resource = (this.resource == null) ? "index.html" : this.resource;
+		HttpRequest request = new HttpRequest(HttpMethod.GET, resource);
+		request.setHost(host);
+		request.setUserAgent(clientName);
+		request.addHttpAccept(HttpAccept.HTML);
+		request.addHttpAccept(HttpAccept.PNG);
+		return request;
 	}
 	
 	@Override

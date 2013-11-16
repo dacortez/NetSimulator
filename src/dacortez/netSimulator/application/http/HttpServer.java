@@ -33,7 +33,7 @@ public class HttpServer extends Host {
 		Socket socket = new Socket();
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
-		serverProcess = new HttpServerProcess(socket); 
+		serverProcess = new HttpServerProcess(socket, serverName); 
 		serverProcess.listening();
 		processes.add(serverProcess);
 		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");

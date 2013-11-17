@@ -48,8 +48,23 @@ public class Socket {
 		this.destinationPort = destinationPort;
 	}
 	
+	public Socket() {
+		sourceIp = destinationIp = null;
+		sourcePort = destinationPort = null;
+	}
+	
 	public boolean isServerSocket() {
 		return (destinationIp == null && destinationPort == null);
+	}
+	
+	@Override
+	public Socket clone() {
+		Socket clone = new Socket();
+		clone.setSourceIp(sourceIp);
+		clone.setSourcePort(sourcePort);
+		clone.setDestinationIp(destinationIp);
+		clone.setDestinationPort(destinationPort);
+		return clone;
 	}
 	
 	@Override

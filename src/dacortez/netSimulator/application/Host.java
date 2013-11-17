@@ -1,5 +1,6 @@
 package dacortez.netSimulator.application;
 
+import java.io.PrintStream;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
@@ -20,7 +21,9 @@ public class Host {
 	protected ServiceProvider serviceProvider;
 	// Lista de processos gerenciados pelo host.
 	protected List<Process> processes;
-
+	// PrintStream utilizado para impressão de resultados.
+	protected PrintStream ps;
+	
 	public String getName() {
 		return name;
 	}
@@ -69,15 +72,13 @@ public class Host {
 		serviceProvider.setHost(this);
 	}
 	
+	public void addProcess(Process process) {
+		processes.add(process);
+	}
+	
 	public void receive(Message message, Process process) {
+		System.out.println("Aplicação do host " + name + " recebeu uma mensagem:");
 		System.out.println(message);
-		if (process != null) {
-			Message respond = process.respond(message);
-			if (respond != null)
-				serviceProvider.udpSend(respond, process);
-		}
-		else
-			System.out.println("Socket fechado!\n");
 	}
 	
 	@Override

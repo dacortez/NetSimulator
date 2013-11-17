@@ -47,6 +47,13 @@ public class HttpClientProcess extends Process {
 	}
 	
 	@Override
+	public Process fork() {
+		HttpClientProcess process = new HttpClientProcess(socket.clone(), host, resource, clientName);
+		process.setWaitingDns(isWaitingDns);
+		return process;
+	}
+	
+	@Override
 	public Message request() {
 		if (isWaitingDns) return dnsMessage();
 		return httpRequest();

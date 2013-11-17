@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Date;
+import java.util.StringTokenizer;
+
+import com.sun.tools.javac.util.Convert;
 
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
@@ -23,39 +26,53 @@ public class HttpServerProcess extends Process {
 	}
 	
 	@Override
+	public Process fork() {
+		return new HttpServerProcess(socket.clone(), serverName);
+	}
+	
+	@Override
 	public Message request() {
 		return null;
 	}
 
 	@Override
 	public Message respond(Message message) {
-		HttpRequest request = (HttpRequest) message;
 		try {
-			return tryToRespond(request);
+			return tryToRespond(message);
 		} 
 		catch (Exception e) {
-			return badRequest(request);
+			return internal();
 		}
 	}
 
-	private Message tryToRespond(HttpRequest request) throws Exception {
+	private Message tryToRespond(Message message) throws Exception {
+		HttpRequest request = parse(message);
+		if (request == null) return badRequest(); 
 		String resource = request.getResource();
 		File file = new File(resource);
 		if (file.exists()) {
 			if (contentType(resource) == null) 
-				return badRequest(request);
+				return badRequest();
 			else 
 				return ok(request);
 		}
 		return notFound(request);
+	}
+	
+	private HttpRequest parse(Message message) {
+		String str = Convert.utf2string(message.toBytes());
+		StringTokenizer tokenizer = new StringTokenizer(str);	
+		if (tokenizer.nextToken().contentEquals("GET")) {
+			String resource = tokenizer.nextToken();
+			return new HttpRequest(HttpMethod.GET, resource); 
+		}
+		return null;
 	}
 
 	private Message ok(HttpRequest request) throws Exception {
 		String resource = request.getResource();
 		File file = new File(resource);
 		HttpResponse ok = new HttpResponse(HttpStatus.OK);
-		ok.setVersion(request.getVersion());
-		ok.setConnection(request.getConnection());
 		ok.setServer(serverName);
 		ok.setLastModified(new Date(file.lastModified()));
 		ok.setData(getData(file));
@@ -74,8 +91,6 @@ public class HttpServerProcess extends Process {
 	private HttpResponse notFound(HttpRequest request) {
 		String resource = request.getResource();
 		HttpResponse notFound = new HttpResponse(HttpStatus.NOT_FOUND);
-		notFound.setVersion(request.getVersion());
-		notFound.setConnection(request.getConnection());
 		notFound.setServer(serverName);
 		notFound.setLastModified(new Date(System.currentTimeMillis()));
 		notFound.setData(notFoundHtml(resource));
@@ -83,16 +98,22 @@ public class HttpServerProcess extends Process {
 		return notFound;
 	}
 	
-	private HttpResponse badRequest(HttpRequest request) {
-		String resource = request.getResource();
+	private HttpResponse badRequest() {
 		HttpResponse badRequest = new HttpResponse(HttpStatus.BAD_REQUEST);
-		badRequest.setVersion(request.getVersion());
-		badRequest.setConnection(request.getConnection());
 		badRequest.setServer(serverName);
 		badRequest.setLastModified(new Date(System.currentTimeMillis()));
-		badRequest.setData(badRequestHtml(resource));
+		badRequest.setData(badRequestHtml());
 		badRequest.setContentType(HttpAccept.HTML);
 		return badRequest;
+	}
+	
+	private HttpResponse internal() {
+		HttpResponse internal = new HttpResponse(HttpStatus.INTERNAL);
+		internal.setServer(serverName);
+		internal.setLastModified(new Date(System.currentTimeMillis()));
+		internal.setData(internalHtml());
+		internal.setContentType(HttpAccept.HTML);
+		return internal;
 	}
 	
 	private byte[] notFoundHtml(String resource) {
@@ -108,7 +129,7 @@ public class HttpServerProcess extends Process {
 		return sb.toString().getBytes();
 	}
 	
-	private byte[] badRequestHtml(String resource) {
+	private byte[] badRequestHtml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
 		sb.append("<html><head>\n");
@@ -117,6 +138,17 @@ public class HttpServerProcess extends Process {
 		sb.append("<h1>Not Found</h1>\n");
 		sb.append("<p>Your browser sent a request that this server could not understand.<p>\n");
 		sb.append(" was not found on this server.</p>\n");
+		sb.append("</body></html>");
+		return sb.toString().getBytes();
+	}
+	
+	private byte[] internalHtml() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n");
+		sb.append("<html><head>\n");
+		sb.append("<title>500 Internal Server Error</title>\n");
+		sb.append("</head><body>\n");
+		sb.append("<h1>Internal Server Error</h1>\n");
 		sb.append("</body></html>");
 		return sb.toString().getBytes();
 	}

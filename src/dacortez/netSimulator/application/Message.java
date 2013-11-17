@@ -1,5 +1,9 @@
 package dacortez.netSimulator.application;
 
+import com.sun.tools.javac.util.Convert;
+
+
+
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.16
@@ -21,6 +25,10 @@ public class Message {
 		this.data = data;
 	}
 	
+	public Message(int size) {
+		data = new byte[size];
+	}
+	
 	public byte[] toBytes() {
 		return data;
 	}
@@ -33,24 +41,34 @@ public class Message {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DATA (").append(getNumberOfBytes()).append(" bytes):\n");
-		sb.append(binaryData());
-		return sb.toString();
-	}
-	
-	protected String textData() {
-		StringBuilder sb = new StringBuilder();
-		for (byte b: data)
-			sb.append((char) b);
+		sb.append(data());
 		return sb.toString();
 	}
 
-	protected String binaryData() {
+	protected String data() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < data.length; i++) {
 			sb.append(toHex(data[i])).append(" ");
-			if ((i + 1) % 16 == 0)
+			if ((i + 1) % 32 == 0)
 				sb.append("\n");
 		}
+		if (sb.charAt(sb.length() - 1) == '\n')
+			sb.deleteCharAt(sb.length() - 1);
+		sb.append(dataToText());
+		return sb.toString();
+	}
+
+	private String dataToText() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n===============================================================================================\n");
+		for (byte b: data)
+			if (b < 9) {
+				sb.append("(binary data)");
+				sb.append("\n===============================================================================================");
+				return sb.toString();
+			}
+		sb.append(Convert.utf2string(data));
+		sb.append("\n===============================================================================================");
 		return sb.toString();
 	}
 	

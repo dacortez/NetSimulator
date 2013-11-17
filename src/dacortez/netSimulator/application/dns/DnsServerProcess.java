@@ -20,6 +20,11 @@ public class DnsServerProcess extends Process {
 	}
 	
 	@Override
+	public Process fork() {
+		return new DnsServerProcess(socket.clone(), resourceRecords);
+	}
+	
+	@Override
 	public Message request() {
 		return null;
 	}

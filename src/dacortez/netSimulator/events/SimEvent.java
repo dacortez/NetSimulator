@@ -26,4 +26,12 @@ public abstract class SimEvent {
 	}
 	
 	public abstract void fire();
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Sender: ").append(sender).append("\n");
+		sb.append(args).append("\n");
+		return sb.toString();
+	}
 }

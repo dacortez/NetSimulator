@@ -15,11 +15,11 @@ public class HttpRequest extends Message {
 	// Recurso procurado no servidor.
 	private String resource;
 	// Versão empregada pelo protocolo.
-	private HttpVersion version = HttpVersion.HTTP_10;
+	private HttpVersion version;
 	// Nome do servidor HTTP.
 	private String host;
 	// Tipo de conexão empregada.
-	private HttpConnection connection = HttpConnection.CLOSE;
+	private HttpConnection connection;
 	// Tipo de cliente HTTP.
 	private String userAgent = null;
 	// Lista de arquivos aceitos como resposta.
@@ -56,6 +56,8 @@ public class HttpRequest extends Message {
 	public HttpRequest(HttpMethod method, String resource) {
 		this.method = method;
 		this.resource = resource;
+		version = HttpVersion.HTTP_10;
+		connection = HttpConnection.CLOSE;
 		accepts = new ArrayList<HttpAccept>();
 	}
 	

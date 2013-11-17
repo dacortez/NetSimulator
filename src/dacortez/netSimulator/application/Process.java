@@ -22,10 +22,7 @@ public abstract class Process {
 		pid = ++count;
 	}
 	
-	public void listening() {
-		socket.setDestinationIp(null);
-		socket.setDestinationPort(null);
-	}
+	public abstract Process fork();
 	
 	public abstract Message request();
 	

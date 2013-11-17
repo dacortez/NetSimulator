@@ -17,9 +17,6 @@ public class InboundData extends SimEvent {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("INBOUND_DATA:\n");
-		sb.append("Sender: ").append(sender).append("\n");
-		sb.append(args);
-		return sb.toString();
+		return "INBOUND_DATA:\n" + super.toString();
 	}
 }

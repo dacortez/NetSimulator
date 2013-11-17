@@ -57,6 +57,8 @@ public class HttpResponse extends Message {
 	
 	public HttpResponse(HttpStatus status) {
 		this.status = status;
+		version = HttpVersion.HTTP_10;
+		connection = HttpConnection.CLOSE;
 		date = new Date(System.currentTimeMillis());
 	}
 	
@@ -99,13 +101,5 @@ public class HttpResponse extends Message {
 		sb.append("Content-Type: ").append(contentType).append("\r\n");
 		sb.append("\r\n");
 		return sb.toString();
-	}
-	
-	private String data() {
-		if (contentType == HttpAccept.PNG)
-			return binaryData();
-		else if (contentType == HttpAccept.HTML)
-			return textData();
-		return null;
 	}
 }

@@ -34,7 +34,6 @@ public class HttpServer extends Host {
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
 		serverProcess = new HttpServerProcess(socket, serverName); 
-		serverProcess.listening();
 		processes.add(serverProcess);
 		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
@@ -42,8 +41,14 @@ public class HttpServer extends Host {
 	@Override
 	public void receive(Message message, Process process) {
 		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu uma mensagem:");
-		super.receive(message, process);
-		if (process != null) process.listening();
+		System.out.println(message + "\n");
+		if (process != null) {
+			Message respond = process.respond(message);
+			if (respond != null)
+				serviceProvider.tcpSend(respond, process);
+		}
+		else
+			System.out.println("Socket fechado!\n");
 	}
 	
 	@Override

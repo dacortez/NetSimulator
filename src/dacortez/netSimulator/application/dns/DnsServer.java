@@ -45,7 +45,6 @@ public class DnsServer extends Host {
 		socket.setSourceIp(getIp());
 		socket.setSourcePort(LISTEN_PORT);
 		serverProcess = new DnsServerProcess(socket, resourceRecords); 
-		serverProcess.listening();
 		processes.add(serverProcess);
 		System.out.println("# Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
@@ -53,8 +52,14 @@ public class DnsServer extends Host {
 	@Override
 	public void receive(Message message, Process process) {
 		System.out.println("Aplicação do servidor DNS " + serverName + " recebeu uma mensagem:");
-		super.receive(message, process);
-		if (process != null) process.listening();
+		System.out.println(message  + "\n");
+		if (process != null) {
+			Message respond = process.respond(message);
+			if (respond != null)
+				serviceProvider.udpSend(respond, process);
+		}
+		else
+			System.out.println("Socket fechado!\n");
 	}
 		
 	@Override

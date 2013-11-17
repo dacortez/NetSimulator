@@ -17,9 +17,11 @@ public class TcpSegment extends Segment {
 	private boolean ack;
 	// Bit SYN.
 	private boolean syn;
+	// Bit PSH.
+	private boolean psh;
 	// Bit FIN.
 	private boolean fin;
-	
+
 	public int getSeqNumber() {
 		return seqNumber;
 	}
@@ -51,6 +53,14 @@ public class TcpSegment extends Segment {
 	public void setSyn(boolean syn) {
 		this.syn = syn;
 	}
+	
+	public boolean isPsh() {
+		return psh;
+	}
+
+	public void setPsh(boolean psh) {
+		this.psh = psh;
+	}
 
 	public boolean isFin() {
 		return fin;
@@ -62,28 +72,34 @@ public class TcpSegment extends Segment {
 
 	public TcpSegment(Message message, Integer sourcePort, Integer destinationPort) {
 		super(message, sourcePort, destinationPort);
-		ack = syn = fin = false;
+		ack = syn = fin = psh = false;
+	}
+	
+	public TcpSegment(Integer sourcePort, Integer destinationPort) {
+		super(null, sourcePort, destinationPort);
+		ack = syn = fin = psh = false;
 	}
 	
 	@Override
 	public int getNumberOfBytes() {
-		return HEADER_SIZE + message.getNumberOfBytes();
+		if (message != null)
+			return HEADER_SIZE + message.getNumberOfBytes();
+		return HEADER_SIZE;
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("TCP_SEGMENT:\n");
+		sb.append("TCP_SEGMENT (").append(getNumberOfBytes()).append(" bytes):\n");
 		sb.append("Source port = ").append(sourcePort).append("\n");
 		sb.append("Destination port = ").append(destinationPort).append("\n");
-		sb.append("Destination port = ").append(destinationPort).append("\n");
 		sb.append("Sequence number = ").append(seqNumber).append("\n");
-		if (ack)
-			sb.append("Acknowledgement number = ").append(ackNumber).append("\n");
+		if (ack) sb.append("Acknowledgement number = ").append(ackNumber).append("\n");
 		sb.append("Bit ACK = ").append(ack).append("\n");
 		sb.append("Bit FIN = ").append(fin).append("\n");
-		sb.append("Bit SYN = ").append(syn).append("\n");
-		sb.append(message);
+		sb.append("Bit PSH = ").append(psh).append("\n");
+		sb.append("Bit SYN = ").append(syn);
+		if (message != null) sb.append("\n").append(message);
 		return sb.toString();
 	}
 }

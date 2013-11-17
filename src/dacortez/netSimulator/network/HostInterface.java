@@ -8,8 +8,13 @@ import dacortez.netSimulator.TimeUtil;
 import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.OutboundData;
 import dacortez.netSimulator.events.InboundData;
+import dacortez.netSimulator.events.Timeout;
+import dacortez.netSimulator.transport.Protocol;
 import dacortez.netSimulator.transport.Segment;
 import dacortez.netSimulator.transport.ServiceProvider;
+import dacortez.netSimulator.transport.TcpController;
+import dacortez.netSimulator.transport.TcpSegment;
+import dacortez.netSimulator.transport.UdpSegment;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -19,6 +24,10 @@ public class HostInterface extends Interface {
 	// Provedor de serviços da camada de transporte associado a esta interface.
 	private ServiceProvider serviceProvider;
 	
+	public ServiceProvider getServiceProvider() {
+		return serviceProvider;
+	}
+	
 	public HostInterface(ServiceProvider serviceProvider) {
 		this.serviceProvider = serviceProvider;
 		queue = new ArrayList<EventArgs>();
@@ -27,8 +36,12 @@ public class HostInterface extends Interface {
 	public void send(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Datagram data = new Datagram(segment, sourceIp, destinationIp);
 		double time = TimeUtil.getEndTime();
-		EventArgs args = new EventArgs(data, time);
-		Simulator.addToQueue(new OutboundData(this, args));
+		EventArgs out = new EventArgs(data, time);
+		Simulator.addToQueue(new OutboundData(this, out));
+		if (data.getUperLayerProtocol() == Protocol.TCP) {
+			EventArgs timeout = new EventArgs(data, time + TcpController.TIMEOUT / 1000.0);
+			Simulator.addToQueue(new Timeout(this, timeout));
+		}
 	}
 	
 	@Override
@@ -37,8 +50,15 @@ public class HostInterface extends Interface {
 	}
 
 	public void receive(EventArgs args) {
-		Datagram data = args.getDatagram();
 		TimeUtil.setStartTime(args.getTime());
-		serviceProvider.receive(data.getSegment(), data.getSourceIp(), data.getDestinationIp());
+		Datagram data = args.getDatagram();
+		if (data.getUperLayerProtocol() == Protocol.UDP) {
+			UdpSegment segment = (UdpSegment) data.getSegment();
+			serviceProvider.udpReceive(segment, data.getSourceIp(), data.getDestinationIp());
+		}
+		else if (data.getUperLayerProtocol() == Protocol.TCP) {
+			TcpSegment segment = (TcpSegment) data.getSegment();
+			serviceProvider.tcpReceive(segment, data.getSourceIp(), data.getDestinationIp());
+		}
 	}	
 }

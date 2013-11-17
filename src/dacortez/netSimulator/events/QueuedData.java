@@ -15,9 +15,6 @@ public class QueuedData extends SimEvent {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("QUEUED_DATA:\n");
-		sb.append("Sender: ").append(sender).append("\n");
-		sb.append(args);
-		return sb.toString();
+		return "QUEUED_DATA:\n" + super.toString();
 	}
 }

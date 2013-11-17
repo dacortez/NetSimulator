@@ -22,7 +22,7 @@ public class UdpSegment extends Segment {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("UDP_SEGMENT:\n");
+		sb.append("UDP_SEGMENT (").append(getNumberOfBytes()).append(" bytes):\n");
 		sb.append("Source port = ").append(sourcePort).append("\n");
 		sb.append("Destination port = ").append(destinationPort).append("\n");
 		sb.append(message);

@@ -26,6 +26,10 @@ public class ServiceProvider {
 	// Hash de controladores TCP (um para cada processo).
 	private HashMap<Process, TcpController> controllers;
 	
+	public Host getHost() {
+		return host;
+	}
+	
 	public void setHost(Host host) {
 		this.host = host;
 	}
@@ -41,7 +45,7 @@ public class ServiceProvider {
 	}
 	
 	public void udpSend(Message message, Process process) {
-		Segment segment = udpMultiplexing(message, process);
+		Segment segment = multiplexing(message, process);
 		Socket socket = process.getSocket();
 		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
@@ -49,7 +53,7 @@ public class ServiceProvider {
 	// Multiplexing: gathering data at the source host from different application 
 	// processes, enveloping the data with header information to create segments, 
 	// and passing the segments to the network layer.	
-	private UdpSegment udpMultiplexing(Message message, Process process) {
+	private UdpSegment multiplexing(Message message, Process process) {
 		Socket socket = process.getSocket();
 		if (socket.getSourcePort() == null) {
 			Integer sourcePort = 5000 + random.nextInt(5000);
@@ -60,39 +64,75 @@ public class ServiceProvider {
 	}
 	
 	public void tcpSend(Message message, Process process) {
-		TcpController controller = new TcpController(process, hostInterface);
-		controllers.put(process, controller);
-		controller.establishConnection();
-		controller.send(message);
+		if (controllers.containsKey(process)) {
+			controllers.get(process).send(message);
+		}
+		else {
+			TcpController controller = new TcpController(process, hostInterface, TcpState.CLOSED);
+			controllers.put(process, controller);
+			controller.send(message);
+		}
 	}
 
-	public void receive(Segment segment, Ip sourceIp, Ip destinationIp) {
-		if (segment instanceof UdpSegment) {
-			Process process = udpDemultiplexing(segment, sourceIp, destinationIp);
-			host.receive(segment.getMessage(), process);
+	public void udpReceive(UdpSegment segment, Ip sourceIp, Ip destinationIp) {
+		Process process = demultiplexing(segment, sourceIp, destinationIp);
+		host.receive(segment.getMessage(), process);
+	}
+
+	public void tcpReceive(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
+		Process process = demultiplexing(segment, sourceIp, destinationIp);
+		if (controllers.containsKey(process)) {
+			controllers.get(process).receive(segment);
 		}
-		else if (segment instanceof TcpSegment) {
-			
+		else {
+			TcpController controller = new TcpController(process, hostInterface, TcpState.LISTEN);
+			controllers.put(process, controller);
+			controller.receive(segment);
 		}
+	}
+	
+	public void timeout(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
+		Process process = demultiplexing(segment, sourceIp, destinationIp);
+		if (process != null)
+			controllers.get(process).timeout(segment);
 	}
 
 	// Demultiplexing: delivering the data in a transport-layer segment 
 	// to the correct application process. 
-	private Process udpDemultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
+	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
+		Process clientProcess = getClientProcess(segment);
+		if (clientProcess != null) 
+			return clientProcess;
+		return forkOfServerProcess(segment, sourceIp, destinationIp);
+	}
+	
+	private Process getClientProcess(Segment segment) { 
 		List<Process> processes = host.getProcesses();
 		for (Process process: processes) {
 			Socket socket = process.getSocket();
 			Integer sourcePort = segment.getSourcePort();
 			Integer destinationPort = segment.getDestinationPort();
+			if (socket.getSourcePort() == destinationPort && socket.getDestinationPort() == sourcePort)
+				return process;
+		}
+		return null;
+	}
+	
+	private Process forkOfServerProcess(Segment segment, Ip sourceIp, Ip destinationIp) {
+		List<Process> processes = host.getProcesses();
+		for (Process process: processes) {
+			Socket socket = process.getSocket();
 			if (socket.isServerSocket()) {
+				Integer sourcePort = segment.getSourcePort();
+				Integer destinationPort = segment.getDestinationPort();
 				if (socket.getSourcePort() == destinationPort) {
-					socket.setDestinationIp(sourceIp);
-					socket.setDestinationPort(sourcePort);
-					return process;
+					Process child = process.fork(); 
+					child.getSocket().setDestinationIp(sourceIp);
+					child.getSocket().setDestinationPort(sourcePort);
+					host.addProcess(child);
+					return child;
 				}
 			}
-			else if (socket.getSourcePort() == destinationPort && socket.getDestinationPort() == sourcePort)
-				return process;
 		}
 		return null;
 	}

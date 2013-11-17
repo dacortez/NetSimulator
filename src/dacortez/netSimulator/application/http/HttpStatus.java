@@ -5,7 +5,10 @@ package dacortez.netSimulator.application.http;
  * @version 2013.11.15
  */
 public enum HttpStatus {
-	OK(200, "OK"), BAD_REQUEST(400, "Bad Request"), NOT_FOUND(404, "Not Found");
+	OK(200, "OK"), 
+	BAD_REQUEST(400, "Bad Request"), 
+	NOT_FOUND(404, "Not Found"), 
+	INTERNAL(500, "Internal Server Error");
 
 	// Código associada ao status da resposta HTTP.
 	private int code;

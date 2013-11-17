@@ -5,7 +5,7 @@ package dacortez.netSimulator.application.http;
  * @version 2013.11.15
  */
 public enum HttpConnection {
-	OPEN("open"), CLOSE("close"), KEEP_ALIVE("keep alive");
+	CLOSE("close");
 	
 	// Texto associado ao item.
 	private String value;

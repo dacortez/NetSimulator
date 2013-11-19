@@ -26,15 +26,16 @@ public class Simulator {
 	// devem ser processados em ordem (tempo da simulação).
 	private static Queue<SimEvent> queue;
 	// Variável indicando se o modo de depuração de mensagens está ativo.
-	public static boolean debugMode = true;
+	public static boolean debugMode = false;
 	
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
 			return;
 		}
+		//Chronometer.useRealProcessingTime = false;
 		Simulator sim = new Simulator(args[0]);
-		sim.simulate(true);
+		sim.simulate();
 	}
 	
 	public Simulator(String file) {
@@ -47,8 +48,7 @@ public class Simulator {
 		});
 	}
 	
-	public void simulate(boolean flag) {
-		TimeUtil.useHostsRealProcessingTime = flag;
+	public void simulate() {
 		if (parser.parse()) {
 			parser.printElements();
 			setupDnsServers();
@@ -96,7 +96,7 @@ public class Simulator {
 		String resource = action.getResource();
 		HttpClient client = parser.getHttpClient(host);
 		if (client != null) {
-			TimeUtil.setStartTime(action.getTime());
+			Chronometer.setTime(action.getTime());
 			client.get(target, resource);
 		}
 	}

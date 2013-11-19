@@ -25,6 +25,11 @@ public class ServiceProvider {
 	private Random random;
 	// Hash de controladores TCP (um para cada processo).
 	private HashMap<Process, TcpController> controllers;
+	// Valor mínimo da porta que pode ser escolhida ao vincular um socket.
+	private static final int MIN_BIND_PORT = 4000;
+	// Quantidade de portas que podem ser escolhidas ao vincular um socket.
+	private static final int BIND_PORT_RANGE = 6000;
+	
 	
 	public Host getHost() {
 		return host;
@@ -45,7 +50,7 @@ public class ServiceProvider {
 	}
 	
 	public void udpSend(Message message, Process process) {
-		Segment segment = multiplexing(message, process);
+		Segment segment = udpMultiplexing(message, process);
 		Socket socket = process.getSocket();
 		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
@@ -53,14 +58,19 @@ public class ServiceProvider {
 	// Multiplexing: gathering data at the source host from different application 
 	// processes, enveloping the data with header information to create segments, 
 	// and passing the segments to the network layer.	
-	private UdpSegment multiplexing(Message message, Process process) {
+	private UdpSegment udpMultiplexing(Message message, Process process) {
+		bindProcessSocket(process);
+		Socket socket = process.getSocket();
+		return new UdpSegment(message, socket.getSourcePort(), socket.getDestinationPort());
+	}
+
+	public void bindProcessSocket(Process process) {
 		Socket socket = process.getSocket();
 		if (socket.getSourcePort() == null) {
-			Integer sourcePort = 5000 + random.nextInt(5000);
+			Integer sourcePort = MIN_BIND_PORT + random.nextInt(BIND_PORT_RANGE);
 			socket.setSourceIp(hostInterface.getIp());
 			socket.setSourcePort(sourcePort);
 		}
-		return new UdpSegment(message, socket.getSourcePort(), socket.getDestinationPort());
 	}
 	
 	public void tcpSend(Message message, Process process) {
@@ -76,25 +86,32 @@ public class ServiceProvider {
 
 	public void udpReceive(UdpSegment segment, Ip sourceIp, Ip destinationIp) {
 		Process process = demultiplexing(segment, sourceIp, destinationIp);
-		host.receive(segment.getMessage(), process);
+		if (process != null)
+			host.receive(segment.getMessage(), process);
+		else
+			System.out.println("Socket fechado!");
 	}
 
 	public void tcpReceive(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
 		Process process = demultiplexing(segment, sourceIp, destinationIp);
-		if (controllers.containsKey(process)) {
-			controllers.get(process).receive(segment);
+		if (process != null) {
+			if (controllers.containsKey(process)) {
+				controllers.get(process).receive(segment);
+			}
+			else {
+				TcpController controller = new TcpController(process, hostInterface, TcpState.LISTEN);
+				controllers.put(process, controller);
+				controller.receive(segment);
+			}
 		}
-		else {
-			TcpController controller = new TcpController(process, hostInterface, TcpState.LISTEN);
-			controllers.put(process, controller);
-			controller.receive(segment);
-		}
+		else 
+			System.out.println("Socket fechado!");
 	}
 	
 	public void timeout(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
-		Process process = demultiplexing(segment, sourceIp, destinationIp);
-		if (process != null)
-			controllers.get(process).timeout(segment);
+		//Process process = demultiplexing(segment, sourceIp, destinationIp);
+		//if (process != null)
+			//controllers.get(process).timeout(segment);
 	}
 
 	// Demultiplexing: delivering the data in a transport-layer segment 

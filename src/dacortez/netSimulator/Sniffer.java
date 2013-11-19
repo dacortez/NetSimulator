@@ -34,11 +34,15 @@ public class Sniffer implements NetworkEventListener {
 
 	public void setFile(String file) {
 		this.file = file;
+		setupPrintStream();
+	}
+
+	private void setupPrintStream() {
 		try {
 			ps = new PrintStream(new File(file));
 		} catch (FileNotFoundException e) {
 			System.err.println("Erro ao criar arquivo de captura de dados do Sniffer " + name + ".");
-			System.err.println("(os dados capturados serão mostrados apenas na saída padrão).");
+			System.err.println("(Os dados capturados serão apresentados apenas na saída padrão).");
 			ps = null;
 		}
 	}
@@ -65,11 +69,11 @@ public class Sniffer implements NetworkEventListener {
 	private String getOutput(EventArgs args) {
 		Datagram data = args.getDatagram();
 		StringBuilder sb = new StringBuilder();
-		sb.append("-----------------------------------------------------------------------------------------------\n");
+		sb.append("===============================================================================================\n");
 		sb.append("Sniffer: " + name + "\n");
 		sb.append("Instante da captura: " + args.getTime() + "\n");
 		sb.append(data);
-		sb.append("\n-----------------------------------------------------------------------------------------------\n");
+		sb.append("\n===============================================================================================\n");
 		return sb.toString();
 	}
 	

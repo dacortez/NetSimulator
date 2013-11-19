@@ -1,8 +1,11 @@
 package dacortez.netSimulator.application;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.List;
 
+import dacortez.netSimulator.Chronometer;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.transport.ServiceProvider;
 
@@ -70,6 +73,17 @@ public class Host {
 		dnsServerIp = host.getDnsServerIp();
 		serviceProvider = host.getServiceProvider();
 		serviceProvider.setHost(this);
+		setupPrintStream();
+	}
+
+	private void setupPrintStream() {
+		try {
+			ps = new PrintStream(new File("/tmp/" + name));
+		} catch (FileNotFoundException e) {
+			System.err.println("Erro ao criar arquivo com os dados recebidos pelo host " + name + ".");
+			System.err.println("(Os dados serão apresentados apenas na saída padrão).");
+			ps = null;
+		}
 	}
 	
 	public void addProcess(Process process) {
@@ -77,8 +91,18 @@ public class Host {
 	}
 	
 	public void receive(Message message, Process process) {
-		System.out.println("Aplicação do host " + name + " recebeu uma mensagem:");
-		System.out.println(message);
+		
+	}
+
+	protected void print(String name, Message message) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("===============================================================================================\n");
+		sb.append("[Time = " + Chronometer.getTime() + "]\n");
+		sb.append("Host " + name + " recebeu uma mensagem:\n");
+		sb.append(message);
+		sb.append("\n===============================================================================================\n");
+		System.out.println(sb.toString());
+		if (ps != null) ps.println(sb.toString());
 	}
 	
 	@Override

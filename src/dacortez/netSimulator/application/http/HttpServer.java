@@ -39,18 +39,13 @@ public class HttpServer extends Host {
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		System.out.println("Aplicação do servidor HTTP " + serverName + " recebeu uma mensagem:");
-		System.out.println(message + "\n");
-		if (process != null) {
-			Message respond = process.respond(message);
+	public void receive(Message message, Process process) {	
+		print(serverName, message);
+		Message respond = process.respond(message);
 			if (respond != null)
 				serviceProvider.tcpSend(respond, process);
-		}
-		else
-			System.out.println("Socket fechado!\n");
 	}
-	
+		
 	@Override
 	public String toString() {
 		return serverName + " <- " + super.toString();

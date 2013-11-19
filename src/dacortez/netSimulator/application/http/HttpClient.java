@@ -1,8 +1,5 @@
 package dacortez.netSimulator.application.http;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 import dacortez.netSimulator.Ip;
@@ -28,13 +25,6 @@ public class HttpClient extends Host {
 		super();
 		this.clientName = clientName;
 		processes = new ArrayList<Process>();
-		try {
-			ps = new PrintStream(new File("/tmp/" + clientName));
-		} catch (FileNotFoundException e) {
-			System.err.println("Erro ao criar arquivo dos dados recebidos no host " + clientName + ".");
-			System.err.println("(os dados serão mostrados apenas na saída padrão).");
-			ps = null;
-		}
 	}
 	
 	public void get(String host, String resource) {
@@ -64,23 +54,11 @@ public class HttpClient extends Host {
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		print(message);
-		if (process != null) {
-			Message respond = process.respond(message);
-			if (respond != null)
-				serviceProvider.tcpSend(respond, process);
-		}
-		else 
-			System.out.println("Socket fechado!\n");
-	}
-
-	private void print(Message message) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Aplicação do cliente HTTP " + clientName + " recebeu uma mensagem:\n");
-		sb.append(message).append("\n");
-		System.out.println(sb.toString());
-		if (ps != null) ps.println(sb.toString());
+	public void receive(Message message, Process process) {	
+		print(clientName, message);
+		Message respond = process.respond(message);
+		if (respond != null)
+			serviceProvider.tcpSend(respond, process);
 	}
 	
 	@Override

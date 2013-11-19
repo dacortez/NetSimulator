@@ -50,16 +50,11 @@ public class DnsServer extends Host {
 	}
 	
 	@Override
-	public void receive(Message message, Process process) {
-		System.out.println("Aplicação do servidor DNS " + serverName + " recebeu uma mensagem:");
-		System.out.println(message  + "\n");
-		if (process != null) {
-			Message respond = process.respond(message);
-			if (respond != null)
-				serviceProvider.udpSend(respond, process);
-		}
-		else
-			System.out.println("Socket fechado!\n");
+	public void receive(Message message, Process process) {	
+		print(serverName, message);
+		Message respond = process.respond(message);
+		if (respond != null)
+			serviceProvider.udpSend(respond, process);
 	}
 		
 	@Override

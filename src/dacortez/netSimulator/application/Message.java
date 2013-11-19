@@ -1,9 +1,5 @@
 package dacortez.netSimulator.application;
 
-import com.sun.tools.javac.util.Convert;
-
-
-
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.16
@@ -34,7 +30,9 @@ public class Message {
 	}
 	
 	public int getNumberOfBytes() {
-		return data.length;
+		if (data != null)
+			return data.length;
+		return 0;
 	}
 	
 	@Override
@@ -60,15 +58,16 @@ public class Message {
 
 	private String dataToText() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\n===============================================================================================\n");
+		sb.append("\n-----------------------------------------------------------------------------------------------\n");
 		for (byte b: data)
-			if (b < 9) {
-				sb.append("(binary data)");
-				sb.append("\n===============================================================================================");
+			if ((b >= 32 && b <= 126) || b == 9 || b == 10 || b == 13)
+				sb.append((char) b);
+			else {
+				sb.append("(binary data)\n");
+				sb.append("-----------------------------------------------------------------------------------------------");
 				return sb.toString();
 			}
-		sb.append(Convert.utf2string(data));
-		sb.append("\n===============================================================================================");
+		sb.append("\n-----------------------------------------------------------------------------------------------");
 		return sb.toString();
 	}
 	

@@ -56,7 +56,7 @@ public abstract class Interface implements NetworkEventListener {
 		double timeAtDestination = getTimeAtDestination(args);
 		EventArgs destination = new EventArgs(data, timeAtDestination);
 		queue.add(args);
-		debugLinkQueue(timeAtDestination);
+		debugQueue(timeAtDestination);
 		Simulator.addToQueue(new QueuedData(this, destination));
 	}
 	
@@ -81,7 +81,7 @@ public abstract class Interface implements NetworkEventListener {
 		return transmissionDelay + propagationDelay;
 	}
 
-	private void debugLinkQueue(double timeAtDestination) {
+	private void debugQueue(double timeAtDestination) {
 		if (Simulator.debugMode) {
 			System.out.println("********************************************************************");
 			System.out.println("Interface " + ip + " QUEUE: " + queue.size());
@@ -97,6 +97,7 @@ public abstract class Interface implements NetworkEventListener {
 				index = queue.indexOf(queueArgs);
 		if (index != -1) {
 			queue.remove(index);
+			debugQueue(args.getTime());
 			fireNetworkEvent(args);
 		}
 	}

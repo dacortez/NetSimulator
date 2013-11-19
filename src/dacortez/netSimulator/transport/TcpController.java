@@ -10,6 +10,11 @@ import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
 import dacortez.netSimulator.application.http.HttpServerProcess;
 
+/**
+ * @author dacortez (dacortez79@gmail.com)
+ * @version 2013.11.20
+ */
+@SuppressWarnings("unused")
 public class TcpController {
 	// Processo sendo controlado por este controlador.
 	private Process process;
@@ -27,12 +32,12 @@ public class TcpController {
 	private List<TcpSegment> sendBuffer;
 	// Lista de segmentos recebidos.
 	private List<TcpSegment> receiveBuffer;
-	// Lista de segmentos reconhecidos.
-	private List<TcpSegment> acks;
 	// Maximum segment size (bytes): tamanho máximo de dados que cabe em um segmento.
 	private final static int MSS = 1460;
 	// Tempo em que o "timer" associado ao segmento expira (em ms).
-	public static final double TIMEOUT = 5000;
+	public static final double TIMEOUT = 500;
+	// Valor máximo de número de sequência permitido na inicialização.
+	private static final int MAX_INIT_SEQ_NUMBER = 1000;
 	// Gerador de números aleatórios utilizados pelo controlador.
 	private Random random;
 	
@@ -41,27 +46,25 @@ public class TcpController {
 		socket = process.getSocket();
 		this.hostInterface = hostInterface;
 		random = new Random();
-		currentSeqNumber = random.nextInt(1000);
 		this.state = state;
 	}
 	
 	public void send(Message message) {
 		this.message = message;
-		if (state == TcpState.CLOSED)
-			sendSyn();
+		if (state == TcpState.CLOSED) 
+			sendSyn(); 
 		else if (state == TcpState.ESTABLISHED) {
 			sendMessage();
-			if (process instanceof HttpServerProcess)
-				sendFinAndSwitchToFinWait1();
+			// Só deve fechar qando recebeu ack do último pacote.
+			//if (process instanceof HttpServerProcess)
+				//sendFinAndSwitchToFinWait1();
 		}
 	}
 	
 	public void sendSyn() {
-		if (socket.getSourcePort() == null) {
-			Integer sourcePort = 5000 + random.nextInt(5000);
-			socket.setSourceIp(hostInterface.getIp());
-			socket.setSourcePort(sourcePort);
-		}
+		hostInterface.getServiceProvider().bindProcessSocket(process);		
+		//currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		currentSeqNumber = 0;
 		TcpSegment syn = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
 		syn.setSeqNumber(currentSeqNumber++);
 		syn.setSyn(true);
@@ -98,13 +101,28 @@ public class TcpController {
 	}
 
 	private void listen(TcpSegment segment) {
-		TcpSegment synAndAck = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		synAndAck.setAck(true);
+		//currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		currentSeqNumber = 0;
+		TcpSegment synAndAck = ack(segment);
 		synAndAck.setSyn(true);
-		synAndAck.setSeqNumber(currentSeqNumber++);
-		synAndAck.setAckNumber(segment.getSeqNumber() + 1);
 		state = TcpState.SYN_RCVD;
 		hostInterface.send(synAndAck, socket.getSourceIp(), socket.getDestinationIp());
+	}
+	
+	private TcpSegment ack(TcpSegment segment) {
+		TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
+		ack.setAck(true);
+		ack.setSeqNumber(currentSeqNumber++);
+		setAckNumber(segment, ack);
+		return ack;
+	}
+
+	private void setAckNumber(TcpSegment segment, TcpSegment ack) {
+		Message message = segment.getMessage();
+		if (message == null)
+			ack.setAckNumber(segment.getSeqNumber() + 1);
+		else
+			ack.setAckNumber(segment.getSeqNumber() + message.getNumberOfBytes());
 	}
 	
 	private void synSent(TcpSegment segment) {
@@ -113,19 +131,14 @@ public class TcpController {
 	}
 	
 	private void sendAckAndSwitchToEstablished(TcpSegment segment) {
-		TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		ack.setAck(true);
-		ack.setSeqNumber(currentSeqNumber++);
-		ack.setAckNumber(segment.getSeqNumber() + 1);
+		TcpSegment ack = ack(segment);
 		allocateBuffers();
-		acks = new ArrayList<TcpSegment>();
 		state = TcpState.ESTABLISHED;
 		hostInterface.send(ack, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	private void synRcvd() {
 		allocateBuffers();
-		acks = new ArrayList<TcpSegment>();
 		state = TcpState.ESTABLISHED;
 	}
 
@@ -144,22 +157,22 @@ public class TcpController {
 	}
 
 	private void notFin(TcpSegment segment) {
-		if (!segment.isAck())
+		if (!segment.isAck()) {
 			pushToBufferAndSendAck(segment);
-		else {
-			acks.add(segment);
 		}
-		if (segment.isPsh()) {
+		else {
+			// TODO
+		}
+		if (segment.isPsh()) {		
+			// TODO
 			ServiceProvider sp = hostInterface.getServiceProvider();
 			sp.getHost().receive(assembled(), process);
 		}
 	}
 
 	private void pushToBufferAndSendAck(TcpSegment segment) {
-		if (!segment.isAck()) {
-			receiveBuffer.add(segment);
-			sendAck(segment);
-		}
+		receiveBuffer.add(segment);
+		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 	}
 
 	private Message assembled() {
@@ -186,12 +199,8 @@ public class TcpController {
 	}
 
 	private void sendAckAndSwitchToCloseWait(TcpSegment segment) {
-		TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		ack.setAck(true);
-		ack.setSeqNumber(currentSeqNumber++);
-		ack.setAckNumber(segment.getSeqNumber() + 1);
 		state = TcpState.CLOSE_WAIT;
-		hostInterface.send(ack, socket.getSourceIp(), socket.getDestinationIp());
+		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	private void sendFinAndSwitchToLastAck() {
@@ -201,14 +210,6 @@ public class TcpController {
 		state = TcpState.LAST_ACK;
 		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
 	}
-	
-	private void sendAck(TcpSegment segment) {
-		TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		ack.setAck(true);
-		ack.setSeqNumber(currentSeqNumber++);
-		ack.setAckNumber(segment.getSeqNumber() + 1);
-		hostInterface.send(ack, socket.getSourceIp(), socket.getDestinationIp());
-	}
 
 	private void finWait1(TcpSegment segment) {
 		if (segment.isAck())
@@ -217,12 +218,8 @@ public class TcpController {
 	
 	private void finWait2(TcpSegment segment) {
 		if (segment.isFin()) {
-			TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-			ack.setAck(true);
-			ack.setSeqNumber(currentSeqNumber++);
-			ack.setAckNumber(segment.getSeqNumber() + 1);
 			state = TcpState.TIME_WAIT;
-			hostInterface.send(ack, socket.getSourceIp(), socket.getDestinationIp());
+			hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 			state = TcpState.CLOSED;
 		}
 	}
@@ -233,21 +230,21 @@ public class TcpController {
 	}
 	
 	public void sendMessage() {
-		makeFrames();
+		makeSegments();
 		sendBuffer.get(sendBuffer.size() - 1).setPsh(true);
 		for (TcpSegment segment: sendBuffer)
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
-	private void makeFrames() {
+	private void makeSegments() {
 		byte[] messageData = message.toBytes();
 		int numberOfSegments = messageData.length / MSS;
 		for (int i = 0; i < numberOfSegments; i++) {
 			byte[] segmentData = new byte[MSS];
 			for (int j = 0; j < MSS; j++)
 				segmentData[j] = messageData[j + i * MSS];
-			addToSendBuffer(segmentData, currentSeqNumber);
-			currentSeqNumber += (i + 1) * MSS;
+			addToSendBuffer(segmentData);
+			currentSeqNumber += MSS;
 		}
 		makeLastFrame(messageData, numberOfSegments);
 	}
@@ -258,20 +255,19 @@ public class TcpController {
 			byte[] segmentData = new byte[rest];
 			for (int j = 0 ; j < rest; j++)
 				segmentData[j] = messageData[numberOfSegments * MSS + j];
-			addToSendBuffer(segmentData, currentSeqNumber);
+			addToSendBuffer(segmentData);
 			currentSeqNumber += rest;
 		}
 	}
 	
-	private void addToSendBuffer(byte[] data, int seqNumber) {
+	private void addToSendBuffer(byte[] data) {
 		Message message = new Message(data);
 		TcpSegment segment = new TcpSegment(message, socket.getSourcePort(), socket.getDestinationPort());
-		segment.setSeqNumber(seqNumber);
+		segment.setSeqNumber(currentSeqNumber);
 		sendBuffer.add(segment);
 	}
 	
 	public void timeout(TcpSegment segment) {
-		//if (sendBuffer.contains(segment))
-		//	hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
+
 	}
 }

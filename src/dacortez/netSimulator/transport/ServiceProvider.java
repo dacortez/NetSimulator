@@ -14,7 +14,7 @@ import dacortez.netSimulator.network.HostInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.08
+ * @version 2013.11.20
  */
 public class ServiceProvider {	
 	// Host associado a este provedor de serviços da camada de transporte.
@@ -108,28 +108,23 @@ public class ServiceProvider {
 			System.out.println("Socket fechado!");
 	}
 	
-	public void timeout(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
-		//Process process = demultiplexing(segment, sourceIp, destinationIp);
-		//if (process != null)
-			//controllers.get(process).timeout(segment);
-	}
-
 	// Demultiplexing: delivering the data in a transport-layer segment 
 	// to the correct application process. 
 	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
-		Process clientProcess = getClientProcess(segment);
+		Process clientProcess = clientProcess(segment);
 		if (clientProcess != null) 
 			return clientProcess;
 		return forkOfServerProcess(segment, sourceIp, destinationIp);
 	}
 	
-	private Process getClientProcess(Segment segment) { 
+	private Process clientProcess(Segment segment) { 
 		List<Process> processes = host.getProcesses();
 		for (Process process: processes) {
 			Socket socket = process.getSocket();
 			Integer sourcePort = segment.getSourcePort();
 			Integer destinationPort = segment.getDestinationPort();
-			if (socket.getSourcePort() == destinationPort && socket.getDestinationPort() == sourcePort)
+			if (socket.getSourcePort() == destinationPort 
+					&& socket.getDestinationPort() == sourcePort)
 				return process;
 		}
 		return null;
@@ -154,6 +149,27 @@ public class ServiceProvider {
 		return null;
 	}
 	
+	public void timeout(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
+		Process process = timeoutProcess(segment, sourceIp, destinationIp);
+		if (process != null)
+			controllers.get(process).timeout(segment);
+	}
+
+	private Process timeoutProcess(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
+		List<Process> processes = host.getProcesses();
+		for (Process process: processes) {
+			Socket socket = process.getSocket();
+			Integer sourcePort = segment.getSourcePort();
+			Integer destinationPort = segment.getDestinationPort();
+			if (socket.getSourcePort() == sourcePort 
+					&& socket.getDestinationPort() == destinationPort
+					&& socket.getSourceIp() == sourceIp
+					&& socket.getDestinationIp() == destinationIp)
+				return process;
+		}
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		return "SERVICE_PROVIDER@" + hostInterface.toString();

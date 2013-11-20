@@ -55,24 +55,24 @@ public abstract class Interface implements NetworkEventListener {
 		Datagram data = args.getDatagram();
 		double timeAtDestination = getTimeAtDestination(args);
 		EventArgs destination = new EventArgs(data, timeAtDestination);
-		queue.add(args);
-		debugQueue(timeAtDestination);
+		queue.add(destination);
+		queueStatus("queuing", timeAtDestination);
 		Simulator.addToQueue(new QueuedData(this, destination));
 	}
 	
 	private double getTimeAtDestination(EventArgs in) {
 		Datagram data = in.getDatagram();
 		double inTime = in.getTime();
-		double queuingDelay = delayToSend(data.getNumberOfBytes());
+		double delayToSend = delayToSend(data.getNumberOfBytes());
 		if (queue.isEmpty())
-			return inTime + queuingDelay;
-		double first = Double.MAX_VALUE;
+			return inTime + delayToSend;
+		double max = 0.0;
 		for (EventArgs args: queue) {
-			if (args.getTime() < first)
-				first = args.getTime();
-			queuingDelay += delayToSend(args.getDatagram().getNumberOfBytes());
+			if (args.getTime() > max)
+				max = args.getTime();
+			//queuingDelay += delayToSend(args.getDatagram().getNumberOfBytes());
 		}
-		return first + queuingDelay;
+		return max + delayToSend;
 	}
 	
 	private double delayToSend(int numberOfBytes) {
@@ -81,11 +81,14 @@ public abstract class Interface implements NetworkEventListener {
 		return transmissionDelay + propagationDelay;
 	}
 
-	private void debugQueue(double timeAtDestination) {
+	private void queueStatus(String operation, double timeAtDestination) {
 		if (Simulator.debugMode) {
 			System.out.println("********************************************************************");
-			System.out.println("Interface " + ip + " QUEUE: " + queue.size());
-			System.out.println("Time at destination: " + timeAtDestination);
+			System.out.println(ip + " QUEUE: " + queue.size());
+			System.out.println("Time at destination of queued/dequeued element: " + timeAtDestination);
+			System.out.println(operation);
+			for (EventArgs args: queue)
+				System.out.println(args.getTime());
 			System.out.println("********************************************************************\n");
 		}
 	}
@@ -97,7 +100,7 @@ public abstract class Interface implements NetworkEventListener {
 				index = queue.indexOf(queueArgs);
 		if (index != -1) {
 			queue.remove(index);
-			debugQueue(args.getTime());
+			queueStatus("dequeuing", args.getTime());
 			fireNetworkEvent(args);
 		}
 	}

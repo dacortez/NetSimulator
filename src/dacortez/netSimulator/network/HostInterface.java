@@ -36,19 +36,16 @@ public class HostInterface extends Interface {
 	public void send(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Datagram data = new Datagram(segment, sourceIp, destinationIp);
 		double time = Chronometer.getTime();
-		
-		System.out.println("TIME = " + time);
-		
 		EventArgs out = new EventArgs(data, time);
 		Simulator.addToQueue(new OutboundData(this, out));
-		addTimeoutEventIfNotAckAndSyn(segment, out);
+		addTimeoutEventIfNotAckSynFin(segment, out);
 	}
 
-	private void addTimeoutEventIfNotAckAndSyn(Segment segment, EventArgs out) {
+	private void addTimeoutEventIfNotAckSynFin(Segment segment, EventArgs out) {
 		Datagram data = out.getDatagram();
 		if (data.getUperLayerProtocol() == Protocol.TCP) {
 			TcpSegment tcp = (TcpSegment) segment;
-			if (!tcp.isAck() && !tcp.isSyn()) {
+			if (!tcp.isAck() && !tcp.isSyn() && !tcp.isFin()) {
 				double time = out.getTime() + TcpController.TIMEOUT / 1000.0;
 				EventArgs timeout = new EventArgs(data, time);
 				Simulator.addToQueue(new Timeout(this, timeout));

@@ -39,6 +39,8 @@ public class RouterInterface extends Interface {
 	public void queuing(EventArgs args) {
 		if (queue.size() < queueSize)
 			super.queuing(args);
+		else
+			System.out.println("~ Pacote dropado em " + ip + "\n");
 	}
 	
 	@Override

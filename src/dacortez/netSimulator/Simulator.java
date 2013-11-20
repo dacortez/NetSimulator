@@ -112,8 +112,8 @@ public class Simulator {
 	}
 
 	public static void addToQueue(SimEvent e) {
+		queue.add(e);
 		if (debugMode) 
 			System.out.println("(+) Evento adicionado à fila do simulador:\n" + e);
-		queue.add(e);
 	}
 }

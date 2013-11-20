@@ -43,7 +43,7 @@ public class TcpController {
 	// Maximum segment size (bytes): tamanho máximo de dados que cabe em um segmento.
 	private final static int MSS = 1460;
 	// Tempo em que o "timer" associado ao segmento expira (em ms).
-	public static final double TIMEOUT = 1000000;
+	public static final double TIMEOUT = 5000;
 	// Valor máximo de número de sequência permitido na inicialização.
 	private static final int MAX_INIT_SEQ_NUMBER = 1000;
 	// Gerador de números aleatórios utilizados pelo controlador.
@@ -73,8 +73,8 @@ public class TcpController {
 	
 	public void sendSyn() {
 		hostInterface.getServiceProvider().bindProcessSocket(process);		
-		//currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		currentSeqNumber = 0;
+		currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		//currentSeqNumber = 0;
 		TcpSegment syn = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
 		syn.setSeqNumber(currentSeqNumber++);
 		syn.setSyn(true);
@@ -111,8 +111,8 @@ public class TcpController {
 	}
 
 	private void listen(TcpSegment segment) {
-		//currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		currentSeqNumber = 0;
+		currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		//currentSeqNumber = 0;
 		currentAckNumber = segment.getSeqNumber() + 1;
 		TcpSegment synAndAck = ack(segment);
 		synAndAck.setSyn(true);
@@ -172,9 +172,9 @@ public class TcpController {
 					alreadyAckeds.add(sent.getSeqNumber());
 			sendBase = y;
 		}
-		//if (sendBase >= message.getNumberOfBytes() + 2)
-		//	if (closeConnection)
-		//		sendFinAndSwitchToFinWait1();
+		if (sendBase >= message.getNumberOfBytes() + 2)
+			if (closeConnection)
+				sendFinAndSwitchToFinWait1();
 	}
 	
 	private void handleNewData(TcpSegment segment) {
@@ -188,11 +188,17 @@ public class TcpController {
 			}
 		}
 		else {
-			System.out.println(hostInterface.getIp());
-			System.out.println(currentAckNumber);
-			System.out.println(segment.getSeqNumber());
-			throw new RuntimeException();
+			System.out.println(notCorrectOrderMsg(segment));
 		}
+	}
+	
+	private String notCorrectOrderMsg(TcpSegment segment) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("! Host " + hostInterface.getIp());
+		sb.append(" reconheceu dados fora de ordem.\n");
+		sb.append("! Sequência esperada = " + currentAckNumber).append("\n");
+		sb.append("! Sequência recebida = " + segment.getSeqNumber()).append("\n");
+		return sb.toString();
 	}
 
 	private Message assembled() {
@@ -253,9 +259,11 @@ public class TcpController {
 	public void sendMessage() {
 		sendBase = currentSeqNumber;
 		makeSegments();
-		sendBuffer.get(sendBuffer.size() - 1).setPsh(true);
+		sendBuffer.get(sendBuffer.size() - 1).setPsh(true);	
 		for (TcpSegment segment: sendBuffer)
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
+		//if (process instanceof HttpServerProcess)
+		//	throw new RuntimeException();
 	}
 	
 	private void makeSegments() {
@@ -295,15 +303,17 @@ public class TcpController {
 			System.out.println(retransmitingMsg(segment));
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 		}
-		else
-			System.out.println("(SEQ = " + segment.getSeqNumber() + " já reconhecido).\n");
+		else {
+			System.out.println(hostInterface.getIp());
+			System.out.println("(Número de sequência = " + segment.getSeqNumber() + " já reconhecido).\n");
+		}
 	}
 	
 	private String retransmitingMsg(TcpSegment segment) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("! Host " + hostInterface.getIp());
-		sb.append(" retransmitindo pacote não reconhecido (seq = ");
-		sb.append(segment.getSeqNumber()).append(")\n");
+		sb.append(" retransmitindo pacote ainda não reconhecido.\n");
+		sb.append("! Número de sequência: ").append(segment.getSeqNumber()).append("\n");
 		return sb.toString();
 	}
 }

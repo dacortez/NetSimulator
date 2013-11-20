@@ -8,7 +8,7 @@ import dacortez.netSimulator.application.Message;
  */
 public class TcpSegment extends Segment {
 	// Tamanho do cabeçalho TCP em bytes.
-	private static final int HEADER_SIZE = 20;
+	public static final int HEADER_SIZE = 20;
 	// Número de sequência.
 	private int seqNumber;
 	// Número de reconhecimento. 

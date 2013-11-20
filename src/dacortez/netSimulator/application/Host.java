@@ -7,6 +7,7 @@ import java.util.List;
 
 import dacortez.netSimulator.Chronometer;
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.transport.ServiceProvider;
 
 /**
@@ -101,7 +102,7 @@ public class Host {
 		sb.append("Host " + name + " recebeu uma mensagem:\n");
 		sb.append(message);
 		sb.append("\n===============================================================================================\n");
-		System.out.println(sb.toString());
+		if (Simulator.debugMode) System.out.println(sb.toString());
 		if (ps != null) ps.println(sb.toString());
 	}
 	

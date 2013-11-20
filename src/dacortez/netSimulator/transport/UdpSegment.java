@@ -8,7 +8,7 @@ import dacortez.netSimulator.application.Message;
  */
 public class UdpSegment extends Segment {
 	// Tamanho do cabeçalho UDP em bytes.
-	private static final int HEADER_SIZE = 8;
+	public static final int HEADER_SIZE = 8;
 
 	public UdpSegment(Message message, Integer sourcePort, Integer destinationPort) {
 		super(message, sourcePort, destinationPort);

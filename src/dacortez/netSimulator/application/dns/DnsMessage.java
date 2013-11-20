@@ -10,6 +10,8 @@ import dacortez.netSimulator.application.Message;
  * @version 2013.11.14
  */
 public class DnsMessage extends Message {
+	// Tamanho do cabeçalho DNS em bytes.
+	public static final int HEADER_SIZE = 12;
 	// Número de identificação.
 	private int id;
 	// Identifica mensagem como resposta.
@@ -22,8 +24,6 @@ public class DnsMessage extends Message {
 	private List<DnsQuestion> questions;
 	// Lista de respostas.
 	private List<DnsAnswer> answers;
-	// Tamanho do cabeçalho DNS em bytes.
-	private static final int HEADER_SIZE = 12;
 
 	public int getId() {
 		return id;

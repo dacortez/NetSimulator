@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.network.HostInterface;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
-import dacortez.netSimulator.application.http.HttpServerProcess;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.20
  */
-@SuppressWarnings("unused")
 public class TcpController {
 	// Processo sendo controlado por este controlador.
 	private Process process;
@@ -26,6 +25,8 @@ public class TcpController {
 	private TcpState state;
 	// Mensagem vinda da aplicação que seseja enviar.
 	private Message message;
+	// Número inicial de sequência escolhido.
+	private int initialSeqNumber;
 	// Número de sequência atual.
 	private int currentSeqNumber;
 	// Número de reconhecimento atual.
@@ -41,11 +42,11 @@ public class TcpController {
 	// Indica se o controlador deve fechar a conexão TCP ao enviar dados.
 	private boolean closeConnection;
 	// Maximum segment size (bytes): tamanho máximo de dados que cabe em um segmento.
-	private final static int MSS = 1460;
+	public final static int MSS = 1460;
 	// Tempo em que o "timer" associado ao segmento expira (em ms).
-	public static final double TIMEOUT = 5000;
+	public static final double TIMEOUT = 10000;
 	// Valor máximo de número de sequência permitido na inicialização.
-	private static final int MAX_INIT_SEQ_NUMBER = 1000;
+	public static final int MAX_INIT_SEQ_NUMBER = 1000;
 	// Gerador de números aleatórios utilizados pelo controlador.
 	private Random random;
 	
@@ -61,25 +62,6 @@ public class TcpController {
 		closeConnection = false;
 		random = new Random();
 		closeConnection = (state == TcpState.LISTEN); 
-	}
-	
-	public void send(Message message) {
-		this.message = message;
-		if (state == TcpState.CLOSED) 
-			sendSyn(); 
-		else if (state == TcpState.ESTABLISHED)
-			sendMessage();
-	}
-	
-	public void sendSyn() {
-		hostInterface.getServiceProvider().bindProcessSocket(process);		
-		currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		//currentSeqNumber = 0;
-		TcpSegment syn = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		syn.setSeqNumber(currentSeqNumber++);
-		syn.setSyn(true);
-		state = TcpState.SYN_SENT;
-		hostInterface.send(syn, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	public void receive(TcpSegment segment) {
@@ -111,8 +93,8 @@ public class TcpController {
 	}
 
 	private void listen(TcpSegment segment) {
-		currentSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		//currentSeqNumber = 0;
+		initialSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		currentSeqNumber = initialSeqNumber;
 		currentAckNumber = segment.getSeqNumber() + 1;
 		TcpSegment synAndAck = ack(segment);
 		synAndAck.setSyn(true);
@@ -162,17 +144,31 @@ public class TcpController {
 		else
 			handleNewData(segment);		
 	}
+	
+	private void sendAckAndSwitchToCloseWait(TcpSegment segment) {
+		state = TcpState.CLOSE_WAIT;
+		currentAckNumber++;
+		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
+	}
+	
+	private void sendFinAndSwitchToLastAck() {
+		TcpSegment fin = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
+		fin.setFin(true);
+		fin.setSeqNumber(currentSeqNumber++);
+		state = TcpState.LAST_ACK;
+		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
+	}
 
 	private void handleAck(TcpSegment ack) {
 		currentAckNumber++;	
 		Integer y = ack.getAckNumber();
 		if (y > sendBase) {
 			for (TcpSegment sent: sendBuffer)
-				if (sent.getSeqNumber() <= ack.getAckNumber())
+				if (sent.getSeqNumber() < ack.getAckNumber())
 					alreadyAckeds.add(sent.getSeqNumber());
 			sendBase = y;
 		}
-		if (sendBase >= message.getNumberOfBytes() + 2)
+		if (sendBase >= message.getNumberOfBytes() + initialSeqNumber + 2)
 			if (closeConnection)
 				sendFinAndSwitchToFinWait1();
 	}
@@ -187,9 +183,8 @@ public class TcpController {
 				sp.getHost().receive(assembled(), process);
 			}
 		}
-		else {
-			System.out.println(notCorrectOrderMsg(segment));
-		}
+		else
+			if (Simulator.debugMode) System.out.println(notCorrectOrderMsg(segment));
 	}
 	
 	private String notCorrectOrderMsg(TcpSegment segment) {
@@ -224,20 +219,6 @@ public class TcpController {
 		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
 	}
 
-	private void sendAckAndSwitchToCloseWait(TcpSegment segment) {
-		state = TcpState.CLOSE_WAIT;
-		currentAckNumber++;
-		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
-	}
-	
-	private void sendFinAndSwitchToLastAck() {
-		TcpSegment fin = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		fin.setFin(true);
-		fin.setSeqNumber(currentSeqNumber++);
-		state = TcpState.LAST_ACK;
-		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
-	}
-
 	private void finWait1(TcpSegment segment) {
 		if (segment.isAck())
 			state = TcpState.FIN_WAIT_2;
@@ -248,12 +229,34 @@ public class TcpController {
 			state = TcpState.TIME_WAIT;
 			hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 			state = TcpState.CLOSED;
+			if (Simulator.debugMode) System.out.println("### Processo fechado:\n" + process);
 		}
 	}
 	
 	private void lastAck(TcpSegment segment) {
-		if (segment.isAck())
+		if (segment.isAck()) {
 			state = TcpState.CLOSED;
+			if (Simulator.debugMode) System.out.println("### Processo fechado:\n" + process);
+		}
+	}
+	
+	public void send(Message message) {
+		this.message = message;
+		if (state == TcpState.CLOSED) 
+			sendSyn(); 
+		else if (state == TcpState.ESTABLISHED)
+			sendMessage();
+	}
+	
+	public void sendSyn() {
+		hostInterface.getServiceProvider().bindProcessSocket(process);		
+		initialSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
+		currentSeqNumber = initialSeqNumber;
+		TcpSegment syn = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
+		syn.setSeqNumber(currentSeqNumber++);
+		syn.setSyn(true);
+		state = TcpState.SYN_SENT;
+		hostInterface.send(syn, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	public void sendMessage() {
@@ -262,8 +265,6 @@ public class TcpController {
 		sendBuffer.get(sendBuffer.size() - 1).setPsh(true);	
 		for (TcpSegment segment: sendBuffer)
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
-		//if (process instanceof HttpServerProcess)
-		//	throw new RuntimeException();
 	}
 	
 	private void makeSegments() {
@@ -300,19 +301,25 @@ public class TcpController {
 	public void timeout(TcpSegment segment) {
 		Integer seqNumber = segment.getSeqNumber();
 		if (!alreadyAckeds.contains(seqNumber)) {
-			System.out.println(retransmitingMsg(segment));
+			if (Simulator.debugMode) System.out.println(retransmitingMsg(segment));
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 		}
-		else {
-			System.out.println(hostInterface.getIp());
-			System.out.println("(Número de sequência = " + segment.getSeqNumber() + " já reconhecido).\n");
-		}
+		else
+			if (Simulator.debugMode) System.out.println(alreadAckedMsg(segment));
 	}
 	
 	private String retransmitingMsg(TcpSegment segment) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("! Host " + hostInterface.getIp());
-		sb.append(" retransmitindo pacote ainda não reconhecido.\n");
+		sb.append(" retransmitindo o pacote ainda não reconhecido.\n");
+		sb.append("! Número de sequência: ").append(segment.getSeqNumber()).append("\n");
+		return sb.toString();
+	}
+	
+	private String alreadAckedMsg(TcpSegment segment) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("! Host " + hostInterface.getIp());
+		sb.append(" já reconheceu o pacote expirado.\n");
 		sb.append("! Número de sequência: ").append(segment.getSeqNumber()).append("\n");
 		return sb.toString();
 	}

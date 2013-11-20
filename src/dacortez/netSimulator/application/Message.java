@@ -1,5 +1,7 @@
 package dacortez.netSimulator.application;
 
+import dacortez.netSimulator.Simulator;
+
 /**
  * @author dacortez (dacortez79@gmail.com)
  * @version 2013.11.16
@@ -38,8 +40,9 @@ public class Message {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("DATA (").append(getNumberOfBytes()).append(" bytes):\n");
-		sb.append(data());
+		sb.append("DATA (").append(getNumberOfBytes()).append(" bytes)");
+		if (Simulator.printBytes)
+			sb.append(":\n").append(data());
 		return sb.toString();
 	}
 

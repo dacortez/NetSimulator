@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Random;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
 import dacortez.netSimulator.network.HostInterface;
-
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -26,10 +26,9 @@ public class ServiceProvider {
 	// Hash de controladores TCP (um para cada processo).
 	private HashMap<Process, TcpController> controllers;
 	// Valor mínimo da porta que pode ser escolhida ao vincular um socket.
-	private static final int MIN_BIND_PORT = 4000;
+	public static final int MIN_BIND_PORT = 8000;
 	// Quantidade de portas que podem ser escolhidas ao vincular um socket.
-	private static final int BIND_PORT_RANGE = 6000;
-	
+	public static final int BIND_PORT_RANGE = 5000;
 	
 	public Host getHost() {
 		return host;
@@ -55,9 +54,6 @@ public class ServiceProvider {
 		hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
-	// Multiplexing: gathering data at the source host from different application 
-	// processes, enveloping the data with header information to create segments, 
-	// and passing the segments to the network layer.	
 	private UdpSegment udpMultiplexing(Message message, Process process) {
 		bindProcessSocket(process);
 		Socket socket = process.getSocket();
@@ -89,7 +85,7 @@ public class ServiceProvider {
 		if (process != null)
 			host.receive(segment.getMessage(), process);
 		else
-			System.out.println("Socket fechado!");
+			if (Simulator.debugMode) System.out.println(this + ":\nSocket fechado :-(");
 	}
 
 	public void tcpReceive(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
@@ -105,11 +101,9 @@ public class ServiceProvider {
 			}
 		}
 		else 
-			System.out.println("Socket fechado!");
+			if (Simulator.debugMode) System.out.println(this + ":\nSocket fechado :-(");
 	}
 	
-	// Demultiplexing: delivering the data in a transport-layer segment 
-	// to the correct application process. 
 	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Process clientProcess = clientProcess(segment);
 		if (clientProcess != null) 
@@ -172,6 +166,6 @@ public class ServiceProvider {
 
 	@Override
 	public String toString() {
-		return "SERVICE_PROVIDER@" + hostInterface.toString();
+		return "SERVICE_PROVIDER @ " + hostInterface.toString();
 	}
 }

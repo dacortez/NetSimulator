@@ -2,6 +2,7 @@ package dacortez.netSimulator.network;
 
 import java.util.ArrayList;
 
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
 
 /**
@@ -39,8 +40,12 @@ public class RouterInterface extends Interface {
 	public void queuing(EventArgs args) {
 		if (queue.size() < queueSize)
 			super.queuing(args);
-		else
-			System.out.println("~ Pacote dropado em " + ip + "\n");
+		else {
+			if (Simulator.debugMode) {
+				System.out.println("--- Pacote perdido em " + ip + ":" + port + ":\n");
+				System.out.println("DATAGRAM #" + args.getDatagram().getId());
+			}
+		}
 	}
 	
 	@Override

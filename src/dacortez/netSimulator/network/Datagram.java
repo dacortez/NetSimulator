@@ -13,7 +13,7 @@ import dacortez.netSimulator.transport.UdpSegment;
  */
 public class Datagram {
 	// Tamanho do cabeçalho IP em bytes.
-	private static final int HEADER_SIZE = 20;
+	public static final int HEADER_SIZE = 20;
 	// Contador estático para identificação dos datagrmas.
 	public static int count = 0;
 	// Identificador do datagrama.
@@ -29,7 +29,7 @@ public class Datagram {
 	// Upper layer protocol.
 	private Protocol upperLayerProtocol;
 	// Valor padrão do TTL.
-	private static final int STANDARD_TTL = 64;
+	public static final int STANDARD_TTL = 64;
 	
 	public int getId() {
 		return id;
@@ -45,10 +45,6 @@ public class Datagram {
 	
 	public Ip getDestinationIp() {
 		return destinationIp;
-	}
-	
-	public int getTtl() {
-		return ttl;
 	}
 	
 	public Protocol getUperLayerProtocol() {
@@ -71,9 +67,10 @@ public class Datagram {
 			upperLayerProtocol = Protocol.TCP;
 	}
 	
-	public void decrementTtl() {
+	public int decrementTtl() {
 		if (ttl > 0)
-			ttl--;
+			--ttl;
+		return ttl;
 	}
 	
 	public int getNumberOfBytes() {

@@ -58,16 +58,10 @@ $simulator $r1 0 192.168.3.4 1 192.168.2.3 2 192.168.1.2
 $simulator $r0 route 10.0.0.0 0 10.1.1.0 1 192.168.3.0 2 192.168.2.0 192.168.3.4 192.168.1.0 192.168.3.4
 $simulator $r1 route 192.168.3.0 0 192.168.2.0 1 192.168.1.0 2 10.0.0.0 192.168.3.3 10.1.1.0 192.168.3.3
 
-
-
-
 # Configuração dos roteadores: tempo para processar 1 pacote, porta, 
 # tamanho da fila da porta em quantidade de pacotes, [[porta, tamanho ...] ...]
-$simulator $r0 performance 100us 0 1 1 1 2 1
-$simulator $r1 performance 20us 0 1 1 1 2 1
-
-
-
+$simulator $r0 performance 100us 0 1000 1 1000 2 1000
+$simulator $r1 performance 20us 0 1000 1 1000 2 1000
 
 # Configuração dos agentes da camada de aplicacção. h0 e h1 vão rodar
 # clientes HTTP. h2 vai ser um servidor HTTP e h3 vai ser o servidor DNS. 
@@ -99,13 +93,10 @@ $simulator attach-agent $sniffer2 $h1 $r0.1 "/tmp/sniffer2"
 # consulta DNS não deverá ser realizada.
  
 $simulator at 0.5 "httpc1 GET h2"
-
-#$simulator at 0.5 "httpc1 GET h2"
-
-#$simulator at 0.6 "httpc1 GET 192.168.2.2" 
-#$simulator at 0.6 "httpc1 GET h0" 
-#$simulator at 0.7 "httpc0 GET h2" 
-#$simulator at 4.0 "finish"
+$simulator at 0.6 "httpc1 GET 192.168.2.2" 
+$simulator at 0.6 "httpc1 GET h0" 
+$simulator at 0.7 "httpc0 GET h2" 
+$simulator at 4.0 "finish"
 
 
 

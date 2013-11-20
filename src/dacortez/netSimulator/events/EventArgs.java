@@ -34,8 +34,7 @@ public class EventArgs {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Time: ").append(time).append("\n");
-		if (data != null)
-			sb.append(data);			
+		if (data != null) sb.append(data);			
 		return sb.toString();
 	}
 }

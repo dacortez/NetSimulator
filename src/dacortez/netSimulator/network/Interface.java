@@ -66,13 +66,15 @@ public abstract class Interface implements NetworkEventListener {
 		double delayToSend = delayToSend(data.getNumberOfBytes());
 		if (queue.isEmpty())
 			return inTime + delayToSend;
+		return maxOnTheQueue() + delayToSend;
+	}
+	
+	private double maxOnTheQueue() {
 		double max = 0.0;
-		for (EventArgs args: queue) {
+		for (EventArgs args: queue)
 			if (args.getTime() > max)
 				max = args.getTime();
-			//queuingDelay += delayToSend(args.getDatagram().getNumberOfBytes());
-		}
-		return max + delayToSend;
+		return max;
 	}
 	
 	private double delayToSend(int numberOfBytes) {

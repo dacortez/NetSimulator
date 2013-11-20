@@ -26,8 +26,10 @@ public class Simulator {
 	// devem ser processados em ordem (tempo da simulação).
 	private static Queue<SimEvent> queue;
 	// Variável indicando se o modo de depuração de mensagens está ativo.
-	public static boolean debugMode = true;
-	
+	public static boolean debugMode = false;
+	// Variável indicando se os bytes das mensagens devem ser impressos.
+	public static boolean printBytes = true;
+
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
@@ -54,7 +56,7 @@ public class Simulator {
 			setupDnsServers();
 			startAllServers();
 			processHostActions();
-			processQueue();
+			processEventsQueue();
 		}
 	}
 	
@@ -101,7 +103,7 @@ public class Simulator {
 		}
 	}
 	
-	private void processQueue() {
+	private void processEventsQueue() {
 		while (!queue.isEmpty()) {
 			SimEvent e = queue.poll();
 			if (debugMode) 

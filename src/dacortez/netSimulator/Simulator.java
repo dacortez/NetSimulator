@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import com.jezhumble.javasysmon.CpuTimes;
+import com.jezhumble.javasysmon.JavaSysMon;
+
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.dns.DnsServer;
 import dacortez.netSimulator.application.http.HttpClient;
@@ -35,9 +38,15 @@ public class Simulator {
 			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
 			return;
 		}
-		//Chronometer.useRealProcessingTime = false;
-		Simulator sim = new Simulator(args[0]);
+		//Simulator sim = new Simulator(args[0]);
+		Simulator sim = new Simulator("simples.ns");
+	
+		JavaSysMon monitor = new JavaSysMon();	
+		CpuTimes previous = monitor.cpuTimes();
+		
 		sim.simulate();
+		
+		System.out.println(monitor.cpuTimes().getCpuUsage(previous));
 	}
 	
 	public Simulator(String file) {

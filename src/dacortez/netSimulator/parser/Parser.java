@@ -2,6 +2,7 @@ package dacortez.netSimulator.parser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,11 +69,14 @@ public class Parser {
 				parseLine(line);
 			reader.close();
 			return true;
+		} catch (IOException e) {
+			System.out.println("Ocorreu um erro na leitura do arquivo de entrada:\n" + e.getMessage());
+			System.out.println("Não será possível realizar a simulação.");
+			return false;
 		} catch (Exception e) {
-			System.out.println("Ocorreu um erro na tradução do arquivo de entrada: " + e.getMessage());
+			System.out.println("Ocorreu um erro na tradução do arquivo de entrada:\n" + e.getMessage());
 			System.out.println("O problema ocorreu na linha: " + line);
 			System.out.println("Não será possível realizar a simulação.");
-			e.printStackTrace();
 			return false;
 		}
 	}

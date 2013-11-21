@@ -13,6 +13,10 @@ public abstract class Process {
 	// Socket associado ao processo rodando na aplicação.
 	protected Socket socket;
 	
+	public int getPid() {
+		return pid;
+	}
+	
 	public Socket getSocket() {
 		return socket;
 	}

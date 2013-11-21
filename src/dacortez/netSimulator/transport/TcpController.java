@@ -1,5 +1,8 @@
 package dacortez.netSimulator.transport;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,9 +31,9 @@ public class TcpController {
 	// Número inicial de sequência escolhido.
 	private int initialSeqNumber;
 	// Número de sequência atual.
-	private int currentSeqNumber;
+	private int lastByteSent;
 	// Número de reconhecimento atual.
-	private int currentAckNumber;
+	private int lastByteRead;
 	// Lista de segmentos a serem enviados criados a partir da mensagem da aplicação. 
 	private List<TcpSegment> sendBuffer;
 	// Lista de segmentos recebidos.
@@ -39,16 +42,28 @@ public class TcpController {
 	private List<Integer> alreadyAckeds;
 	// Número de sequencia do pacote mais velho ainda não reconhecido.
 	private int sendBase;
+	// Tamanho da janela de congestionamento.
+	private int congestionWindow;
+	// Limiar atual para o controle de congestionamento.
+	private int threshold;
+	// Número de segmentos de dados enviados até o momento.
+	private int totalSent;
 	// Indica se o controlador deve fechar a conexão TCP ao enviar dados.
 	private boolean closeConnection;
 	// Maximum segment size (bytes): tamanho máximo de dados que cabe em um segmento.
 	public final static int MSS = 1460;
 	// Tempo em que o "timer" associado ao segmento expira (em ms).
-	public static final double TIMEOUT = 10000;
+	public static final double TIMEOUT = 1000;
 	// Valor máximo de número de sequência permitido na inicialização.
-	public static final int MAX_INIT_SEQ_NUMBER = 1000;
+	public static final int MAX_INIT_SEQ_NUMBER = 500;
+	// Valor inicial do limiar para o controle de congestionamento.
+	public static final int INITIAL_THRESHOLD = 10;
 	// Gerador de números aleatórios utilizados pelo controlador.
 	private Random random;
+	// PrintStream para impressão da janela de congestionamento.
+	private PrintStream ps;
+	// Contador utilizado na impressão da janela de congestionamento.
+	private int count = 0;
 	
 	public void setCloseConnection(boolean closeConnection) {
 		this.closeConnection = closeConnection;
@@ -59,11 +74,25 @@ public class TcpController {
 		this.hostInterface = hostInterface;
 		this.state = state;
 		socket = process.getSocket();
+		congestionWindow = 1;
+		threshold = INITIAL_THRESHOLD;
+		totalSent = 0;
 		closeConnection = false;
 		random = new Random();
 		closeConnection = (state == TcpState.LISTEN); 
+		setupPrintStream();
 	}
 	
+	private void setupPrintStream() {
+		String host = hostInterface.getServiceProvider().getHost().getName();
+		String name = "/tmp/CW_" + host + "_pid" + process.getPid(); 
+		try {
+			ps = new PrintStream(new File(name));
+		} catch (FileNotFoundException e) {
+			ps = null;
+		}		
+	}
+
 	public void receive(TcpSegment segment) {
 		switch (state) {
 		case LISTEN:
@@ -94,8 +123,8 @@ public class TcpController {
 
 	private void listen(TcpSegment segment) {
 		initialSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		currentSeqNumber = initialSeqNumber;
-		currentAckNumber = segment.getSeqNumber() + 1;
+		lastByteSent = initialSeqNumber;
+		lastByteRead = segment.getSeqNumber() + 1;
 		TcpSegment synAndAck = ack(segment);
 		synAndAck.setSyn(true);
 		state = TcpState.SYN_RCVD;
@@ -105,8 +134,8 @@ public class TcpController {
 	private TcpSegment ack(TcpSegment segment) {
 		TcpSegment ack = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
 		ack.setAck(true);
-		ack.setSeqNumber(currentSeqNumber++);
-		ack.setAckNumber(currentAckNumber);
+		ack.setSeqNumber(lastByteSent++);
+		ack.setAckNumber(lastByteRead);
 		return ack;
 	}
 	
@@ -116,14 +145,14 @@ public class TcpController {
 	}
 	
 	private void sendAckAndSwitchToEstablished(TcpSegment segment) {
-		currentAckNumber = segment.getSeqNumber() + 1;
+		lastByteRead = segment.getSeqNumber() + 1;
 		allocateBuffers();
 		state = TcpState.ESTABLISHED;
 		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	private void synRcvd() {
-		currentAckNumber++;	
+		lastByteRead++;	
 		allocateBuffers();
 		state = TcpState.ESTABLISHED;
 	}
@@ -147,36 +176,63 @@ public class TcpController {
 	
 	private void sendAckAndSwitchToCloseWait(TcpSegment segment) {
 		state = TcpState.CLOSE_WAIT;
-		currentAckNumber++;
+		lastByteRead++;
 		hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	private void sendFinAndSwitchToLastAck() {
 		TcpSegment fin = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
 		fin.setFin(true);
-		fin.setSeqNumber(currentSeqNumber++);
+		fin.setSeqNumber(lastByteSent++);
 		state = TcpState.LAST_ACK;
 		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
 	}
 
 	private void handleAck(TcpSegment ack) {
-		currentAckNumber++;	
+		lastByteRead++;	
 		Integer y = ack.getAckNumber();
 		if (y > sendBase) {
-			for (TcpSegment sent: sendBuffer)
-				if (sent.getSeqNumber() < ack.getAckNumber())
-					alreadyAckeds.add(sent.getSeqNumber());
+			updateAckedsList(ack);
 			sendBase = y;
 		}
-		if (sendBase >= message.getNumberOfBytes() + initialSeqNumber + 2)
+		if (!connectionShouldBeClosed())
+			updateCongestionWindowAndSendNexts();
+	}
+
+	private void updateAckedsList(TcpSegment ack) {
+		for (TcpSegment sent: sendBuffer)
+			if (sent.getSeqNumber() < ack.getAckNumber()) {
+				int seqNumber = sent.getSeqNumber();
+				if (!alreadyAckeds.contains(seqNumber))
+					alreadyAckeds.add(seqNumber);
+			}
+	}
+
+	private boolean connectionShouldBeClosed() {
+		if (alreadyAckeds.size() == sendBuffer.size()) {
 			if (closeConnection)
 				sendFinAndSwitchToFinWait1();
+			return true;
+		}
+		return false;
+	}
+	
+	private void updateCongestionWindowAndSendNexts() {
+		if (alreadyAckeds.size() == totalSent) {
+			if (congestionWindow == 0)
+				congestionWindow = 1;
+			else if (congestionWindow < threshold) 
+				congestionWindow *= 2;
+			else 
+				congestionWindow++;
+			sendNexts();
+		}
 	}
 	
 	private void handleNewData(TcpSegment segment) {
-		if (currentAckNumber == segment.getSeqNumber()) {
+		if (lastByteRead == segment.getSeqNumber()) {
 			receiveBuffer.add(segment);
-			currentAckNumber += segment.getMessage().getNumberOfBytes();
+			lastByteRead += segment.getMessage().getNumberOfBytes();
 			hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 			if (segment.isPsh()) {		
 				ServiceProvider sp = hostInterface.getServiceProvider();
@@ -191,7 +247,7 @@ public class TcpController {
 		StringBuilder sb = new StringBuilder();
 		sb.append("! Host " + hostInterface.getIp());
 		sb.append(" reconheceu dados fora de ordem.\n");
-		sb.append("! Sequência esperada = " + currentAckNumber).append("\n");
+		sb.append("! Sequência esperada = " + lastByteRead).append("\n");
 		sb.append("! Sequência recebida = " + segment.getSeqNumber()).append("\n");
 		return sb.toString();
 	}
@@ -214,7 +270,7 @@ public class TcpController {
 	private void sendFinAndSwitchToFinWait1() {
 		TcpSegment fin = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
 		fin.setFin(true);
-		fin.setSeqNumber(currentSeqNumber++);
+		fin.setSeqNumber(lastByteSent++);
 		state = TcpState.FIN_WAIT_1;
 		hostInterface.send(fin, socket.getSourceIp(), socket.getDestinationIp());
 	}
@@ -251,20 +307,19 @@ public class TcpController {
 	public void sendSyn() {
 		hostInterface.getServiceProvider().bindProcessSocket(process);		
 		initialSeqNumber = random.nextInt(MAX_INIT_SEQ_NUMBER);
-		currentSeqNumber = initialSeqNumber;
+		lastByteSent = initialSeqNumber;
 		TcpSegment syn = new TcpSegment(socket.getSourcePort(), socket.getDestinationPort());
-		syn.setSeqNumber(currentSeqNumber++);
+		syn.setSeqNumber(lastByteSent++);
 		syn.setSyn(true);
 		state = TcpState.SYN_SENT;
 		hostInterface.send(syn, socket.getSourceIp(), socket.getDestinationIp());
 	}
 	
 	public void sendMessage() {
-		sendBase = currentSeqNumber;
+		sendBase = lastByteSent;
 		makeSegments();
 		sendBuffer.get(sendBuffer.size() - 1).setPsh(true);	
-		for (TcpSegment segment: sendBuffer)
-			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
+		sendNexts();
 	}
 	
 	private void makeSegments() {
@@ -275,7 +330,7 @@ public class TcpController {
 			for (int j = 0; j < MSS; j++)
 				segmentData[j] = messageData[j + i * MSS];
 			addToSendBuffer(segmentData);
-			currentSeqNumber += MSS;
+			lastByteSent += MSS;
 		}
 		makeLastFrame(messageData, numberOfSegments);
 	}
@@ -287,22 +342,40 @@ public class TcpController {
 			for (int j = 0 ; j < rest; j++)
 				segmentData[j] = messageData[numberOfSegments * MSS + j];
 			addToSendBuffer(segmentData);
-			currentSeqNumber += rest;
+			lastByteSent += rest;
 		}
 	}
 	
 	private void addToSendBuffer(byte[] data) {
 		Message message = new Message(data);
 		TcpSegment segment = new TcpSegment(message, socket.getSourcePort(), socket.getDestinationPort());
-		segment.setSeqNumber(currentSeqNumber);
+		segment.setSeqNumber(lastByteSent);
 		sendBuffer.add(segment);
 	}
 	
+	private void sendNexts() {	
+		printCongestionWindow();
+		for (int i = 0; i < congestionWindow; i++) {
+			if (totalSent == sendBuffer.size()) break;
+			TcpSegment segment = sendBuffer.get(totalSent++);
+			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
+		}
+	}
+
+	private void printCongestionWindow() {
+		if (ps != null) 
+			ps.println((count++) + "\t" + congestionWindow + "\t" + threshold);
+	}
+		
 	public void timeout(TcpSegment segment) {
 		Integer seqNumber = segment.getSeqNumber();
 		if (!alreadyAckeds.contains(seqNumber)) {
 			if (Simulator.debugMode) System.out.println(retransmitingMsg(segment));
 			hostInterface.send(segment, socket.getSourceIp(), socket.getDestinationIp());
+			if (congestionWindow > 0) {
+				threshold = congestionWindow / 2;
+				congestionWindow = 0;
+			}
 		}
 		else
 			if (Simulator.debugMode) System.out.println(alreadAckedMsg(segment));
@@ -310,7 +383,7 @@ public class TcpController {
 	
 	private String retransmitingMsg(TcpSegment segment) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("! Host " + hostInterface.getIp());
+		sb.append("! TIMEOUT: " + hostInterface.getIp());
 		sb.append(" retransmitindo o pacote ainda não reconhecido.\n");
 		sb.append("! Número de sequência: ").append(segment.getSeqNumber()).append("\n");
 		return sb.toString();
@@ -318,8 +391,8 @@ public class TcpController {
 	
 	private String alreadAckedMsg(TcpSegment segment) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("! Host " + hostInterface.getIp());
-		sb.append(" já reconheceu o pacote expirado.\n");
+		sb.append("! TIMEOUT: " + hostInterface.getIp());
+		sb.append(" já reconheceu o pacote.\n");
 		sb.append("! Número de sequência: ").append(segment.getSeqNumber()).append("\n");
 		return sb.toString();
 	}

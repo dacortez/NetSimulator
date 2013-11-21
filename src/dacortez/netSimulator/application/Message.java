@@ -41,7 +41,7 @@ public class Message {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DATA (").append(getNumberOfBytes()).append(" bytes)");
-		if (Simulator.printBytes)
+		if (Simulator.printData)
 			sb.append(":\n").append(data());
 		return sb.toString();
 	}

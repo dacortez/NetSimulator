@@ -28,7 +28,7 @@ public class Simulator {
 	// Variável indicando se o modo de depuração de mensagens está ativo.
 	public static boolean debugMode = false;
 	// Variável indicando se os bytes das mensagens devem ser impressos.
-	public static boolean printBytes = true;
+	public static boolean printData = true;
 
 	public static void main(String[] args) {
 		if (args.length != 1) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
@@ -37,7 +38,8 @@ public class DnsServer extends Host {
 	public void addHost(String name, Ip ip) {
 		ResourceRecord rr = new ResourceRecord(name, ip.toString(), RRType.A, 0);
 		resourceRecords.add(rr);
-		System.out.println("+ Adicionado registro ao servidor dns " + serverName + ": " + rr + "\n");
+		if (!Simulator.experimentMode)
+			System.out.println("+ Adicionado registro ao servidor dns " + serverName + ": " + rr + "\n");
 	}
 	
 	public void start() {
@@ -46,7 +48,8 @@ public class DnsServer extends Host {
 		socket.setSourcePort(LISTEN_PORT);
 		serverProcess = new DnsServerProcess(socket, resourceRecords); 
 		processes.add(serverProcess);
-		System.out.println("# Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
+		if (!Simulator.experimentMode)
+			System.out.println("# Servidor DNS " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override

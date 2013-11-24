@@ -61,9 +61,11 @@ public class Sniffer implements NetworkEventListener {
 	
 	@Override
 	public void networkEventHandler(EventArgs args) {
-		String output = getOutput(args);
-		System.out.println(output);
-		if (ps != null) ps.println(output); 
+		if (!Simulator.experimentMode) {
+			String output = getOutput(args);
+			System.out.println(output);
+			if (ps != null) ps.println(output);
+		}
 	}
 	
 	private String getOutput(EventArgs args) {

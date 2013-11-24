@@ -44,7 +44,4 @@ $simulator attach-agent $sniffer1 $h1 $r0.1 "/tmp/sniffer1"
 
 # Configuração das comunicações entre os agentes. 
  $simulator at 0.0 "httpc0 GET 192.168.2.2"
-
-
-
-
+ 

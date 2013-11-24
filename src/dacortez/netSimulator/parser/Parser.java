@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 
 import dacortez.netSimulator.HostAction;
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.Sniffer;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.dns.DnsServer;
@@ -172,7 +173,7 @@ public class Parser {
 		String name = match.group(1);
 		Host host = new Host(name);
 		hosts.put(name, host);
-		System.out.println("[Criado host: " + name + "]");
+		if (!Simulator.experimentMode) System.out.println("[Criado host: " + name + "]");
 	}
 	
 	private void setRouter(Matcher match) {
@@ -180,7 +181,7 @@ public class Parser {
 		Integer totalInterfaces = Integer.parseInt(match.group(2)); 
 		Router router = new Router(name, totalInterfaces);
 		routers.put(name, router);
-		System.out.println("[Criado roteador: " + name + "]");
+		if (!Simulator.experimentMode) System.out.println("[Criado roteador: " + name + "]");
 	}
 	
 	private void setDuplexLink(Matcher match) {
@@ -188,7 +189,7 @@ public class Parser {
 		Double delay = Double.parseDouble(match.group(6));
 		DuplexLink link = new DuplexLink(capacity, delay);
 		links.add(link);
-		System.out.println("[Criado duplex-link: " + link + "]");
+		if (!Simulator.experimentMode) System.out.println("[Criado duplex-link: " + link + "]");
 		setInterfaceLink(match.group(1), match.group(2), link);
 		setInterfaceLink(match.group(3), match.group(4), link);
 		setListeners(match);
@@ -199,12 +200,14 @@ public class Parser {
 			Router router = routers.get(name);
 			Integer port = Integer.parseInt(portString);
 			router.getRouterInterface(port).setLink(link);
-			System.out.println("[Associado link " + link + " à porta " + port + " do roteador " + name + "]");
+			if (!Simulator.experimentMode) 
+				System.out.println("[Associado link " + link + " à porta " + port + " do roteador " + name + "]");
 		}
 		else {
 			Host host = hosts.get(name);
 			host.getServiceProvider().getHostInterface().setLink(link);
-			System.out.println("[Associado link " + link + " ao host " + name + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Associado link " + link + " ao host " + name + "]");
 		}
 	}
 	
@@ -234,7 +237,8 @@ public class Parser {
 		host.getServiceProvider().getHostInterface().setIp(ip);
 		host.setStandardRouterIp(standardRouterIp);
 		host.setDnsServerIp(dnsServerIp);
-		System.out.println("[Configurado IPs do host " + name + ": " + ip + ", " + standardRouterIp + ", " + dnsServerIp + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Configurado IPs do host " + name + ": " + ip + ", " + standardRouterIp + ", " + dnsServerIp + "]");
 	}
 	
 	private void setRouterIps(Matcher match) {
@@ -245,7 +249,8 @@ public class Parser {
 			Integer port = Integer.parseInt(portIp[i]);
 			Ip ip = new Ip(portIp[i + 1]);
 			router.getRouterInterface(port).setIp(ip); 
-			System.out.println("[Configurado IP da porta " + port + " do roteador " + name + ": " + ip + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Configurado IP da porta " + port + " do roteador " + name + ": " + ip + "]");
 		}
 	}
 	
@@ -259,12 +264,14 @@ public class Parser {
 				Ip toIp = new Ip(route[i + 1]);
 				Integer to = getPortConnectedToIp(router, toIp);
 				router.addRoute(from, to);
-				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + toIp + "]");
+				if (!Simulator.experimentMode)
+					System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + toIp + "]");
 			}
 			else {
 				Integer to = Integer.parseInt(route[i + 1]);
 				router.addRoute(from, to);
-				System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + to + "]");
+				if (!Simulator.experimentMode)
+					System.out.println("[Configurada rota do roteador " + name + ": " + from + " > " + to + "]");
 			}
 		}
 	}
@@ -288,12 +295,14 @@ public class Parser {
 		String[] queues = match.group(3).split("\\s+");
 		Router router = routers.get(name);
 		router.setProcessingDelay(processingTime);
-		System.out.println("[Configurado tempo de processamento do roteador " + name + ": " + processingTime + "us]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Configurado tempo de processamento do roteador " + name + ": " + processingTime + "us]");
 		for (int i = 0; i < queues.length; i += 2) {
 			Integer port = Integer.parseInt(queues[i]);
 			Integer queueSize = Integer.parseInt(queues[i + 1]);
 			router.getRouterInterface(port).setQueueSize(queueSize); 
-			System.out.println("[Configurado tamanha da fila da porta " + port + " do roteador " + name + ": " + queueSize + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Configurado tamanha da fila da porta " + port + " do roteador " + name + ": " + queueSize + "]");
 		}
 	}
 	
@@ -301,21 +310,24 @@ public class Parser {
 		String name = match.group(1);
 		HttpClient client = new HttpClient(name);
 		httpClients.put(name, client);
-		System.out.println("[Criado cliente HTTP: " + name + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Criado cliente HTTP: " + name + "]");
 	}
 	
 	private void setHttpServer(Matcher match) {
 		String name = match.group(1);
 		HttpServer server = new HttpServer(name);
 		httpServers.put(name, server);
-		System.out.println("[Criado servidor HTTP: " + name + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Criado servidor HTTP: " + name + "]");
 	}
 
 	private void setDnsServer(Matcher match) {
 		String name = match.group(1);
 		DnsServer server = new DnsServer(name);
 		dnsServers.put(name, server);
-		System.out.println("[Criado servidor DNS: " + name + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Criado servidor DNS: " + name + "]");
 	}
 	
 	private void attachAgent(Matcher match) {
@@ -324,15 +336,18 @@ public class Parser {
 		Host host = hosts.get(hostName);
 		if (httpClients.get(agentName) != null) {
 			httpClients.get(agentName).attach(host);
-			System.out.println("[Cliente HTTP " + agentName + " vinculado ao host " + hostName + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Cliente HTTP " + agentName + " vinculado ao host " + hostName + "]");
 		}
 		else if (httpServers.get(agentName) != null) {
 			httpServers.get(agentName).attach(host);
-			System.out.println("[Servidor HTTP " + agentName + " vinculado ao host " + hostName + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Servidor HTTP " + agentName + " vinculado ao host " + hostName + "]");
 		}
 		else if (dnsServers.get(agentName) != null) {
 			dnsServers.get(agentName).attach(host);
-			System.out.println("[Servidor DNS " + agentName + " vinculado ao host " + hostName + "]");
+			if (!Simulator.experimentMode)
+				System.out.println("[Servidor DNS " + agentName + " vinculado ao host " + hostName + "]");
 		}
 	}
 	
@@ -340,7 +355,8 @@ public class Parser {
 		String name = match.group(1);
 		Sniffer sniffer = new Sniffer(name);
 		sniffers.put(name, sniffer);
-		System.out.println("[Criado sniffer: " + name + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Criado sniffer: " + name + "]");
 	}
 	
 	private void attachSniffer(Matcher match) {
@@ -356,8 +372,10 @@ public class Parser {
 		point2.addNetworkEventListener(sniffer);
 		String p1 = getIpAndPort(point1);
 		String p2 = getIpAndPort(point2);
-		System.out.println("[Sniffer " + name + " configurado entre " + p1 + " e " + p2 + "]");
-		System.out.println("[Configurado arquivo de saída do sniffer " + name + ": " + file + "]");
+		if (!Simulator.experimentMode) {
+			System.out.println("[Sniffer " + name + " configurado entre " + p1 + " e " + p2 + "]");
+			System.out.println("[Configurado arquivo de saída do sniffer " + name + ": " + file + "]");
+		}
 	}
 	
 	private String getIpAndPort(Interface iface) {
@@ -373,7 +391,8 @@ public class Parser {
 		String action = match.group(2);
 		HostAction hostAction = new HostAction(time, action);
 		hostActions.add(hostAction);
-		System.out.println("[Adicionada ação: " + hostAction + "]");
+		if (!Simulator.experimentMode)
+			System.out.println("[Adicionada ação: " + hostAction + "]");
 	}
 	
 	public void printElements() {

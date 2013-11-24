@@ -96,14 +96,16 @@ public class Host {
 	}
 
 	protected void print(String name, Message message) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("===============================================================================================\n");
-		sb.append("[Time = " + Chronometer.getTime() + "]\n");
-		sb.append("Host " + name + " recebeu uma mensagem:\n");
-		sb.append(message);
-		sb.append("\n===============================================================================================\n");
-		if (Simulator.debugMode) System.out.println(sb.toString());
-		if (ps != null) ps.println(sb.toString());
+		if (!Simulator.experimentMode) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("===============================================================================================\n");
+			sb.append("[Time = " + Chronometer.getTime() + "]\n");
+			sb.append("Host " + name + " recebeu uma mensagem:\n");
+			sb.append(message);
+			sb.append("\n===============================================================================================\n");
+			if (Simulator.debugMode) System.out.println(sb.toString());
+			if (ps != null) ps.println(sb.toString());
+		}
 	}
 	
 	@Override

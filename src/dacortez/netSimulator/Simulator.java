@@ -28,25 +28,101 @@ public class Simulator {
 	// Lista de eventos que ocorrem na rede da simulação que 
 	// devem ser processados em ordem (tempo da simulação).
 	private static Queue<SimEvent> queue;
-	// Variável indicando se o modo de depuração de mensagens está ativo.
+	// Variável indicando se o modo de depuração está ativo.
 	public static boolean debugMode = false;
-	// Variável indicando se os bytes das mensagens devem ser impressos.
+	// Variável indicando se os dados das mensagens devem ser impressos.
 	public static boolean printData = true;
+	// Variável indicando se a simulação está sendo feita para realizar o experimento do EP.
+	public static boolean experimentMode = false;
+	// Número de mediadas a serem realizadas no experimento.
+	public static final int TRIALS = 30;
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns>");
+		if (args.length < 1) {
+			printHelp();
 			return;
 		}
-		//Simulator sim = new Simulator(args[0]);
-		Simulator sim = new Simulator("simples.ns");
+		setOptions(args);
+		chooseMode(args[0]);
+	}
 	
-		JavaSysMon monitor = new JavaSysMon();	
-		CpuTimes previous = monitor.cpuTimes();
-		
-		sim.simulate();
-		
-		System.out.println(monitor.cpuTimes().getCpuUsage(previous));
+	private static void printHelp() {
+		System.out.println("Uso: java -jar netSimulator.jar <arquivo_de_entrada.ns> <opção>");
+		System.out.println("Onde as opções válidas são:");
+		System.out.println("  -e    Realiza experimentos do EP em modo silencioso");
+		System.out.println("  -n    Não exibe dados das mensagens geradas na simulação");
+		System.out.println("  -d    Exibe informações de depuração ao longo da simulação");
+	}
+
+	private static void setOptions(String[] args) {
+		if (args.length == 2) {
+			if (args[1].contentEquals("-n")) {
+				experimentMode = false;
+				debugMode = false;
+				printData = false;
+			}
+			else if (args[1].contentEquals("-d")) {
+				experimentMode = false;
+				debugMode = true;
+				printData = true;
+			}
+			else if (args[1].contentEquals("-e")) {
+				experimentMode = true;
+				debugMode = false;
+				printData = false;
+			}
+		}
+	}
+	
+	private static void chooseMode(String file) {
+		if (experimentMode) {
+			doExperiment(file);
+		}
+		else { 
+			Simulator sim = new Simulator(file);
+			sim.simulate();
+		}
+	}
+	
+	private static void doExperiment(String file) {
+		JavaSysMon monitor = new JavaSysMon();
+		double[] real = new double[TRIALS];
+		double[] sim = new double[TRIALS];
+		double[] cpu = new double[TRIALS];
+		for (int i = 0; i < TRIALS; i++) {
+			System.out.println("REALIZANDO SIMULAÇÃO " + (i + 1));
+			CpuTimes previous = monitor.cpuTimes();
+			double start = System.currentTimeMillis();
+			Simulator simulator = new Simulator(file);
+			sim[i] = simulator.simulate();
+			cpu[i] = 100.0 * (monitor.cpuTimes().getCpuUsage(previous));
+			real[i] = (System.currentTimeMillis() - start) / 1000.0;
+		}
+		printSummary(real, sim, cpu);
+	}
+
+	private static void printSummary(double[] real, double[] sim, double[] cpu) {
+		System.out.println("Média de tempo real = " + average(real) + " s");
+		System.out.println("Desvio-padrão = " + stdv(real) + " s");
+		System.out.println("Média de tempo simulado = " + average(sim) + " s");
+		System.out.println("Desvio-padrão = " + stdv(sim) + " s");
+		System.out.println("Média de utilização de CPU = " + average(cpu) + " %");
+		System.out.println("Desvio-padrão = " + stdv(cpu) + " %");
+	}
+
+	private static double average(double[] x) {
+		double sum = 0.0;
+		for (int i = 0; i < x.length; i++)
+			sum += x[i];
+		return sum / x.length;
+	}
+	
+	private static double stdv(double[] x) {
+		double avg = average(x);
+		double sum = 0.0;
+		for (int i = 0; i < x.length; i++)
+			sum += (x[i] - avg) * (x[i] - avg);
+		return Math.sqrt(sum / x.length);
 	}
 	
 	public Simulator(String file) {
@@ -59,14 +135,16 @@ public class Simulator {
 		});
 	}
 	
-	public void simulate() {
+	public Double simulate() {
+		queue.clear();
 		if (parser.parse()) {
-			parser.printElements();
+			if (!experimentMode) parser.printElements();
 			setupDnsServers();
 			startAllServers();
 			processHostActions();
-			processEventsQueue();
+			return processEventsQueue();
 		}
+		return null;
 	}
 	
 	public void setupDnsServers() {
@@ -112,14 +190,16 @@ public class Simulator {
 		}
 	}
 	
-	private void processEventsQueue() {
+	private Double processEventsQueue() {
+		SimEvent e = null;
 		while (!queue.isEmpty()) {
-			SimEvent e = queue.poll();
+			e = queue.poll();
 			if (debugMode) 
 				System.out.println("(-) Evento retirado da fila do simulador:\n" + e);
 			e.fire();
 			if (e instanceof Finish) break;
 		}	
+		return (e == null) ? null : e.getEventArgs().getTime();
 	}
 
 	public static void addToQueue(SimEvent e) {

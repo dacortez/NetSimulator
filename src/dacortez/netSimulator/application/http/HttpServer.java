@@ -2,6 +2,7 @@ package dacortez.netSimulator.application.http;
 
 import java.util.ArrayList;
 
+import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
@@ -35,7 +36,8 @@ public class HttpServer extends Host {
 		socket.setSourcePort(LISTEN_PORT);
 		serverProcess = new HttpServerProcess(socket, serverName); 
 		processes.add(serverProcess);
-		System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
+		if (!Simulator.experimentMode)
+			System.out.println("# Servidor HTTP " + serverName + " escutando na porta " + LISTEN_PORT + ".\n");
 	}
 	
 	@Override

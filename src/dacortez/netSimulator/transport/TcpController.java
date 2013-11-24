@@ -84,13 +84,15 @@ public class TcpController {
 	}
 	
 	private void setupPrintStream() {
-		String host = hostInterface.getServiceProvider().getHost().getName();
-		String name = "/tmp/CW_" + host + "_pid" + process.getPid(); 
-		try {
-			ps = new PrintStream(new File(name));
-		} catch (FileNotFoundException e) {
-			ps = null;
-		}		
+		if (!Simulator.experimentMode) {
+			String host = hostInterface.getServiceProvider().getHost().getName();
+			String name = "cw_" + host + "_pid" + process.getPid(); 
+			try {
+				ps = new PrintStream(new File(name));
+			} catch (FileNotFoundException e) {
+				ps = null;
+			}	
+		}
 	}
 
 	public void receive(TcpSegment segment) {

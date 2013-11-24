@@ -78,12 +78,14 @@ public class Host {
 	}
 
 	private void setupPrintStream() {
-		try {
-			ps = new PrintStream(new File("/tmp/" + name));
-		} catch (FileNotFoundException e) {
-			System.err.println("Erro ao criar arquivo com os dados recebidos pelo host " + name + ".");
-			System.err.println("(Os dados serão apresentados apenas na saída padrão).");
-			ps = null;
+		if (!Simulator.experimentMode) {
+			try {
+				ps = new PrintStream(new File(name));
+			} catch (FileNotFoundException e) {
+				System.err.println("Erro ao criar arquivo com os dados recebidos pelo host " + name + ".");
+				System.err.println("(Os dados serão apresentados apenas na saída padrão).");
+				ps = null;
+			}
 		}
 	}
 	

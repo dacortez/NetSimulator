@@ -25,7 +25,7 @@ public class Chronometer {
 		return endTime;
 	}
 	
-	public static double elapsedTime() {
+	private static double elapsedTime() {
 		long now = System.nanoTime();
 		return (now - startTime) / 1000000000.0;
 	}

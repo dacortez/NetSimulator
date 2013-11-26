@@ -95,10 +95,10 @@ public class TcpSegment extends Segment {
 		sb.append("Destination port = ").append(destinationPort).append("\n");
 		sb.append("Sequence number = ").append(seqNumber).append("\n");
 		if (ack) sb.append("Acknowledgement number = ").append(ackNumber).append("\n");
-		sb.append("Bit ACK = ").append(ack).append("\n");
-		sb.append("Bit FIN = ").append(fin).append("\n");
-		sb.append("Bit PSH = ").append(psh).append("\n");
-		sb.append("Bit SYN = ").append(syn);
+		sb.append("ACK = ").append(ack).append("\n");
+		sb.append("FIN = ").append(fin).append("\n");
+		sb.append("PSH = ").append(psh).append("\n");
+		sb.append("SYN = ").append(syn);
 		if (message != null) sb.append("\n").append(message);
 		return sb.toString();
 	}

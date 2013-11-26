@@ -28,7 +28,7 @@ $simulator $r0 route 10.0.0.0 0 192.168.2.0 1
 
 # Configuração do roteador: tempo para processar 1 pacote, porta, 
 # tamanho da fila da porta em quantidade de pacotes, [[porta, tamanho ...] ...]
-$simulator $r0 performance 100us 0 10 1 10
+$simulator $r0 performance 100us 0 1000 1 1000
 
 # Configuração dos agentes da camada de aplicacção.
 set httpc0 [new Agent/HTTPClient]
@@ -38,9 +38,7 @@ $simulator attach-agent $https1 $h1
 
 # Configuração dos sniffers. 
 set sniffer0 [new Agent/Sniffer]
-set sniffer1 [new Agent/Sniffer]
-$simulator attach-agent $sniffer0 $h0 $r0.0 "/tmp/sniffer0" 
-$simulator attach-agent $sniffer1 $h1 $r0.1 "/tmp/sniffer1"
+$simulator attach-agent $sniffer0 $h0 $r0.0 "sniffer0" 
 
 # Configuração das comunicações entre os agentes. 
  $simulator at 0.0 "httpc0 GET 192.168.2.2"

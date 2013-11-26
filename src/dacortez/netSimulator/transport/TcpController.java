@@ -53,7 +53,7 @@ public class TcpController {
 	// Maximum segment size (bytes): tamanho máximo de dados que cabe em um segmento.
 	public final static int MSS = 1460;
 	// Tempo em que o "timer" associado ao segmento expira (em ms).
-	public static final double TIMEOUT = 1000;
+	public static final double TIMEOUT = 5000;
 	// Valor máximo de número de sequência permitido na inicialização.
 	public static final int MAX_INIT_SEQ_NUMBER = 500;
 	// Valor inicial do limiar para o controle de congestionamento.
@@ -287,14 +287,14 @@ public class TcpController {
 			state = TcpState.TIME_WAIT;
 			hostInterface.send(ack(segment), socket.getSourceIp(), socket.getDestinationIp());
 			state = TcpState.CLOSED;
-			if (Simulator.debugMode) System.out.println("### Processo fechado:\n" + process);
+			if (Simulator.debugMode) System.out.println("### Conexão fechada:\n" + process);
 		}
 	}
 	
 	private void lastAck(TcpSegment segment) {
 		if (segment.isAck()) {
 			state = TcpState.CLOSED;
-			if (Simulator.debugMode) System.out.println("### Processo fechado:\n" + process);
+			if (Simulator.debugMode) System.out.println("### Conexão fechada:\n" + process);
 		}
 	}
 	

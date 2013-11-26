@@ -70,7 +70,9 @@ public class Router {
 		
 	public void route(Datagram data, double time) {
 		if (checkTtl(data)) {
-			RouterInterface toInterface = routes.get(data.getDestinationIp().subNetIp());
+			RouterInterface toInterface = routes.get(data.getDestinationIp());
+			if (toInterface == null) 
+				toInterface = routes.get(data.getDestinationIp().subNetIp());
 			if (toInterface != null) { 
 				double delayInSecs = processingDelay / 1000000.0;
 				EventArgs args = new EventArgs(data, time + delayInSecs);

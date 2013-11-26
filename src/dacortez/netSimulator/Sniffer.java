@@ -72,8 +72,8 @@ public class Sniffer implements NetworkEventListener {
 		Datagram data = args.getDatagram();
 		StringBuilder sb = new StringBuilder();
 		sb.append("===============================================================================================\n");
+		sb.append("[Time = " + args.getTime() + "]\n");
 		sb.append("Sniffer: " + name + "\n");
-		sb.append("Instante da captura: " + args.getTime() + "\n");
 		sb.append(data);
 		sb.append("\n===============================================================================================\n");
 		return sb.toString();

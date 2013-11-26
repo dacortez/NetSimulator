@@ -87,25 +87,22 @@ public class Simulator {
 	private static void doExperiment(String file) {
 		JavaSysMon monitor = new JavaSysMon();
 		double[] real = new double[TRIALS];
-		double[] sim = new double[TRIALS];
 		double[] cpu = new double[TRIALS];
 		for (int i = 0; i < TRIALS; i++) {
 			System.out.println("REALIZANDO SIMULAÇÃO " + (i + 1));
 			CpuTimes previous = monitor.cpuTimes();
 			double start = System.currentTimeMillis();
 			Simulator simulator = new Simulator(file);
-			sim[i] = simulator.simulate();
+			simulator.simulate();
 			cpu[i] = 100.0 * (monitor.cpuTimes().getCpuUsage(previous));
 			real[i] = (System.currentTimeMillis() - start) / 1000.0;
 		}
-		printSummary(real, sim, cpu);
+		printSummary(real, cpu);
 	}
 
-	private static void printSummary(double[] real, double[] sim, double[] cpu) {
+	private static void printSummary(double[] real, double[] cpu) {
 		System.out.println("Média de tempo real = " + average(real) + " s");
 		System.out.println("Desvio-padrão = " + stdv(real) + " s");
-		System.out.println("Média de tempo simulado = " + average(sim) + " s");
-		System.out.println("Desvio-padrão = " + stdv(sim) + " s");
 		System.out.println("Média de utilização de CPU = " + average(cpu) + " %");
 		System.out.println("Desvio-padrão = " + stdv(cpu) + " %");
 	}
@@ -135,16 +132,15 @@ public class Simulator {
 		});
 	}
 	
-	public Double simulate() {
+	public void simulate() {
 		queue.clear();
 		if (parser.parse()) {
 			if (!experimentMode) parser.printElements();
 			setupDnsServers();
 			startAllServers();
 			processHostActions();
-			return processEventsQueue();
+			processEventsQueue();
 		}
-		return null;
 	}
 	
 	public void setupDnsServers() {
@@ -190,16 +186,14 @@ public class Simulator {
 		}
 	}
 	
-	private Double processEventsQueue() {
-		SimEvent e = null;
+	private void processEventsQueue() {
 		while (!queue.isEmpty()) {
-			e = queue.poll();
+			SimEvent e = queue.poll();
 			if (debugMode) 
 				System.out.println("(-) Evento retirado da fila do simulador:\n" + e);
 			e.fire();
 			if (e instanceof Finish) break;
 		}	
-		return (e == null) ? null : e.getEventArgs().getTime();
 	}
 
 	public static void addToQueue(SimEvent e) {

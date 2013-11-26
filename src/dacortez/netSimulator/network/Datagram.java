@@ -85,6 +85,7 @@ public class Datagram {
 		sb.append("Source IP = ").append(sourceIp).append("\n");
 		sb.append("Destination IP = ").append(destinationIp).append("\n");
 		sb.append("Upper layer protocol = ").append(upperLayerProtocol).append("\n");
+		sb.append("TTL = ").append(ttl).append("\n");
 		sb.append(segment);
 		return sb.toString(); 
 	}

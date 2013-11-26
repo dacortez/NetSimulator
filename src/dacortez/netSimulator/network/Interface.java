@@ -42,7 +42,7 @@ public abstract class Interface implements NetworkEventListener {
 	public void addNetworkEventListener(NetworkEventListener listener) {
 		if (networkEventListeners == null)
 			networkEventListeners = new ArrayList<NetworkEventListener>();
-		networkEventListeners.add(listener);
+		networkEventListeners.add(0, listener);
 	}
 	
 	public void fireNetworkEvent(EventArgs args) {

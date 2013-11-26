@@ -166,6 +166,6 @@ public class ServiceProvider {
 
 	@Override
 	public String toString() {
-		return "SERVICE_PROVIDER @ " + hostInterface.toString();
+		return "SP @ " + hostInterface.toString();
 	}
 }

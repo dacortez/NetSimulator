@@ -41,5 +41,5 @@ set sniffer0 [new Agent/Sniffer]
 $simulator attach-agent $sniffer0 $h0 $r0.0 "sniffer0" 
 
 # Configuração das comunicações entre os agentes. 
- $simulator at 0.0 "httpc0 GET 192.168.2.2"
+$simulator at 0.0 "httpc0 GET 192.168.2.2 515.html"
  

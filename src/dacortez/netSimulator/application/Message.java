@@ -27,6 +27,17 @@ public class Message {
 		data = new byte[size];
 	}
 	
+	public Message(String string) {
+		data = string.getBytes();
+	}
+	
+	public String dataToString() {
+		StringBuilder sb = new StringBuilder();
+		for (byte b: data)
+			sb.append((char) b);
+		return sb.toString();
+	}
+	
 	public byte[] toBytes() {
 		return data;
 	}

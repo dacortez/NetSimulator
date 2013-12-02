@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import dacortez.netSimulator.Chronometer;
 import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
+import dacortez.netSimulator.application.TracerouteProcess;
+import dacortez.netSimulator.network.Datagram;
 import dacortez.netSimulator.network.HostInterface;
 
 /**
@@ -84,8 +87,22 @@ public class ServiceProvider {
 		Process process = demultiplexing(segment, sourceIp, destinationIp);
 		if (process != null)
 			host.receive(segment.getMessage(), process);
-		else
+		else {
 			if (Simulator.debugMode) System.out.println(this + ":\nSocket fechado :-(");
+			double time = Chronometer.getTime();
+			hostInterface.send(unreachable(segment, sourceIp), time);
+		}
+	}
+	
+	private Datagram unreachable(UdpSegment udpSegment, Ip destinationIp) {
+		Ip sourceIp = host.getIp();
+		Integer sourcePort = udpSegment.getDestinationPort();
+		Integer destinationPort = udpSegment.getSourcePort();
+		IcmpSegment icmpSegment = new IcmpSegment(sourcePort, destinationPort);
+		icmpSegment.setType(3);
+		icmpSegment.setCode(3);
+		icmpSegment.setDescription("destination host unreachable");
+		return new Datagram(icmpSegment, sourceIp, destinationIp);
 	}
 
 	public void tcpReceive(TcpSegment segment, Ip sourceIp, Ip destinationIp) {
@@ -104,6 +121,33 @@ public class ServiceProvider {
 			if (Simulator.debugMode) System.out.println(this + ":\nSocket fechado :-(");
 	}
 	
+	public void icmpReceive(IcmpSegment segment, Ip sourceIp, Ip destinationIp) {
+		Process process = demultiplexing(segment, sourceIp, destinationIp);
+		if (process != null && (process instanceof TracerouteProcess))
+			switchTypeOfIcmp(segment, sourceIp, (TracerouteProcess) process);
+		else 
+			if (Simulator.debugMode) System.out.println(this + ":\nSocket fechado :-(");
+	}
+
+	private void switchTypeOfIcmp(IcmpSegment segment, Ip sourceIp, TracerouteProcess process) {
+		if (segment.getType() == 11 && segment.getCode() == 0) {
+			if (process.icmpReceive(sourceIp))
+				sendTracerouteDatagrams(process);
+		}
+		else if (segment.getType() == 3 && segment.getCode() == 3)
+			process.icmpReceive(sourceIp);
+	}
+	
+	public void sendTracerouteDatagrams(TracerouteProcess process) {
+		double time = Chronometer.getTime();
+		process.setTime(time);
+		for (int i = 0; i < 3; i++) {
+			Datagram data = process.next();
+			hostInterface.send(data, time);
+		}
+		process.incrementTtl();
+	}
+
 	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Process clientProcess = clientProcess(segment);
 		if (clientProcess != null) 

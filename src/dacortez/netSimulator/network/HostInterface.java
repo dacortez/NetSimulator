@@ -9,6 +9,7 @@ import dacortez.netSimulator.events.EventArgs;
 import dacortez.netSimulator.events.OutboundData;
 import dacortez.netSimulator.events.InboundData;
 import dacortez.netSimulator.events.Timeout;
+import dacortez.netSimulator.transport.IcmpSegment;
 import dacortez.netSimulator.transport.Protocol;
 import dacortez.netSimulator.transport.Segment;
 import dacortez.netSimulator.transport.ServiceProvider;
@@ -53,6 +54,11 @@ public class HostInterface extends Interface {
 		}
 	}
 	
+	public void send(Datagram data, double time) {
+		EventArgs out = new EventArgs(data, time);
+		Simulator.addToQueue(new OutboundData(this, out));
+	}
+	
 	@Override
 	public void networkEventHandler(EventArgs args) {
 		Simulator.addToQueue(new InboundData(this, args));
@@ -68,6 +74,10 @@ public class HostInterface extends Interface {
 		else if (data.getUperLayerProtocol() == Protocol.TCP) {
 			TcpSegment segment = (TcpSegment) data.getSegment();
 			serviceProvider.tcpReceive(segment, data.getSourceIp(), data.getDestinationIp());
+		}
+		else if (data.getUperLayerProtocol() == Protocol.ICMP) {
+			IcmpSegment segment = (IcmpSegment) data.getSegment();
+			serviceProvider.icmpReceive(segment, data.getSourceIp(), data.getDestinationIp());
 		}
 	}	
 }

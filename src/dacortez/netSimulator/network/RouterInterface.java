@@ -2,8 +2,10 @@ package dacortez.netSimulator.network;
 
 import java.util.ArrayList;
 
+import dacortez.netSimulator.Ip;
 import dacortez.netSimulator.Simulator;
 import dacortez.netSimulator.events.EventArgs;
+import dacortez.netSimulator.transport.IcmpSegment;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
@@ -52,7 +54,35 @@ public class RouterInterface extends Interface {
 	public void networkEventHandler(EventArgs args) {
 		Datagram data = args.getDatagram();
 		double time = args.getTime();
-		router.route(data, time);
+		if (checkTtl(data))
+			router.route(data, time);
+		else {
+			Datagram expired = ttlExpired(data);
+			router.route(expired, time);
+		}
+	}
+
+	private Datagram ttlExpired(Datagram data) {
+		Ip sourceIp = ip;
+		Integer sourcePort = data.getSegment().getDestinationPort();
+		Ip destinationIp = data.getSourceIp();
+		Integer destinationPort = data.getSegment().getSourcePort();
+		IcmpSegment icmpSegment = new IcmpSegment(sourcePort, destinationPort);
+		icmpSegment.setType(11);
+		icmpSegment.setCode(0);
+		icmpSegment.setDescription("TTL expired");
+		return new Datagram(icmpSegment, sourceIp, destinationIp);
+	}
+	
+	private boolean checkTtl(Datagram data) {
+		if (data.decrementTtl() == 0) {
+			if (Simulator.debugMode) {
+				System.out.println("--- TTL = 0 (pacote perdido) na interface " + ip + ":\n");
+				System.out.println("DATAGRAM #" + data.getId());
+			}
+			return false;
+		}
+		return true;
 	}
 		
 	@Override

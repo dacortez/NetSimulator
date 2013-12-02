@@ -1,6 +1,7 @@
 package dacortez.netSimulator.network;
 
 import dacortez.netSimulator.Ip;
+import dacortez.netSimulator.transport.IcmpSegment;
 import dacortez.netSimulator.transport.Protocol;
 import dacortez.netSimulator.transport.Segment;
 import dacortez.netSimulator.transport.TcpSegment;
@@ -47,6 +48,10 @@ public class Datagram {
 		return destinationIp;
 	}
 	
+	public void setTtl(int ttl) {
+		this.ttl = ttl;
+	}
+	
 	public Protocol getUperLayerProtocol() {
 		return upperLayerProtocol;
 	}
@@ -65,6 +70,8 @@ public class Datagram {
 			upperLayerProtocol = Protocol.UDP;
 		else if (segment instanceof TcpSegment)
 			upperLayerProtocol = Protocol.TCP;
+		else if (segment instanceof IcmpSegment)
+			upperLayerProtocol = Protocol.ICMP;
 	}
 	
 	public int decrementTtl() {

@@ -14,9 +14,15 @@ public class UdpSegment extends Segment {
 		super(message, sourcePort, destinationPort);
 	}
 	
+	public UdpSegment(Integer sourcePort, Integer destinationPort) {
+		super(sourcePort, destinationPort);
+	}
+
 	@Override
 	public int getNumberOfBytes() {
-		return HEADER_SIZE + message.getNumberOfBytes();
+		if (message != null)
+			return HEADER_SIZE + message.getNumberOfBytes();
+		return HEADER_SIZE;
 	}
 	
 	@Override
@@ -24,8 +30,8 @@ public class UdpSegment extends Segment {
 		StringBuilder sb = new StringBuilder();
 		sb.append("UDP_SEGMENT (").append(getNumberOfBytes()).append(" bytes):\n");
 		sb.append("Source port = ").append(sourcePort).append("\n");
-		sb.append("Destination port = ").append(destinationPort).append("\n");
-		sb.append(message);
+		sb.append("Destination port = ").append(destinationPort);
+		if (message != null) sb.append("\n").append(message);
 		return sb.toString();
 	}
 }

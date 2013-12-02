@@ -7,7 +7,7 @@ package dacortez.netSimulator.application;
  */
 public abstract class Process {
 	// Número identificador do processo.
-	private int pid;
+	protected int pid;
 	// Contador estático para ser utilizado na identificação do processo.
 	private static int count = 0;
 	// Socket associado ao processo rodando na aplicação.

@@ -171,6 +171,8 @@ public class Simulator {
 		for (HostAction action: actions)
 			if (action.isGet())
 				clientGet(action);
+			else if (action.isTraceroute())
+				clientTraceroute(action);
 			else if (action.isFinish())
 				queue.add(new Finish(new EventArgs(action.getTime())));
 	}
@@ -183,6 +185,16 @@ public class Simulator {
 		if (client != null) {
 			Chronometer.setTime(action.getTime());
 			client.get(target, resource);
+		}
+	}
+	
+	private void clientTraceroute(HostAction action) {
+		String host = action.getHost();
+		String target = action.getTarget();
+		HttpClient client = parser.getHttpClient(host);
+		if (client != null) {
+			Chronometer.setTime(action.getTime());
+			client.traceroute(target);
 		}
 	}
 	

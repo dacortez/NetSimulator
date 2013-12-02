@@ -2,7 +2,7 @@ package dacortez.netSimulator;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.11
+ * @version 2013.12.01
  */
 public class HostAction {
 	// Instante real quando será disparado o evento. 
@@ -31,6 +31,13 @@ public class HostAction {
 		String method = getMethod();
 		if (method != null)
 			return method.toLowerCase().contentEquals("get");
+		return false;
+	}
+	
+	public boolean isTraceroute() {
+		String method = getMethod();
+		if (method != null) 
+			return method.toLowerCase().contentEquals("traceroute");
 		return false;
 	}
 	

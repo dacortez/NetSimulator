@@ -7,6 +7,7 @@ import dacortez.netSimulator.application.Host;
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
+import dacortez.netSimulator.application.TracerouteProcess;
 import dacortez.netSimulator.application.dns.DnsServer;
 
 /**
@@ -29,17 +30,33 @@ public class HttpClient extends Host {
 	
 	public void get(String host, String resource) {
 		if (!Ip.isValid(host))
-			dnsLooking(host, resource);
+			httpDnsLooking(host, resource);
 		else
 			httpGetting(host, resource);
 	}
 	
-	private void dnsLooking(String host, String resource) {
+	public void traceroute(String host) {
+		if (!Ip.isValid(host))
+			tracerouteDnsLooking(host);
+		else
+			tracerouting(host);
+	}
+
+	private void httpDnsLooking(String host, String resource) {
 		Socket socket = new Socket();
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
 		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		process.setWaitingDns(true);
+		processes.add(process);
+		serviceProvider.udpSend(process.request(), process);
+	}
+	
+	private void tracerouteDnsLooking(String host) {
+		Socket socket = new Socket();
+		socket.setDestinationIp(dnsServerIp);
+		socket.setDestinationPort(DnsServer.LISTEN_PORT);
+		TracerouteProcess process = new TracerouteProcess(socket, host, clientName);
 		processes.add(process);
 		serviceProvider.udpSend(process.request(), process);
 	}
@@ -53,12 +70,27 @@ public class HttpClient extends Host {
 		serviceProvider.tcpSend(process.request(), process);
 	}
 	
+	private void tracerouting(String host) {
+		Socket socket = new Socket();
+		socket.setDestinationIp(new Ip(host));
+		TracerouteProcess process = new TracerouteProcess(socket, clientName);
+		serviceProvider.bindProcessSocket(process);
+		processes.add(process);
+		serviceProvider.sendTracerouteDatagrams((TracerouteProcess) process);
+	}
+
 	@Override
 	public void receive(Message message, Process process) {	
 		print(clientName, message);
-		Message respond = process.respond(message);
-		if (respond != null)
-			serviceProvider.tcpSend(respond, process);
+		if (process instanceof HttpClientProcess) {
+			Message respond = process.respond(message);
+			if (respond != null) 
+				serviceProvider.tcpSend(respond, process);
+		}
+		else if (process instanceof TracerouteProcess) {
+			process.respond(message);
+			serviceProvider.sendTracerouteDatagrams((TracerouteProcess) process);
+		}
 	}
 	
 	@Override

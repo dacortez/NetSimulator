@@ -32,5 +32,12 @@ public abstract class Segment {
 		this.destinationPort = destinationPort;
 	}
 	
+	public Segment(Integer sourcePort, Integer destinationPort) {
+		message = null;
+		this.sourcePort = sourcePort;
+		this.destinationPort = destinationPort;
+
+	}
+
 	public abstract int getNumberOfBytes();
 }

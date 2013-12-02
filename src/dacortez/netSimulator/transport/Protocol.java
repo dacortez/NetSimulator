@@ -5,5 +5,5 @@ package dacortez.netSimulator.transport;
  * @version 2013.11.07
  */
 public enum Protocol {
-	TCP, UDP;
+	TCP, UDP, ICMP;
 }

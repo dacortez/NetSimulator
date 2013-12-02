@@ -68,28 +68,15 @@ public class Router {
 			}
 	}
 		
-	public void route(Datagram data, double time) {
-		if (checkTtl(data)) {
-			RouterInterface toInterface = routes.get(data.getDestinationIp());
-			if (toInterface == null) 
-				toInterface = routes.get(data.getDestinationIp().subNetIp());
-			if (toInterface != null) { 
-				double delayInSecs = processingDelay / 1000000.0;
-				EventArgs args = new EventArgs(data, time + delayInSecs);
-				Simulator.addToQueue(new OutboundData(toInterface, args));
-			}
+	public void route(Datagram data, double time) {	
+		RouterInterface toInterface = routes.get(data.getDestinationIp());
+		if (toInterface == null) 
+			toInterface = routes.get(data.getDestinationIp().subNetIp());
+		if (toInterface != null) { 
+			double delayInSecs = processingDelay / 1000000.0;
+			EventArgs args = new EventArgs(data, time + delayInSecs);
+			Simulator.addToQueue(new OutboundData(toInterface, args));
 		}
-	}
-
-	private boolean checkTtl(Datagram data) {
-		if (data.decrementTtl() == 0) {
-			if (Simulator.debugMode) {
-				System.out.println("--- TTL = 0 (pacote perdido) no roteador " + name + ":\n");
-				System.out.println("DATAGRAM #" + data.getId());
-			}
-			return false;
-		}
-		return true;
 	}
 	
 	@Override

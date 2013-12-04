@@ -11,7 +11,7 @@ import dacortez.netSimulator.events.OutboundData;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.08
+ * @version 2013.12.01
  */
 public class Router {
 	// Nome do roteador.

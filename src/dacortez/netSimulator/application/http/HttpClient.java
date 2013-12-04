@@ -12,7 +12,7 @@ import dacortez.netSimulator.application.dns.DnsServer;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.08
+ * @version 2013.12.03
  */
 public class HttpClient extends Host {
 	// Nome do cliente HTTP.
@@ -35,28 +35,12 @@ public class HttpClient extends Host {
 			httpGetting(host, resource);
 	}
 	
-	public void traceroute(String host) {
-		if (!Ip.isValid(host))
-			tracerouteDnsLooking(host);
-		else
-			tracerouting(host);
-	}
-
 	private void httpDnsLooking(String host, String resource) {
 		Socket socket = new Socket();
 		socket.setDestinationIp(dnsServerIp);
 		socket.setDestinationPort(DnsServer.LISTEN_PORT);
 		HttpClientProcess process = new HttpClientProcess(socket, host, resource, clientName);
 		process.setWaitingDns(true);
-		processes.add(process);
-		serviceProvider.udpSend(process.request(), process);
-	}
-	
-	private void tracerouteDnsLooking(String host) {
-		Socket socket = new Socket();
-		socket.setDestinationIp(dnsServerIp);
-		socket.setDestinationPort(DnsServer.LISTEN_PORT);
-		TracerouteProcess process = new TracerouteProcess(socket, host, clientName);
 		processes.add(process);
 		serviceProvider.udpSend(process.request(), process);
 	}
@@ -70,13 +54,31 @@ public class HttpClient extends Host {
 		serviceProvider.tcpSend(process.request(), process);
 	}
 	
+	public void traceroute(String host) {
+		if (!Ip.isValid(host))
+			tracerouteDnsLooking(host);
+		else
+			tracerouting(host);
+	}
+	
+	private void tracerouteDnsLooking(String host) {
+		Socket socket = new Socket();
+		socket.setDestinationIp(dnsServerIp);
+		socket.setDestinationPort(DnsServer.LISTEN_PORT);
+		TracerouteProcess process = new TracerouteProcess(socket, host, clientName);
+		process.setHostInterface(serviceProvider.getHostInterface());
+		processes.add(process);
+		serviceProvider.udpSend(process.request(), process);
+	}
+	
 	private void tracerouting(String host) {
 		Socket socket = new Socket();
 		socket.setDestinationIp(new Ip(host));
 		TracerouteProcess process = new TracerouteProcess(socket, clientName);
+		process.setHostInterface(serviceProvider.getHostInterface());
 		serviceProvider.bindProcessSocket(process);
 		processes.add(process);
-		serviceProvider.sendTracerouteDatagrams((TracerouteProcess) process);
+		process.sendProbes();
 	}
 
 	@Override
@@ -89,7 +91,8 @@ public class HttpClient extends Host {
 		}
 		else if (process instanceof TracerouteProcess) {
 			process.respond(message);
-			serviceProvider.sendTracerouteDatagrams((TracerouteProcess) process);
+			TracerouteProcess trp = (TracerouteProcess) process;
+			trp.sendProbes();
 		}
 	}
 	

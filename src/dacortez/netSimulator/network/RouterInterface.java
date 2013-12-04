@@ -9,7 +9,7 @@ import dacortez.netSimulator.transport.IcmpSegment;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.12
+ * @version 2013.12.01
  */
 public class RouterInterface extends Interface {
 	// Roteador associado a esta interface.

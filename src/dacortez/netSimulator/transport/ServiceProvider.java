@@ -17,7 +17,7 @@ import dacortez.netSimulator.network.HostInterface;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.11.20
+ * @version 2013.12.03
  */
 public class ServiceProvider {	
 	// Host associado a este provedor de serviços da camada de transporte.
@@ -130,24 +130,9 @@ public class ServiceProvider {
 	}
 
 	private void switchTypeOfIcmp(IcmpSegment segment, Ip sourceIp, TracerouteProcess process) {
-		if (segment.getType() == 11 && segment.getCode() == 0) {
-			if (process.icmpReceive(sourceIp))
-				sendTracerouteDatagrams(process);
-		}
-		else if (segment.getType() == 3 && segment.getCode() == 3)
-			process.icmpReceive(sourceIp);
+		process.icmpReceive(segment, sourceIp);
 	}
 	
-	public void sendTracerouteDatagrams(TracerouteProcess process) {
-		double time = Chronometer.getTime();
-		process.setTime(time);
-		for (int i = 0; i < 3; i++) {
-			Datagram data = process.next();
-			hostInterface.send(data, time);
-		}
-		process.incrementTtl();
-	}
-
 	private Process demultiplexing(Segment segment, Ip sourceIp, Ip destinationIp) {
 		Process clientProcess = clientProcess(segment);
 		if (clientProcess != null) 

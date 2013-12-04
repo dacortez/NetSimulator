@@ -3,8 +3,6 @@ package dacortez.netSimulator.application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import dacortez.netSimulator.Chronometer;
 import dacortez.netSimulator.Ip;
@@ -14,11 +12,13 @@ import dacortez.netSimulator.application.dns.DnsMessage;
 import dacortez.netSimulator.application.dns.DnsQuestion;
 import dacortez.netSimulator.application.dns.RRType;
 import dacortez.netSimulator.network.Datagram;
+import dacortez.netSimulator.network.HostInterface;
+import dacortez.netSimulator.transport.IcmpSegment;
 import dacortez.netSimulator.transport.UdpSegment;
 
 /**
  * @author dacortez (dacortez79@gmail.com)
- * @version 2013.12.01
+ * @version 2013.12.03
  */
 public class TracerouteProcess extends Process {
 	// Host solicitado pelo processo.
@@ -29,21 +29,25 @@ public class TracerouteProcess extends Process {
 	private String clientName;
 	// Identificador das mensagens DNS.
 	private int dnsId;
-	// TTL dos datagramas gerados (começa com 1 e vai aumentando).
+	// TTL dos datagramas gerados.
 	private int ttl;
 	// Horário de envio dos datagramas; 
-	private double time;
-	// Lista de IPs recebidos.
-	private List<Ip> received;
+	private double sendTime;
+	// Conta os pacotes ICMP recebidos
+	private int icmpCount;
+	// Interface que será utilizada para envio os datagramas.
+	private HostInterface hostInterface;
 	// Contador estático a ser utilizado na identificação das mensagens DNS.
 	private static int count = 0;
 	// PrintStream para saída do traceroute.
 	private PrintStream ps;
 	// Porta alta para onde os pacotes serão enviados. 
-	private static final int DESTINATION_PORT = 33434;
+	public static final int DESTINATION_PORT = 33434;
+	// Numero de datagramas que serão enviados na rajada.
+	public static final int PROBE_DATAGRAMS = 3;
 	
-	public void setTime(double time) {
-		this.time = time;
+	public void setHostInterface(HostInterface hostIntercae) {
+		this.hostInterface = hostIntercae;
 	}
 	
 	public TracerouteProcess(Socket socket, String host, String clientName) {
@@ -51,8 +55,8 @@ public class TracerouteProcess extends Process {
 		this.host = host;
 		this.clientName = clientName;
 		isWaitingDns = true;
-		ttl = 1;
-		received = new ArrayList<Ip>();
+		ttl = 0;
+		icmpCount = 0;
 		setupPrintStream();
 	}
 	
@@ -62,8 +66,8 @@ public class TracerouteProcess extends Process {
 		this.socket.setDestinationPort(DESTINATION_PORT);
 		this.clientName = clientName;
 		isWaitingDns = false;
-		ttl = 1;
-		received = new ArrayList<Ip>();
+		ttl = 0;
+		icmpCount = 0;
 		setupPrintStream();
 	}
 
@@ -119,7 +123,14 @@ public class TracerouteProcess extends Process {
 		return null;
 	}
 	
-	public Datagram next() {
+	public void sendProbes() {
+		sendTime = Chronometer.getTime();
+		ttl++;
+		for (int i = 0; i < PROBE_DATAGRAMS; i++)
+			hostInterface.send(next(), sendTime);
+	}
+	
+	private Datagram next() {
 		Integer sourcePort = socket.getSourcePort();
 		Ip sourceIp = socket.getSourceIp();
 		Integer destinationPort = socket.getDestinationPort();
@@ -130,19 +141,26 @@ public class TracerouteProcess extends Process {
 		return next;
 	}
 	
-	public void incrementTtl() {
-		ttl++;
+	public void icmpReceive(IcmpSegment segment, Ip ip) {
+		double now = Chronometer.getTime();
+		double rtt = 1000.0 * (now - this.sendTime);
+		printOutput(ip, rtt);
+		if (segment.getType() == 11 && segment.getCode() == 0)
+			if (icmpCount == 3) {
+				icmpCount = 0;
+				sendProbes();
+			}
 	}
 
-	public boolean icmpReceive(Ip ip) {
-		if (!received.contains(ip)) {
-			double now = Chronometer.getTime();
-			double rtt = 1000.0 * (now - this.time);
-			System.out.printf("%16s | RTT = %8.4f ms\n", ip, rtt);
-			if (ps != null) ps.printf("%16s | RTT = %8.4f ms\n", ip, rtt);
-			received.add(ip);
-			return true;
+	private void printOutput(Ip ip, double rtt) {
+		if (++icmpCount == 1) {
+			if (ps != null) ps.printf("%2d %s %8.3f ms", ttl, ip, rtt);
+		} 
+		else {
+			if (ps != null) ps.printf(" %8.3f ms", rtt);
 		}
-		return false;
+		if (icmpCount == 3) {
+			if (ps != null) ps.println();
+		}
 	}
 }

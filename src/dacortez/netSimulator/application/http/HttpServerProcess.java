@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import com.sun.tools.javac.util.Convert;
-
 import dacortez.netSimulator.application.Message;
 import dacortez.netSimulator.application.Process;
 import dacortez.netSimulator.application.Socket;
@@ -60,7 +58,7 @@ public class HttpServerProcess extends Process {
 	}
 	
 	private HttpRequest parse(Message message) {
-		String str = Convert.utf2string(message.toBytes());
+		String str = new String(message.toBytes());
 		StringTokenizer tokenizer = new StringTokenizer(str);	
 		if (tokenizer.nextToken().contentEquals("GET")) {
 			String resource = tokenizer.nextToken();
